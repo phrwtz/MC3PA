@@ -2,16 +2,49 @@
 <html>
 
 <head>
-    <title>Log data analysis</title> 
-	 <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Test; MC3PA JSON file analysis</title>
+
 </head>
 
 
-
 <body>
-    <h1>Analyze Teaching Teamwork Data</h1>
-    Student data: <input type="file" id="studentDataInput" onchange= "parseStudentData()">
-    Log file: <input type="file" id="fileInput" name="file" onchange= "parseCSV()">
+    <h1>Analyze MC3PA Data</h1>
+
+    <input type="file" id="files" name="files[]" multiple onchange="openFiles(event)">
+    <button type="button" onclick="parseJSON(data)">Analyze</button>
+
+    <script>
+        var data = new Array;
+        var fileCount = 0;
+        var ready = false; //Will turn true when all the files have been read
+
+        function openFiles(evt) {
+            var files = evt.target.files; // FileList object
+            for (var i = 0, f; f = files[i]; i++) {
+                var reader = new FileReader();
+                //closure to capture the file information
+                reader.onerror = function (err) {
+                    console.log(err);
+                }
+                reader.onloadend = function () {
+                    fileCount++;
+                    if (fileCount >= files.length - 1) {
+                        ready = true;
+                        console.log("fileCount = " + fileCount + ", data length = " + data.length);
+                    }
+
+                }
+                reader.onload = function (theFile) {
+                    return function (e) {
+                        data.push(e.target.result); //Push the student data onto the array
+                    }
+                }(f);
+                reader.readAsText(f);
+            }
+        }
+
+    </script>
+
     <script src="parse-student-data.js"></script>
     <script src="html-support.js"></script>
     <script src="transactions.js"></script>

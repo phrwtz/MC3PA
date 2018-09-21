@@ -432,7 +432,7 @@ function findVars(act, numStr) {
 function makeTeams(rowObjs) { //parse the row objects array looking for and populating teams
     for (i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
-		// console.log("makeTeams check at row " + i + ", event: " + ro.event);
+        // console.log("makeTeams check at row " + i + ", event: " + ro.event);
         if ((ro["event"] == "Activity Settings") || (ro["event"] == "Joined Group") ||
             (ro["event"] == "model options") || (ro["event"] == "model name") ||
             (ro["event"] == "model values") || (ro["event"] == "Selected board") ||
@@ -454,13 +454,22 @@ function about(num, target, tol) {
 
 // program changes resulted in various names for the levels
 // here we boil it down to level number 2, 3, 4, or 5
-function getLevelNumber(levelName) { 
-	var ver1 = ["2", "3", "4", "5"]; // version 1: level2, level3, etc.
-	var ver2 = ["A", "B", "C", "D"]; // version 2: levelA, levelB, etc.
-	var levelChar = levelName.charAt(levelName.indexOf("level")+5);
-	if (ver1.includes(levelChar)) { return parseInt(levelChar); }
-	else if (ver2.includes(levelChar)) { return parseInt(ver2.indexOf(levelChar)) + 2; }
-	else return 0; // tutorial
+function getLevelLabel(levelName) {
+    if (levelName.includes("tutorial")) {
+        return 0;
+    }
+    if (levelName.includes("levelA")) {
+        return 1;
+    }
+    if (levelName.includes("levelB")) {
+        return 2;
+    }
+    if (levelName.includes("levelC")) {
+        return 3;
+    }
+    if (levelName.includes("levelD")) {
+        return 4;
+    }
 }
 
 //We invoke this function when the event is "Selected Username" or "Joined Group"
@@ -472,11 +481,10 @@ function addTeam(ro) {
     var classID = getMemberDataObj(userID)["Class ID"];
     var teacher = getMemberDataObj(userID)["Teachers"];
     var inTeams = false;
-    var groupName = ro["groupname"];
-    var levelNumber = getLevelNumber(ro["levelName"]); //number = 2 ... 5
-	if (levelNumber == 0) {return "tutorial";} // ignore tutorial records for now
-	// console.log("addTeam: levelName=" + ro["levelName"] + ", levelNumber=" + levelNumber);
-	
+    var groupName = ro.parameters["groupname"];
+    var levelLabel = getLevelLabel(ro.parameters["levelName"]); //number = 2 ... 5 or tutorial
+    // console.log("addTeam: levelName=" + ro.parameters["levelName"] + ", levelLabel=" + levelLabel);
+
     //check to see whether we already have a team with this name in this class
     for (var j = 0; j < teams.length; j++) {
 
@@ -500,7 +508,7 @@ function addTeam(ro) {
         myTeam.levels = [];
         myTeam.members = [];
         myTeam.teacher = teacher;
-		// console.log("addTeam: team #" + teams.length + ": " + groupName );
+        // console.log("addTeam: team #" + teams.length + ": " + groupName );
     }
     addLevel(myTeam, ro); //add level, if new
     addMember(myTeam, ro)
@@ -511,9 +519,9 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
     // console.log("Adding a level to " + myTeam.name);
     var inLevels = false;
     //Check to see whether we already have a level with this number in this team
-    // var num = ro["levelName"].charAt(ro["levelName"].length - 1); // **********  PROBLEM HERE WITH 2018 VERSION levelName values
-    var num = getLevelNumber(ro["levelName"]); //number = 2 ... 5
- 	// console.log("addLevel: levelName=" + ro["levelName"] + ", levelNumber=" + num);
+    // var num = ro.parameters["levelName"].charAt(ro.parameters["levelName"].length - 1); // **********  PROBLEM HERE WITH 2018 VERSION levelName values
+    var num = getLevelLabel(ro.parameters["levelName"]); //number = 2 ... 5
+    // console.log("addLevel: levelName=" + ro.parameters["levelName"] + ", levelLabel=" + num);
     for (j = 0; j < myTeam.levels.length; j++) {
         if (myTeam.levels[j].number == num) {
             inLevels = true;
@@ -523,22 +531,22 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
             break;
         }
     }
-    if (!inLevels && num !=0) { //if not found AND not tutorial, add this level
-        var myLevel = new level; 
+    if (!inLevels && num != 0) { //if not found AND not tutorial, add this level
+        var myLevel = new level;
         myTeam.levels.push(myLevel);
         myLevel.startUTime = ro["time"];
         var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
         myLevel.startPTime = startDate;
         myLevel.number = num;
-        myLevel.label = getAlphabeticLabel(num); 
+        myLevel.label = getAlphabeticLabel(num);
         myLevel.team = myTeam;
         myLevel.success = false;
         myLevel.successE = false;
         myLevel.successR = false;
         myLevel.attainedVs = false;
         myLevel.attainedVsTime = 0;
-        myLevel.movedAwayFromVs = false;
-        myLevel.movedAwayFromVsTime = 0;
+        myLevel.movedAwayFromV = false;
+        myLevel.movedAwayFromVTime = 0;
         myLevel.members = 0;
         myLevel.lastJoinedTime = 0;
         myLevel.lastJoinedUTime = 0;
@@ -551,7 +559,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         //team member, or unknown.
         initializeVarRefs(myLevel); //Set all the arrays empty
         myLevel.actions = [];
-		// console.log("addLevel: team " + myTeam.name + ", Level " + myLevel.number );
+        // console.log("addLevel: team " + myTeam.name + ", Level " + myLevel.number );
 
     }
 }
@@ -622,7 +630,7 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
         if (myMember.color) {
             myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
         }
-		// console.log("addMember: team " + myTeam.name + ", Member " + myMember.name );
+        // console.log("addMember: team " + myTeam.name + ", Member " + myMember.name );
     }
     if (ro["event"] == "Selected board") {
         myMember.board = parseInt(ro["board"]) + 1;
@@ -634,17 +642,16 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
 }
 
 function getLevel(ro) { //assumes that groupName and levelName are properties of ro
-    var teamName = ro["groupname"];
-    // var levelNumber = ro["levelName"].charAt(ro["levelName"].length - 1);;
-    var levelNumber = getLevelNumber(ro["levelName"]); //number = 2 ... 5
-	console.log("getLevel: levelName=" + ro["levelName"] + ", levelNumber=" + levelNumber);
+    var teamName = ro.parameters["groupname"];
+    var levelLabel = getLevelLabel(ro.parameters["levelName"]); //number = 2 ... 5
+    console.log("getLevel: levelName=" + ro.parameters["levelName"] + ", levelLabel=" + levelLabel);
     for (var i = 0; i < teams.length; i++) {
         if (teams[i].name == teamName) {
             myTeam = teams[i];
         }
     }
     for (var j = 0; j < myTeam.levels.length; j++) {
-        if (myTeam.levels[j].number == levelNumber) {
+        if (myTeam.levels[j].number == levelLabel) {
             var myLevel = myTeam.levels[j];
         } else {
             myLevel = new level;
@@ -652,8 +659,8 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             myLevel.startUTime = ro["time"];
             var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
             myLevel.startPTime = startDate;
-            myLevel.number = levelNumber;
-            myLevel.label = getAlphabeticLabel(levelNumber);
+            myLevel.number = levelLabel;
+            myLevel.label = getAlphabeticLabel(levelLabel);
             myLevel.team = myTeam;
             myLevel.actions = [];
             myLevel.success = false;
@@ -665,7 +672,7 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
 }
 
 function addLevelValues(myLevel, ro) {
-    var teamName = ro["groupname"];
+    var teamName = ro.parameters["groupname"];
     // console.log("addLevelValues for " + teamName);
     if (ro["event"] == "model values") {
         myLevel.goalR = [parseInt(ro["GoalR1"]), parseInt(ro["GoalR2"]), parseInt(ro["GoalR3"])];
@@ -676,10 +683,10 @@ function addLevelValues(myLevel, ro) {
         //Check to see whether this level already has a value for E and R0
 
         if ((myLevel.E) && (myLevel.E != 0) && (myLevel.E != parseInt(ro["E"]))) {
-           // console.log("Team " + teamName + ", level " + myLevel.label + ", E changed from " + myLevel.E + " to " + parseInt(ro["E"]) + " at " + (ro["time"] - myLevel.startUTime) + " seconds.")
+            // console.log("Team " + teamName + ", level " + myLevel.label + ", E changed from " + myLevel.E + " to " + parseInt(ro["E"]) + " at " + (ro["time"] - myLevel.startUTime) + " seconds.")
             myLevel.levelValuesChanged = true;
         };
-                 
+
         myLevel.E = parseInt(ro["E"]);
         myLevel.R0 = parseInt(ro["R0"]);
         myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
@@ -693,7 +700,7 @@ function addLevelValues(myLevel, ro) {
 
 //Check to see whether the team at this row is in the teams array
 function findTeam(teams, ro) {
-    var teamName = ro["groupname"];
+    var teamName = ro.parameters["groupname"];
     for (var i = 0; i < teams.length; i++) {
         if (teams[i].name == teamName) {
             return teams[i];
@@ -748,7 +755,7 @@ function unixTimeConversion(uTime) {
 function arrayToObjects(rows) { //takes and array with a header and some data and returns objects
     var headers = rows[0];
 
-	function rowObj() {};
+    function rowObj() {};
     var rowObjs = [];
     for (i = 1; i < rows.length; i++) {
         currentRow = new rowObj;
@@ -765,9 +772,9 @@ function arrayToObjects(rows) { //takes and array with a header and some data an
 
 //returns A for level 2, B for level 3, and so forth
 function getAlphabeticLabel(index) {
-    var alphaArray = ["A", "B", "C", "D"];
-    if ((index >= 2) && (index <= 5)) {
-        return alphaArray[index - 2];
+    var alphaArray = ["T", "A", "B", "C", "D"];
+    if ((index >= 0) && (index <= 4)) {
+        return alphaArray[index];
     } else {
         alert("Alphabetic label array index out of range." + index)
     }

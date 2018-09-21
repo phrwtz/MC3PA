@@ -25,33 +25,12 @@ var csvFilename;
 
 function parseJSON() {
     rowObjs = JSON.parse(data);
-    //findTeams(rowObjs);
-    findStudentActions(rowObjs, 166566);
-}
-
-function findTeams(rows) {
-    for (var i = 0; i < rows.length; i++) {
-        var row = rows[i];
-        if (row.event == "Joined Group") {
-            if (row.event_value == "Tools") {
-                console.log("On row " + i + ", " + "student " + row.username.slice(0, 6) + " joined team tools at " + row.time.slice(12, 19) + " on level " + row.parameters.levelName.slice(21, 22));
-            }
-        }
-    }
-    console.log("All done!")
-}
-
-function findStudentActions(rows, studentID) {
-    for (var i = 0; i < rows.length; i++) {
-        var row = rows[i];
-        if (row.username.slice(0, 6) == studentID && row.event == "Sent message") {
-            console.log("On row " + i + " at " +  row.time.slice(12, 19) + " student " + studentID + " said " + row.parameters.message);
-        }
-        if (row.username.slice(0, 6) == studentID && row.event == "Joined Group") {
-            console.log("On row " + i + " at " + row.time.slice(12, 19) + " student " + studentID + " joined team " + row.parameters.groupname + " at level " + row.parameters.levelName.slice(21, 22));
-        }
-    }
-    console.log("All done!");
+    teams = makeTeams(rowObjs); // identify teams and members, actions taken by them
+    console.log("Teams made");;
+    changes = analyze(rowObjs); // adding actions to the arrays
+    console.log("parse-file: analysis complete");
+    setupForm(teams);
+    console.log("Form set up completed.");
 }
 
 function parseCSV() {

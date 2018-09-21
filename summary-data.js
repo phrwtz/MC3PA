@@ -130,8 +130,8 @@ function findSummaryData(myLevel,prFlag) { //Runs through all the actions in myL
 	        goalV1Communicated = false,
 	        goalV2Communicated = false,
 	        goalV3Communicated = false;
-	    if (myLevel.movedAwayFromVs) {
-	        goalVMsg = "Attained goal voltages at " + myLevel.attainedVseMinSecs + " and then moved away at " + myLevel.movedAwayFromVsMinSecs + ". ";
+	    if (myLevel.movedAwayFromV) {
+	        goalVMsg = "Attained goal voltages at " + myLevel.attainedVseMinSecs + " and then moved away at " + myLevel.movedAwayFromVMinSecs + ". ";
 	    } else if (myLevel.attainedVs) {
 	        goalVMsg = "Attained correct goal voltages at " + myLevel.attainedVseMinSecs + ". "
 	    } else {

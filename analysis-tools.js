@@ -13,8 +13,8 @@ function analyze(rowObjs) {
             case "model values":
                 addModelValues(ro);
                 break;
-            case "Joined Group":
-                addJoinedGroup(ro);
+            case "groupname":
+                addJoinedGroup(ro.parameters["groupname"]);
                 break;
             case "Opened Zoom View":
                 addOpenedZoom(ro);
@@ -67,7 +67,7 @@ function analyze(rowObjs) {
 //General function for adding a new action. Sets all the parameters the different actions have in common.
 function addAction(ro, type) {
     var teamFound = false;
-    var teamName = ro["groupname"];
+    var teamName = ro.parameters["groupname"];
     for (var k = 0; k < teams.length; k++) {
         if (teams[k].name == teamName) {
             teamFound = true;
@@ -80,14 +80,8 @@ function addAction(ro, type) {
         return;
     }
     var levelFound = false;
-	var number = getLevelNumber(ro["levelName"]); //number = 2 ... 5  changed with MC3PA!
-    for (var i = 0; i < myTeam.levels.length; i++) {
-        if (myTeam.levels[i].number == number) {
-            myLevel = myTeam.levels[i];
-            levelFound = true;
-            break;
-        }
-    }
+    var number = getLevelNumber(ro.parameters["levelName"]); //number = 2 ... 5  changed with MC3PA!
+
     if (!levelFound) {
         // console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
         return;
@@ -132,7 +126,7 @@ function addAction(ro, type) {
     for (var j = 0; j < 3; j++) {
         myAction.R[j] = myLevel.R[j];
         myAction.V[j] = myLevel.V[j];
-        myAction.goalR[j] = myLevel.goalR[j]; //goal values may change during the level if something goes wrong
+        myAction.goalR[j] = myLevel.goalR[j]; //goal values may change during the level if something goes wro.parameters["groupname"]g
         grStr = myAction.goalR[j].toString();
         myAction.goalRIndex[j] = resIndex[grStr];
         myAction.goalV[j] = myLevel.goalV[j];
@@ -159,7 +153,17 @@ function addAction(ro, type) {
     return myAction;
 }
 
-//Find resistance values from row; return resistance matrix. If no value found, return the old value.
+function getLevelNumber(name) {
+    for (var i = 0; i < myTeam.levels.length; i++) {
+        if (myTeam.levels[i].number == number) {
+            myLevel = myTeam.levels[i];
+            levelFound = true;
+            break;
+        }
+    }
+}
+
+//Find resistance values fro.parameters["groupname"] row; return resistance matrix. If no value found, return the old value.
 function findRValues(ro, oldR) {
     var newR = [];
     newR = oldR;
@@ -253,8 +257,8 @@ function addModelValues(ro) {
 }
 
 function addJoinedGroup(ro) {
-    var myAction = addAction(ro, "joined-group");
-    if (!(duplicate(myAction)) && (ro["event_value"] === ro["groupname"])) { //There's at least one examnple in the data where this condition is not satisfied: a joined group action is reported for two different teams by groupname and event_value. We're going to ignore such events for the time being.
+    var myAction = addAction(ro.parameters["groupname"]);
+    if (!(duplicate(myAction))) {
         myLevel.members++;
         if (myLevel.members == 3) {
             myLevel.lastJoinedTime = myAction.eMinSecs;
@@ -332,10 +336,10 @@ function addRChange(ro) {
                     myLevel.attainedVseMinSecs = myAction.eMinSecs;
                 }
                 myLevel.attainedVs = true;
-            } else if ((myLevel.attainedVs) && (!myLevel.movedAwayFromVs)) {
-                myLevel.movedAwayFromVs = true;
-                myLevel.movedAwayFromVsTime = myAction.eTime;
-                myLevel.movedAwayFromVsMinSecs = myAction.eMinSecs;
+            } else if ((myLevel.attainedVs) && (!myLevel.movedAwayFromV)) {
+                myLevel.movedAwayFromV = true;
+                myLevel.movedAwayFromVTime = myAction.eTime;
+                myLevel.movedAwayFromVMinSecs = myAction.eMinSecs;
             }
             if (Math.abs(newGoalDifference) < .01) {
                 myAction.goalMsg = ". Local goal met";
@@ -359,7 +363,7 @@ function addRChange(ro) {
             var oldRIndex = resIndex[myAction.oldR[bd].toString()];
             var newRIndex = resIndex[myAction.newR[bd].toString()];
             myAction.resJump = newRIndex - oldRIndex;
-            myAction.resDist = resDist(myAction); // The number of resistances we are away from the closest approach to the goal V
+            myAction.resDist = resDist(myAction); // The number of resistances we are away from the closest appro.parameters["groupname"]ch to the goal V
             myAction.level.actions.push(myAction); //and push the action onto the level
         }
     }

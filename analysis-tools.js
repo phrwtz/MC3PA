@@ -4,7 +4,7 @@ function analyze(rowObjs) {
     for (var i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
         var ev = ro["event"];
-        var type = ro["type"];
+        var type = ro.parameters["type"];
         var time = ro["time"];
         switch (ev) {
             case "Activity Settings":
@@ -80,8 +80,16 @@ function addAction(ro, type) {
         return;
     }
     var levelFound = false;
-    var number = getLevelNumber(ro.parameters["levelName"]); //number = 2 ... 5  changed with MC3PA!
-
+    var levelName = ro.parameters["levelName"];
+    var levelNumber = getLevelNumber(levelName); //0 for tutorial, 1 for level A, etc.
+        for (var i = 0; i < myTeam.levels.length; i++) {
+            if (myTeam.levels[i].number == levelNumber) {
+                myLevel = myTeam.levels[i];
+                levelFound = true;
+                break;
+            }
+    }
+    
     if (!levelFound) {
         // console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
         return;
@@ -151,16 +159,6 @@ function addAction(ro, type) {
     }
     myLevel.endUTime = myAction.uTime;
     return myAction;
-}
-
-function getLevelNumber(name) {
-    for (var i = 0; i < myTeam.levels.length; i++) {
-        if (myTeam.levels[i].number == number) {
-            myLevel = myTeam.levels[i];
-            levelFound = true;
-            break;
-        }
-    }
 }
 
 //Find resistance values fro.parameters["groupname"] row; return resistance matrix. If no value found, return the old value.

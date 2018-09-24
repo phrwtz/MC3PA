@@ -104,8 +104,6 @@ function addAction(ro, type) {
         }
     }
     if (!memberFound) {
-        console.log("No member. Team = " + myTeam.name + ", level number = " + number +
-            ", id = " + memberID + ", action type = " + type + ", time = " + ro["time"]);
         for (i = 0; i < teams.length; i++) {
             for (j = 0; j < teams[i].members.length; j++) {
                 if (teams[i].members[j].id == memberID) {
@@ -113,7 +111,6 @@ function addAction(ro, type) {
                 }
             }
         }
-        console.log("That member is in team " + matchingTeamName);
         return;
     }
     var myAction = new action;
@@ -258,7 +255,7 @@ function addJoinedGroup(ro) {
     var myAction = addAction(ro.parameters["groupname"]);
     if (!(duplicate(myAction))) {
         myLevel.members++;
-        if (myLevel.members == 3) {
+        if (myLevel.members.length == 2) {
             myLevel.lastJoinedTime = myAction.eMinSecs;
             myLevel.lastJoinedUTime = myAction.uTime;
         }

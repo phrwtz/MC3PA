@@ -14,15 +14,15 @@ function reportResults(teams) { // extract and list actions checked by user
     clearReport();
     setUpActionsReport();
     for (var k = 0; k < teams.length; k++) { // for each team
-        var team = teams[k];
-        if ($("#team-" + team.name + team.classID)[0].checked) {
+        var myTeam = teams[k];
+        if ($("#team-" + myTeam.name + myTeam.classID)[0].checked) {
             mssg = "report-tools: analyzing actions for " + team.name + "...";
             console.log(mssg);
-            for (var j = 0; j < team.levels.length; j++) {
-                var myLevel = team.levels[j];
-                if ($("#level-" + myLevel.label)[0].checked) { // create summary for each level
-                    findSummaryData(myLevel,1);	// calculate and print summary stats
-                    addLevelRow(team, myLevel);
+            for (var j = 0; j < myTeam.levels.length; j++) {
+                var myLevel = myTeam.levels[j];
+                if (!(myLevel.label == "T") && $("#level-" + myLevel.label)[0].checked) { // create summary for each level
+                    findSummaryData(myLevel,true);	// calculate and print summary stats
+                    addLevelRow(myTeam, myLevel);
                     var acts = myLevel.actions;
                     //Now run through the actions a second time, publishing each in a separate row if it has been selected
                     for (var i = 0; i < acts.length; i++) {
@@ -151,7 +151,7 @@ function reportVarRefs(teams) {
         if ($("#team-" + team.name + team.classID)[0].checked) {
             for (var j = 0; j < team.levels.length; j++) {
                 myLevel = team.levels[j];
-                if ($("#level-" + myLevel.label)[0].checked) {
+                if ((!myLevel.label == "T") && $("#level-" + myLevel.label)[0].checked) {
                     document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + ", level " + myLevel.label + ":</mark><br>");
                     varRefs = myLevel.varRefs;
                     varRefCount = 0;

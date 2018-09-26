@@ -292,48 +292,50 @@ function reportSummary(teams) {
                 count[team.name] = {};
                 for (var j = 0; j < team.levels.length; j++) {
                     var myLevel = team.levels[j];
-                    if ($("#level-" + myLevel.label)[0].checked) {
-                        count[team.name][myLevel.label] = {};
-                        var acts = myLevel.actions;
-                        for (var i = 0; i < team.members.length; i++) {
-                            var member = team.members[i];
-                            count[team.name][myLevel.label][member.name] = {};
-                            count[team.name][myLevel.label][member.name].achieved = 0;
-                            count[team.name][myLevel.label][member.name].overshot = 0;
-                            count[team.name][myLevel.label][member.name].undershot = 0;
-                            count[team.name][myLevel.label][member.name].closer = 0;
-                            count[team.name][myLevel.label][member.name].farther = 0;;
-                            count[team.name][myLevel.label][member.name].total = 0;
-                        } //clear all the counts for all members for this level
-                        for (var ii = 0; ii < acts.length; ii++) {
-                            act = acts[ii];
-                            if (act.type == "resistorChange") {
-                                member = act.actor;
-                                switch (act.goalMsg) {
-                                    case ". Local goal met":
-                                        count[team.name][myLevel.label][member.name].achieved += 1;
-                                        count[team.name][myLevel.label][member.name].total += 1;
-                                        break;
-                                    case ". Goal overshot":
-                                        count[team.name][myLevel.label][member.name].overshot += 1;
-                                        count[team.name][myLevel.label][member.name].total += 1;
-                                        break;
-                                    case ". Goal undershot":
-                                        count[team.name][myLevel.label][member.name].undershot += 1;
-                                        count[team.name][myLevel.label][member.name].total += 1;
-                                        break;
-                                    case ". Goal closer":
-                                        count[team.name][myLevel.label][member.name].closer += 1;
-                                        count[team.name][myLevel.label][member.name].total += 1;
-                                        break;
-                                    case ". Goal farther":
-                                        count[team.name][myLevel.label][member.name].farther += 1;
-                                        count[team.name][myLevel.label][member.name].total += 1;
-                                        break;
-                                } //end of goalMsg switch
-                            } //end of resistor change
-                        } //end of actions
-                    } //end of level check
+                    if (myLevel.label != "T") {
+                        if ($("#level-" + myLevel.label)[0].checked) {
+                            count[team.name][myLevel.label] = {};
+                            var acts = myLevel.actions;
+                            for (var i = 0; i < myLevel.members.length; i++) {
+                                var member = myLevel.members[i];
+                                count[team.name][myLevel.label][member.name] = {};
+                                count[team.name][myLevel.label][member.name].achieved = 0;
+                                count[team.name][myLevel.label][member.name].overshot = 0;
+                                count[team.name][myLevel.label][member.name].undershot = 0;
+                                count[team.name][myLevel.label][member.name].closer = 0;
+                                count[team.name][myLevel.label][member.name].farther = 0;;
+                                count[team.name][myLevel.label][member.name].total = 0;
+                            } //clear all the counts for all members for this level
+                            for (var ii = 0; ii < acts.length; ii++) {
+                                act = acts[ii];
+                                if (act.type == "resistorChange") {
+                                    member = act.actor;
+                                    switch (act.goalMsg) {
+                                        case ". Local goal met":
+                                            count[team.name][myLevel.label][member.name].achieved += 1;
+                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            break;
+                                        case ". Goal overshot":
+                                            count[team.name][myLevel.label][member.name].overshot += 1;
+                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            break;
+                                        case ". Goal undershot":
+                                            count[team.name][myLevel.label][member.name].undershot += 1;
+                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            break;
+                                        case ". Goal closer":
+                                            count[team.name][myLevel.label][member.name].closer += 1;
+                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            break;
+                                        case ". Goal farther":
+                                            count[team.name][myLevel.label][member.name].farther += 1;
+                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            break;
+                                    } //end of goalMsg switch
+                                } //end of resistor change
+                            } //end of actions
+                        } //end of level check
+                    } //drop to here if level is tutorial
                 } //end of levels loop
             } //end of team check
         } //end of team loop

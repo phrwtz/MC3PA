@@ -82,19 +82,19 @@ function makeTeamTable(team, title, levelData, type, arrMssgScores) {
     }
 
     //The last cells in each row contain either the average or the total
-	var endRowValue = [0, 0, 0];
+    var endRowValue = [0, 0, 0];
     for (var i = 0; i < 3; i++) {
         if (type == "Average") {
             if (!(totalRowMsgs[i] == 0)) {
-				endRowValue[i] = (Math.round(100 * totalRowScores[i] / totalRowMsgs[i]) / 100);
+                endRowValue[i] = (Math.round(100 * totalRowScores[i] / totalRowMsgs[i]) / 100);
                 dataCells[i][5].innerHTML = "<b>" + endRowValue[i] + "</b>";
             }
         } else if (type == "Number") {
-            	endRowValue[i] = totalRowMsgs[i];
-                dataCells[i][5].innerHTML = "<b>" + endRowValue[i] + "</b>";
+            endRowValue[i] = totalRowMsgs[i];
+            dataCells[i][5].innerHTML = "<b>" + endRowValue[i] + "</b>";
         } else if (type == "Total") {
-            	endRowValue[i] = totalRowScores[i];
-                dataCells[i][5].innerHTML = "<b>" + endRowValue[i] + "</b>";
+            endRowValue[i] = totalRowScores[i];
+            dataCells[i][5].innerHTML = "<b>" + endRowValue[i] + "</b>";
         }
     }
 
@@ -127,12 +127,12 @@ function makeTeamTable(team, title, levelData, type, arrMssgScores) {
     } else if (type == "Total") {
         dataCells[3][5].innerHTML = "<b>" + totalScores + "</b>";
     }
-	
-	// save array of player's message scores for csv file download of this team
- 	for (var i = 0; i < 3; i++) { 
-		arrMssgScores[i] = endRowValue[i];
-		}
-	
+
+    // save array of player's message scores for csv file download of this team
+    for (var i = 0; i < 3; i++) {
+        arrMssgScores[i] = endRowValue[i];
+    }
+
     return table;
 }
 
@@ -144,18 +144,17 @@ function makeTeamTable(team, title, levelData, type, arrMssgScores) {
 //consistent across levels.) if a level is missing the scores for each member on
 //that level are zero.
 function scoreActions(level) {
-    var mems = level.team.members; //Array of members for this team
-    var totalScores = [0, 0, 0];
-    var returnValues = function() {};
-    returnValues.level = level,
-        returnValues.numMsgs = [0, 0, 0];
-    returnValues.totalScores = [0, 0, 0];
-    returnValues.averageScores = [0, 0, 0];
-
-    var act,
+    var mems = level.members, //Array of members for this team/level
+        totalScores = [0, 0, 0],
+        returnValues = function () { },
+        act,
         type,
         actor,
         score;
+        returnValues.level = level;
+    returnValues.numMsgs = [0, 0, 0];
+    returnValues.totalScores = [0, 0, 0];
+    returnValues.averageScores = [0, 0, 0];
     for (var i = 0; i < level.actions.length; i++) {
         act = level.actions[i];
         type = act.type;

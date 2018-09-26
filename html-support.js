@@ -293,17 +293,17 @@ function addActionRow(act, content) {
     actionRow.appendChild(actionCell0);
 
     var cellIndex = bd;
-    var idArray = [];
-    if (act.actor.id) {
-        for (var h = 0; h < 3; h++) {
-            idArray[h] = act.team.members[h].id;
-        }
-        for (var hh = 0; hh < 3; hh++) {
-            if (act.actor.id == idArray[hh]) {
-                bd = hh;
-            }
-        }
-    }
+    // var idArray = [];
+    // if (act.actor.id) {
+    //     for (var h = 0; h < 3; h++) {
+    //         idArray[h] = act.level.members[h].id;
+    //     }
+    //     for (var hh = 0; hh < 3; hh++) {
+    //         if (act.actor.id == idArray[hh]) {
+    //             bd = hh;
+    //         }
+    //     }
+    // }
 
     switch (bd) {
         case 0:

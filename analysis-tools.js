@@ -1,6 +1,6 @@
 //This is where we do all the analysis of the files once the raw data has been parsed
 function analyze(rowObjs) {
-	console.log("analyze: looking for actions...");
+    console.log("analyze: looking for actions...");
     for (var i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
         var ev = ro["event"];
@@ -13,9 +13,11 @@ function analyze(rowObjs) {
             case "model values":
                 addModelValues(ro);
                 break;
-            case "groupname":
-                addJoinedGroup(ro.parameters["groupname"]);
+
+            case "Joined Group":
+                addJoinedGroup(ro);
                 break;
+
             case "Opened Zoom View":
                 addOpenedZoom(ro);
                 break;
@@ -76,33 +78,33 @@ function addAction(ro, type) {
         }
     }
     if (!teamFound) {
-        // console.log("looking in vain for team " + teamName + " in action " + type + " at " + ro["time"]);
         return;
     }
     var levelFound = false;
     var levelName = ro.parameters["levelName"];
     var levelNumber = getLevelNumber(levelName); //0 for tutorial, 1 for level A, etc.
-        for (var i = 0; i < myTeam.levels.length; i++) {
-            if (myTeam.levels[i].number == levelNumber) {
-                myLevel = myTeam.levels[i];
-                levelFound = true;
-                break;
-            }
+    for (var i = 0; i < myTeam.levels.length; i++) {
+        if (myTeam.levels[i].number == levelNumber) {
+            myLevel = myTeam.levels[i];
+            levelFound = true;
+            break;
+        }
     }
-    
+
     if (!levelFound) {
         // console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
         return;
     }
     var memberID = ro["username"].slice(0, ro["username"].indexOf("@")); // memberID precedes @, changed with MC3PA!
     var memberFound = false;
-    for (var j = 0; j < myTeam.members.length; j++) {
-        if (myTeam.members[j].id == memberID) {
+    for (var j = 0; j < myLevel.members.length; j++) {
+        if (myLevel.members[j].id == memberID) {
             memberFound = true;
-            myMember = myTeam.members[j];
+            myMember = myLevel.members[j];
             break
         }
     }
+    /*
     if (!memberFound) {
         for (i = 0; i < teams.length; i++) {
             for (j = 0; j < teams[i].members.length; j++) {
@@ -113,6 +115,7 @@ function addAction(ro, type) {
         }
         return;
     }
+    */
     var myAction = new action;
     myAction.R = [];
     myAction.V = [];
@@ -121,13 +124,12 @@ function addAction(ro, type) {
     myAction.goalV = [];
     myAction.E = myLevel.E;
     myAction.R0 = myLevel.R0;
-    if ((type != "resistorChange") & ro["parameters"]) {
-        po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-        myLevel.R[0] = po["r1"]; //These are strings. They are the resistance values
-        //after the action has taken place.
-        myLevel.R[1] = po["r2"];
-        myLevel.R[2] = po["r3"];
-        }
+    if (type != "resistorChange") {
+        //Get the resistance values after the resistor change action has taken place.
+        myLevel.R[0] = parseInt(ro.parameters["r1"]); 
+        myLevel.R[1] = parseInt(ro.parameters["r2"]);
+        myLevel.R[2] = parseInt(ro.parameters["r3"]);
+    }
     for (var j = 0; j < 3; j++) {
         myAction.R[j] = myLevel.R[j];
         myAction.V[j] = myLevel.V[j];
@@ -140,36 +142,35 @@ function addAction(ro, type) {
     myAction.team = myTeam;
     myAction.level = myLevel;
     myAction.actor = myMember;
-    myAction.uTime = ro["time"];
+    myAction.uTime = new Date(ro["time"]).getTime() / 1000;
     myAction.eTime = Math.round(myAction.uTime - myLevel.startUTime);
     var eMins = String(Math.floor(myAction.eTime / 60));
     var eSecs = myAction.eTime % 60 > 9 ? String(myAction.eTime % 60) : "0" + String(myAction.eTime % 60);
     myAction.eMinSecs = eMins + ":" + eSecs;
     myAction.pTime = unixTimeConversion(myAction.uTime);
-    myAction.board = parseInt(ro["board"]);
+    myAction.board = parseInt(ro.parameters["board"]);
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
     //if it is pushed will equal this.)
     myAction.id = myMember.id;
     myAction.currentFlowing = false;
-    if ((ro["currentFlowing"] == "true") || ro["currentFlowing"] == "TRUE") {
+    if ((ro.parameters["currentFlowing"] == "true") || ro.parameters["currentFlowing"] == "TRUE") {
         myAction.currentFlowing = true;
     }
-    myLevel.endUTime = myAction.uTime;
+    myLevel.endUTime = myAction.uTime; //Keep updating: last action "wins"
     return myAction;
 }
 
-//Find resistance values fro.parameters["groupname"] row; return resistance matrix. If no value found, return the old value.
 function findRValues(ro, oldR) {
     var newR = [];
     newR = oldR;
-    if ((ro["r1"] != "") && (ro["r1"] != "unknown")) {
-        newR[0] = parseInt(ro["r1"])
+    if ((ro.parameters["r1"] != "") && (ro.parameters["r1"] != "unknown")) {
+        newR[0] = parseInt(ro.parameters["r1"])
     }
-    if ((ro["r2"] != "") && (ro["r2"] != "unknown")) {
-        newR[1] = parseInt(ro["r2"])
+    if ((ro.parameters["r2"] != "") && (ro.parameters["r2"] != "unknown")) {
+        newR[1] = parseInt(ro.parameters["r2"])
     }
-    if ((ro["r3"] != "") && (ro["r3"] != "unknown")) {
-        newR[0] = parseInt(ro["r3"])
+    if ((ro.parameters["r3"] != "") && (ro.parameters["r3"] != "unknown")) {
+        newR[0] = parseInt(ro.parameters["r3"])
     }
     return newR;
 }
@@ -202,7 +203,8 @@ function duplicate(action) {
         checkType,
         checkTeam,
         checkbackLength = 5;
-    for (var i = 1; (actions[thisAct.index - i] && i < checkbackLength); i++) { //check five actions back or as far back as there are actions in the list
+    for (var i = 1;
+        (actions[thisAct.index - i] && i < checkbackLength); i++) { //check five actions back or as far back as there are actions in the list
         //or fewer if there aren't that many actions on the stack
         checkAct = actions[thisAct.index - i];
         if (checkAct.id && checkAct.uTime && checkAct.type) {
@@ -223,10 +225,10 @@ function addActivitySettings(ro) {
     if (!(duplicate(myAction))) {
         if (!(duplicate(myAction))) {
             myLevel = myAction.level;
-            myLevel.E = parseInt(ro["E"]);
-            myLevel.R0 = parseInt(ro["R0"]);
-            myAction.R0 = parseInt(ro["R0"]);
-            myAction.E = parseInt(ro["E"]);
+            myLevel.E = parseInt(ro.parameters["E"]);
+            myLevel.R0 = parseInt(ro.parameters["R0"]); //Note: this variable is R0, not R in event activity settings!
+            myAction.E = myLevel.E;
+            myAction.R0 = myLevel.R0;
             myLevel.actions.push(myAction);
         }
     }
@@ -235,13 +237,14 @@ function addActivitySettings(ro) {
 function addModelValues(ro) {
     var myAction = addAction(ro, "model-values");
     if (!(duplicate(myAction))) {
-        myLevel.E = parseInt(ro["E"]);
-        myLevel.goalV[0] = parseFloat(ro["V1"]);
-        myLevel.goalV[1] = parseFloat(ro["V2"]);
-        myLevel.goalV[2] = parseFloat(ro["V3"]);
-        myLevel.goalR[0] = parseInt(ro["GoalR1"]);
-        myLevel.goalR[1] = parseInt(ro["GoalR2"]);
-        myLevel.goalR[2] = parseInt(ro["GoalR3"]);
+        var myLevel = myAction.level;
+        myLevel.E = parseInt(ro.parameters["E"]);
+        myLevel.goalV[0] = parseFloat(ro.parameters["V1"]);
+        myLevel.goalV[1] = parseFloat(ro.parameters["V2"]);
+        myLevel.goalV[2] = parseFloat(ro.parameters["V3"]);
+        myLevel.goalR[0] = parseInt(ro.parameters["GoalR1"]);
+        myLevel.goalR[1] = parseInt(ro.parameters["GoalR2"]);
+        myLevel.goalR[2] = parseInt(ro.parameters["GoalR3"]);
         myAction.E = myLevel.E;
         for (var i = 9; i < 3; i++) {
             myAction.goalV[i] = myLevel.goalV[i];
@@ -252,10 +255,11 @@ function addModelValues(ro) {
 }
 
 function addJoinedGroup(ro) {
-    var myAction = addAction(ro.parameters["groupname"]);
+    var myAction = addAction(ro, "joined-group");
     if (!(duplicate(myAction))) {
-        myLevel.members++;
-        if (myLevel.members.length == 2) {
+        var myLevel = myAction.level;
+        myLevel.members.length ++;
+        if (myLevel.members.length >= 1) {
             myLevel.lastJoinedTime = myAction.eMinSecs;
             myLevel.lastJoinedUTime = myAction.uTime;
         }
@@ -283,7 +287,7 @@ function addClosedZoom(ro) {
 function addConnectLead(ro) {
     var myAction = addAction(ro, "connect-lead");
     if (!(duplicate(myAction))) {
-        myAction.location = ro["location"];
+        myAction.location = ro.parameters["location"];
         keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     } else {
@@ -294,7 +298,7 @@ function addConnectLead(ro) {
 function addDisconnectLead(ro) {
     var myAction = addAction(ro, "disconnect-lead");
     if (!(duplicate(myAction))) {
-        myAction.location = ro["location"];
+        myAction.location = ro.parameters["location"];
         keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
@@ -315,7 +319,7 @@ function addRChange(ro) {
             myAction.oldR[i] = myLevel.R[i];
             myAction.newR[i] = myAction.oldR[i]; // Only one R is going to change
         }
-        myAction.newR[bd] = parseInt(ro["value"]); //Then set the value for the changed R
+        myAction.newR[bd] = parseInt(ro.parameters["value"]); //Then set the value for the changed R
         myAction.oldV = findVValues(myAction.E, myAction.R0, myAction.oldR);
         myAction.newV = findVValues(myAction.E, myAction.R0, myAction.newR)
 
@@ -367,7 +371,11 @@ function addRChange(ro) {
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
     if (!(duplicate(myAction))) {
-		if (ro["message"]){myAction.msg = ro["message"];} else {myAction.msg = ro["event_value"];}
+        if (ro.parameters["message"]) {
+            myAction.msg = ro.parameters["message"];
+        } else {
+            myAction.msg = ro["event_value"];
+        }
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
@@ -379,8 +387,8 @@ function addMessage(ro) {
 function addCalculation(ro) {
     myAction = addAction(ro, "calculation");
     if (!(duplicate(myAction))) {
-        myAction.cMsg = ro["calculation"];
-        myAction.rMsg = ro["result"];
+        myAction.cMsg = ro.parameters["calculation"];
+        myAction.rMsg = ro.parameters["result"];
         myAction.msg = myAction.cMsg + " = " + myAction.rMsg
         myAction.cvarRefs = getVarRefs(myAction, myAction.cMsg);
         myAction.rvarRefs = getVarRefs(myAction, myAction.rMsg);
@@ -394,21 +402,20 @@ function addCalculation(ro) {
 
 function addMeasurement(ro, i) {
     var myAction = addAction(ro, "measurement");
-    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     if (!(duplicate(myAction))) {
-        myAction.dialPosition = ro["dial_position"];
-        myAction.measurementType = ro["measurement"];
-        myAction.blackPosition = ro["black_probe"];
-        myAction.redPosition = ro["red_probe"];
+        myAction.dialPosition = ro.parameters["dial_position"];
+        myAction.measurementType = ro.parameters["measurement"];
+        myAction.blackPosition = ro.parameters["black_probe"];
+        myAction.redPosition = ro.parameters["red_probe"];
         if (myAction.blackPosition.slice(1) === myAction.redPosition.slice(1) && //same column
             (myAction.blackPosition[0] !== myAction.redPosition[0])) { //and different row
             myAction.gapMeasurement = true; //means measurement across a gap
         } else {
             myAction.gapMeasurement = false;
         }
-        myAction.currentFlow = (ro["currentFlowing"] == "True" ? true : false);
-        myAction.board = ro["board"];
-        myAction.msg = ro["result"].replace(/\s/g, '');
+        myAction.currentFlow = (ro.parameters["currentFlowing"] == "True" ? true : false);
+        myAction.board = ro.parameters["board"];
+        myAction.msg = ro.parameters["result"].replace(/\s/g, '');
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
         keepLevelValues(myAction);
@@ -443,31 +450,28 @@ function addSubmitER(ro) {
     if (!duplicate(myAction)) {
         myTeam = myAction.team;
         myLevel = myAction.level;
-        (ro["E: Value"] ? myAction.ESubmitValue = ro["E: Value"] : myAction.ESubmitValue = "<No value submitted>");
-        (ro["E: Unit"] ? myAction.ESubmitUnit = ro["E: Unit"] : myAction.ESubmitUnit = "");
-        (ro["R: Value"] ? myAction.RSubmitValue = ro["R: Value"] : myAction.RSubmitValue = "<No value submitted>");
-        (ro["R: Unit"] ? myAction.RSubmitUnit = ro["R: Unit"] : myAction.RSubmitUnit = "");
-        (ro["E: Value"] == myLevel.E ? myLevel.successE = true : myLevel.successE = false);
-        (ro["R: Value"] == myLevel.R0 ? myLevel.successR = true : myLevel.successR = false);
-        (ro["E: Value"] == myLevel.E ? myAction.successE = true : myAction.successE = false);
-        (ro["R: Value"] == myLevel.R0 ? myAction.successR = true : myAction.successR = false);
+        (ro.parameters["E: Value"] ? myAction.ESubmitValue = ro.parameters["E: Value"] : myAction.ESubmitValue = "<No value submitted>");
+        (ro.parameters["E: Unit"] ? myAction.ESubmitUnit = ro.parameters["E: Unit"] : myAction.ESubmitUnit = "");
+        (ro.parameters["R: Value"] ? myAction.RSubmitValue = ro.parameters["R: Value"] : myAction.RSubmitValue = "<No value submitted>");
+        (ro.parameters["R: Unit"] ? myAction.RSubmitUnit = ro.parameters["R: Unit"] : myAction.RSubmitUnit = "");
+        (ro.parameters["E: Value"] == myLevel.E ? myLevel.successE = true : myLevel.successE = false);
+        (ro.parameters["R: Value"] == myLevel.R0 ? myLevel.successR = true : myLevel.successR = false);
+        (ro.parameters["E: Value"] == myLevel.E ? myAction.successE = true : myAction.successE = false);
+        (ro.parameters["R: Value"] == myLevel.R0 ? myAction.successR = true : myAction.successR = false);
         myAction.varRefs = [];
         myAction.varRefs.push(getVarRefs(myAction, myAction.ESubmitValue));
         myAction.varRefs.push(getVarRefs(myAction, myAction.RSubmitValue));
         keepLevelValues(myAction);
-        myAction.level.actions.push(myAction); myAction.R[0] = myAction.level.R[0];
+        myAction.level.actions.push(myAction);
+        myAction.R[0] = myAction.level.R[0];
     }
 }
 
 function addAttachProbe(ro) {
     var myAction = addAction(ro, "attach-probe");
-    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    if (ro["time"] == 1488326309) {
-        console.log("Check");
-    }
     if (!(duplicate(myAction))) {
-        myAction.location = ro["location"];
-        myAction.probeColor = ro["color"];
+        myAction.location = ro.parameters["location"];
+        myAction.probeColor = ro.parameters["color"];
         keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     } else {
@@ -477,10 +481,9 @@ function addAttachProbe(ro) {
 
 function addDetachProbe(ro, i) {
     var myAction = addAction(ro, "detach-probe");
-    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     if (!(duplicate(myAction))) {
-        myAction.location = ro["location"];
-        myAction.probeColor = ro["color"];
+        myAction.location = ro.parameters["location"];
+        myAction.probeColor = ro.parameters["color"];
         keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     } else {
@@ -490,19 +493,18 @@ function addDetachProbe(ro, i) {
 
 function addMovedDial(ro, i) {
     var myAction = addAction(ro, "move-dial");
-    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     if (!(duplicate(myAction))) {
-        myAction.dialPosition = ro["value"];
+        myAction.dialPosition = ro.parameters["value"];
         keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
-    
+
 function keepLevelValues(myAction) {
     myLevel = myAction.level;
     myAction.E = myLevel.E;
     myAction.R0 = myLevel.R0;
-    for (var i = 0; i < 3; i++){
+    for (var i = 0; i < 3; i++) {
         myAction.R[i] = myLevel.R[i];
         myAction.V[i] = myLevel.V[i];
         myAction.goalR[i] = myLevel.goalR[i];

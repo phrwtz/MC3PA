@@ -448,7 +448,6 @@ function addTeam(ro) {
     var classID = getMemberDataObj(userID)["Class ID"];
     var teacher = getMemberDataObj(userID)["Teachers"];
     var teamName = ro.parameters["groupname"];
-    var levelNumber = getLevelNumber(ro.parameters["levelName"]); //number = 2 ... 5 or tutorial
     var myTeam = inTeams(teamName, teams)
     if (!myTeam) { //If this is a new team, initialize variables
         myTeam = new team;
@@ -456,7 +455,6 @@ function addTeam(ro) {
         myTeam.class = myClass;
         myTeam.classID = classID;
         myTeam.levels = [];
-        myTeam.members = [];
         myTeam.teacher = teacher;
         myTeam.levels = [];
         teams.push(myTeam); //and put it on the array
@@ -464,8 +462,8 @@ function addTeam(ro) {
     addLevel(myTeam, ro); //add level, if new
 }
 
-
-function addLevel(myTeam, ro) { //construct a new level from ro and add it to levels array for myTeam.
+//construct a new level from ro and add it to the levels array for myTeam. If the level already exists don't change anything. In either event, try adding a member to the level.
+function addLevel(myTeam, ro) { 
     var levelName = ro.parameters["levelName"];
     var levelNumber = getLevelNumber(levelName); //0 for tutorial, 1 for level A, etc.
     var myLevel = inLevels(levelNumber, myTeam.levels)
@@ -474,7 +472,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         addLevelValues(myLevel, ro); //Add all the global variables for this level
         myLevel.actions = [];
         myLevel.members = [];
-        myLevel.startUTime = ro["time"];
+        myLevel.startUTime = new Date(ro["time"]).getTime() / 1000;
         var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
         myLevel.startPTime = startDate;
         myLevel.number = levelNumber;
@@ -496,30 +494,31 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         initializeVarRefs(myLevel); //Set all the arrays empty
         myTeam.levels.push(myLevel);
     }
-    addMember(myLevel, ro) //add member, if new
+    addMember(myLevel, ro) //add member, if new. Otherwise, do nothing.
 }
 
 function addMember(myLevel, ro) {
     var userID = ro.username.slice(0, ro.username.indexOf("@")); // user id precedes @
     var myMember = inMembers(userID, myLevel.members)
-    if (!myMember) { //If this is a new member initialize and push to array
-    myMember = new member;
-    myMember.team = ro.parameters["groupname"];
-    myMember.id = userID;
-    myMember.name = ro.parameters["username"];
-    myMember.board = ro.parameters["board"];
-    myMember.startTime = ro["time"]; //Log in time for this member
-    myMember.colIndex = myLevel.members.length - 1 // will be 0, 1, or 2
-    var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
-    myMember.color = colorArray[myMember.colIndex];
-    myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
-    myLevel.members.push(myMember);
+    if (!myMember) { //If this is a new member initialize and push to the members array
+        myMember = new member;
+        myMember.team = ro.parameters["groupname"];
+        myMember.id = userID;
+        myMember.name = ro.parameters["username"];
+        myMember.board = ro.parameters["board"];
+        myMember.startTime = ro["time"]; //Log in time for this member
+        myMember.colIndex = myLevel.members.length // will be 0, 1, or 2
+        var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
+        myMember.color = colorArray[myMember.colIndex];
+        myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
+        myLevel.members.push(myMember);
+        console.log("Level " + myLevel.label + " of team " + myLevel.team.name + " now has " + myLevel.members.length + " members.");
+        if (myLevel.members.length == 2) {
+            myLevel.lastJoinedUTime = new Date(ro["time"]).getTime() / 1000;
+        }
+    }
 }
-if (myLevel.members.length == 2) {
-    myLevel.lastJoinedTime = ro["time"];
-}
-}
-
+//if a team with the name teamName exists in the teams array, return it. Otherwise return null
 function inTeams(teamName, teams) {
     for (var j = 0; j < teams.length; j++) {
         if (teams[j].name == teamName) {
@@ -529,6 +528,7 @@ function inTeams(teamName, teams) {
     return null;
 }
 
+//if a level with the number levelNumber exists in the levels array, return it. Otherwise return null
 function inLevels(levelNumber, levels) {
     for (var j = 0; j < levels.length; j++) {
         if (levels[j].number == levelNumber) {
@@ -538,6 +538,7 @@ function inLevels(levelNumber, levels) {
     return null;
 }
 
+//if a member with the ID userID exists in the members array, return it. Otherwise return null
 function inMembers(userID, members) {
     for (var j = 0; j < members.length; j++) {
         if (members[j].id == userID) {

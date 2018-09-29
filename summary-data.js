@@ -99,7 +99,12 @@ function findSummaryData(myLevel,prFlag) { //Runs through all the actions in myL
     } //Next action
 
     for (var u = 0; u < 3; u++) {
-        averageResistanceDistances[u] = Math.round(10 * sumResistorDistancesFromGoal[u] / totalResistanceChanges[u]) / 10;
+        if (totalResistanceChanges[u] == 0) {
+            averageResistanceDistances[u] = 0;
+        }
+        else {
+            averageResistanceDistances[u] = Math.round(10 * sumResistorDistancesFromGoal[u] / totalResistanceChanges[u]) / 10;
+        }
         totalAverageResDist = Math.round(10 * (sumResistorDistancesFromGoal[0] + sumResistorDistancesFromGoal[1] + sumResistorDistancesFromGoal[2]) / (totalResistanceChanges[0] + totalResistanceChanges[1] + totalResistanceChanges[2])) / 10;
     }
 

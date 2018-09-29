@@ -1,6 +1,5 @@
 //This is where we do all the analysis of the files once the raw data has been parsed
 function analyze(rowObjs) {
-    console.log("analyze: looking for actions...");
     for (var i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
         var ev = ro["event"];
@@ -13,7 +12,7 @@ function analyze(rowObjs) {
             case "model values":
                 addModelValues(ro);
                 break;
-
+            
             case "Joined Group":
                 addJoinedGroup(ro);
                 break;
@@ -104,18 +103,11 @@ function addAction(ro, type) {
             break
         }
     }
-    /*
+    
     if (!memberFound) {
-        for (i = 0; i < teams.length; i++) {
-            for (j = 0; j < teams[i].members.length; j++) {
-                if (teams[i].members[j].id == memberID) {
-                    matchingTeamName = teams[i].name;
-                }
-            }
-        }
         return;
     }
-    */
+    
     var myAction = new action;
     myAction.R = [];
     myAction.V = [];
@@ -142,6 +134,7 @@ function addAction(ro, type) {
     myAction.team = myTeam;
     myAction.level = myLevel;
     myAction.actor = myMember;
+    myAction.actor.id = myMember.id;
     myAction.uTime = new Date(ro["time"]).getTime() / 1000;
     myAction.eTime = Math.round(myAction.uTime - myLevel.startUTime);
     var eMins = String(Math.floor(myAction.eTime / 60));
@@ -151,7 +144,6 @@ function addAction(ro, type) {
     myAction.board = parseInt(ro.parameters["board"]);
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
     //if it is pushed will equal this.)
-    myAction.id = myMember.id;
     myAction.currentFlowing = false;
     if ((ro.parameters["currentFlowing"] == "true") || ro.parameters["currentFlowing"] == "TRUE") {
         myAction.currentFlowing = true;
@@ -258,8 +250,7 @@ function addJoinedGroup(ro) {
     var myAction = addAction(ro, "joined-group");
     if (!(duplicate(myAction))) {
         var myLevel = myAction.level;
-        myLevel.members.length ++;
-        if (myLevel.members.length >= 1) {
+        if (myLevel.members.length >= 3) {
             myLevel.lastJoinedTime = myAction.eMinSecs;
             myLevel.lastJoinedUTime = myAction.uTime;
         }

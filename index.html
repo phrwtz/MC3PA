@@ -10,8 +10,8 @@
 
 <body>
     <h1>Analyze MC3PA Data</h1>
-
-    <input type="file" id="files" name="files[]" multiple onchange="openFiles(event)">
+    Student data:<input type="file" id="studentDataInput" onchange= "parseStudentData()"><br>
+    Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"><br>
     <button type="button" onclick="parseJSON(data)">Analyze</button>
 
     <script>

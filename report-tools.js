@@ -1,10 +1,15 @@
 function generateReport(teams) {
     //    document.getElementByID("data").innerHTML = ""; //Clear the screen
     reportResults(teams);
-    reportSummary(teams);
-    reportActions(teams);
+    console.log("results reported");
+    reportResistorChanges(teams);
+    console.log("resistor changes reported");
+    reportMessageScores(teams);
+    console.log("message scores reported");
     teacherReport(teams);
+    console.log("teacher report");
     reportVarRefs(teams);
+    console.log("varRefs report");
 }
 
 
@@ -21,7 +26,7 @@ function reportResults(teams) { // extract and list actions checked by user
             for (var j = 0; j < myTeam.levels.length; j++) {
                 var myLevel = myTeam.levels[j];
                 if (!(myLevel.label == "T") && $("#level-" + myLevel.label)[0].checked) { // create summary for each level
-                    findSummaryData(myLevel,true);	// calculate and print summary stats
+                    findSummaryData(myLevel, true); // calculate and print summary stats
                     addLevelRow(myTeam, myLevel);
                     var acts = myLevel.actions;
                     //Now run through the actions a second time, publishing each in a separate row if it has been selected
@@ -283,53 +288,56 @@ function findOtherVariables(vr) { // Returns a string containing all the variabl
 }
 
 //Reports on total number of resistor changes in each category for each team member, per level.
-function reportSummary(teams) {
+function reportResistorChanges(teams) {
     var count = {};
     if ($("#summary-resistor-change")[0].checked) {
         for (var k = 0; k < teams.length; k++) {
-            var team = teams[k];
-            if ($("#team-" + team.name + team.classID)[0].checked) {
-                count[team.name] = {};
-                for (var j = 0; j < team.levels.length; j++) {
-                    var myLevel = team.levels[j];
+            var myTeam = teams[k];
+            if ($("#team-" + myTeam.name + myTeam.classID)[0].checked) {
+                count[myTeam.name] = {};
+                for (var j = 0; j < myTeam.levels.length; j++) {
+                    var myLevel = myTeam.levels[j];
                     if (myLevel.label != "T") {
                         if ($("#level-" + myLevel.label)[0].checked) {
-                            count[team.name][myLevel.label] = {};
+                            count[myTeam.name][myLevel.label] = {};
                             var acts = myLevel.actions;
                             for (var i = 0; i < myLevel.members.length; i++) {
-                                var member = myLevel.members[i];
-                                count[team.name][myLevel.label][member.name] = {};
-                                count[team.name][myLevel.label][member.name].achieved = 0;
-                                count[team.name][myLevel.label][member.name].overshot = 0;
-                                count[team.name][myLevel.label][member.name].undershot = 0;
-                                count[team.name][myLevel.label][member.name].closer = 0;
-                                count[team.name][myLevel.label][member.name].farther = 0;;
-                                count[team.name][myLevel.label][member.name].total = 0;
-                            } //clear all the counts for all members for this level
+                                var myMember = myLevel.members[i];
+                                if (myMember) {
+                                    count[myTeam.name][myLevel.label][myMember.name] = {};
+                                    count[myTeam.name][myLevel.label][myMember.name].achieved = 0;
+                                    count[myTeam.name][myLevel.label][myMember.name].overshot = 0;
+                                    count[myTeam.name][myLevel.label][myMember.name].undershot = 0;
+                                    count[myTeam.name][myLevel.label][myMember.name].closer = 0;
+                                    count[myTeam.name][myLevel.label][myMember.name].farther = 0;;
+                                    count[myTeam.name][myLevel.label][myMember.name].total = 0;
+                                }
+                            }
+                            //clear all the counts for all members for this level
                             for (var ii = 0; ii < acts.length; ii++) {
                                 act = acts[ii];
                                 if (act.type == "resistorChange") {
-                                    member = act.actor;
+                                    myMember = act.actor;
                                     switch (act.goalMsg) {
                                         case ". Local goal met":
-                                            count[team.name][myLevel.label][member.name].achieved += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].achieved += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].total += 1;
                                             break;
                                         case ". Goal overshot":
-                                            count[team.name][myLevel.label][member.name].overshot += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].overshot += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].total += 1;
                                             break;
                                         case ". Goal undershot":
-                                            count[team.name][myLevel.label][member.name].undershot += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].undershot += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].total += 1;
                                             break;
                                         case ". Goal closer":
-                                            count[team.name][myLevel.label][member.name].closer += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].closer += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].total += 1;
                                             break;
                                         case ". Goal farther":
-                                            count[team.name][myLevel.label][member.name].farther += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].farther += 1;
+                                            count[myTeam.name][myLevel.label][myMember.name].total += 1;
                                             break;
                                     } //end of goalMsg switch
                                 } //end of resistor change
@@ -339,39 +347,43 @@ function reportSummary(teams) {
                 } //end of levels loop
             } //end of team check
         } //end of team loop
-        document.getElementById("data").innerHTML += ('<mark> <br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr></mark>');
-        for (var kk = 0; kk < teams.length; kk++) {
-            team = teams[kk];
-            if ($("#team-" + team.name + team.classID)[0].checked) {
-                document.getElementById("data").innerHTML += ("<br><br>");
-                for (var j = 0; j < team.levels.length; j++) {
-                    myLevel = team.levels[j];
-                    if ($("#level-" + myLevel.label)[0].checked) {
-                        document.getElementById("data").innerHTML += ("<br>");
-                        for (var i = 0; i < team.members.length; i++) {
-                            member = team.members[i];
-                            var ach = count[team.name][myLevel.label][member.name].achieved;
-                            var clo = count[team.name][myLevel.label][member.name].closer;
-                            var und = count[team.name][myLevel.label][member.name].undershot;
-                            var ove = count[team.name][myLevel.label][member.name].overshot;
-                            var far = count[team.name][myLevel.label][member.name].farther;
-                            var tot = count[team.name][myLevel.label][member.name].total;
+        printResistorReport(teams, count);
+    } //come here if checkbox unchecked
+} //end of reportResistorChanges
+
+function printResistorReport(teams, count) {
+    document.getElementById("data").innerHTML += ('<mark> <br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr></mark>');
+    for (var kk = 0; kk < teams.length; kk++) {
+        var myTeam = teams[kk];
+        if ($("#team-" + myTeam.name + myTeam.classID)[0].checked) {
+            document.getElementById("data").innerHTML += ("<br><br>");
+            for (var j = 0; j < myTeam.levels.length; j++) {
+                var myLevel = myTeam.levels[j];
+                if (!(myLevel.label == "T") && $("#level-" + myLevel.label)[0].checked) {
+                    document.getElementById("data").innerHTML += ("<br>");
+                    for (var i = 0; i < myLevel.members.length; i++) {
+                        var myMember = myLevel.members[i];
+                        if (myMember) {
+                            var ach = count[myTeam.name][myLevel.label][myMember.name].achieved;
+                            var clo = count[myTeam.name][myLevel.label][myMember.name].closer;
+                            var und = count[myTeam.name][myLevel.label][myMember.name].undershot;
+                            var ove = count[myTeam.name][myLevel.label][myMember.name].overshot;
+                            var far = count[myTeam.name][myLevel.label][myMember.name].farther;
+                            var tot = count[myTeam.name][myLevel.label][myMember.name].total;
                             var score = (tot ? Math.round(100 * ((tot - far) / tot)) : 0) / 100;
-                            document.getElementById("data").innerHTML += ("Team: " + team.name +
+                            document.getElementById("data").innerHTML += ("Team: " + myTeam.name +
                                 ", level " + myLevel.label +
-                                ", member " + member.styledName + ": local goal met = " + ach +
+                                ", member " + myMember.styledName + ": local goal met = " + ach +
                                 ", overshot = " + ove + ", undershot = " + und + ", closer = " +
                                 clo + ", farther = " + far + ", total = " + tot + ", score = " +
                                 score + "<br>");
-                        }
-                    }
-                }
-                mssg = "report-tools: resistor-change summaries for " + team.name;
-                console.log(mssg);
-            }
-        }
-    }
-}
+                        } //come here if no member
+                    } //end of members loop
+                } //come here if level checkbox unchecked
+            } //end of levels loop
+        } //come here if team checkbox unchecked
+    } //end of teams loop
+} //end of printResistorReport
 
 
 
@@ -421,38 +433,39 @@ function reportSummary(teams) {
 //     }
 // }
 
-function reportActions(teams, type) {
+function reportMessageScores(teams, type) {
     if ($("#summary-action-scores")[0].checked) {
         myDate = teams[0].levels[0].startPTime;
         levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-        var count = 0;
+        var count = 0,
+            levelsArray = []; //An array of objects with numMsgs, totalScores and averageScores by level
         for (var j = 0; j < teams.length; j++) {
-            var team = teams[j];
-            if (team.members.length == 3) {
-                levelsArray = []; //An array of numMsgs, totalScores and averageScores by level
-                for (var i = 0; i < team.levels.length; i++) {
-                    level = team.levels[i];
-                    levelsArray[i] = scoreActions(level);
+            var myTeam = teams[j];
+            for (var i = 0; i < myTeam.levels.length; i++) {
+                myLevel = myTeam.levels[i];
+                if ((myLevel.members.length != 3) || (myLevel.label == "T")) {
+                    break;
                 }
-				console.dir(levelsArray);
+                levelsArray[i] = scoreActions(myLevel);
+                console.log(levelsArray);
                 var arrTotal = [];
                 var arrNumber = [];
                 var arrAvg = [];
-                scoreTable = makeTeamTable(team, "Total message score", levelsArray, "Total", arrTotal);
-                numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number", arrNumber);
-                averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average", arrAvg);
+                scoreTable = makeTeamTable(myTeam, myLevel, "Total message score", levelsArray, "Total", arrTotal);
+                numberTable = makeTeamTable(myTeam, myLevel, "Number of messages", levelsArray, "Number", arrNumber);
+                averageTable = makeTeamTable(myTeam, myLevel, "Average message score", levelsArray, "Average", arrAvg);
                 for (var i = 0; i < 3; i++) { // push csv data for each player on this team
                     count += arrNumber[i];
                     // Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
-                    newRow = [team.teacherName, levelDate, team.name, , , "MssgScores", team.members[i].name,
+                    newRow = [myTeam.teacherName, levelDate, myTeam.name, , , "MssgScores", myLevel.members[i].name,
                         arrTotal[i], arrNumber[i], arrAvg[i]
                     ];
                     csvSummaryArray.push(newRow);
                 }
                 var tableSummary = document.createElement("div");
                 tableSummary.className = "tableSummary";
-				var tableRow = document.createElement("tr"); // contains all three: scoreTable, numberTable, averageTable
-				var tableCell = document.createElement("th");
+                var tableRow = document.createElement("tr"); // contains all three: scoreTable, numberTable, averageTable
+                var tableCell = document.createElement("th");
 
                 document.body.appendChild(tableSummary);
                 tableSummary.appendChild(scoreTable);
@@ -467,13 +480,16 @@ function reportActions(teams, type) {
 
 function teacherReport(teams) {
     var reportRequested = false;
-    //check to see whether at least one teacher report is asked for
-    for (var k = 0; k < teachers.length; k++) {
-        var teacher = teachers[k];
-        if ($("#report-" + teacher)[0].checked) {
-            reportRequested = true;
+    for (var i = 0; i < teams.length; i++) {
+        var myTeam = teams[i];
+        if (myTeam.teacher) {
+            if ($("#report-" + myTeam.teacher.replace(" ",""))[0].checked) {
+                reportRequested = true;
+            }
         }
     }
+
+
     if (!reportRequested) { // clear the report
         if (document.getElementById("tableDiv")) { // empty the tableDiv (if it exists)
             var tableDiv = document.getElementById("tableDiv");
@@ -522,26 +538,26 @@ function teacherReport(teams) {
 
                 var dataRows = []; //table rows that will contain a team name and level data
                 var dataCells = []; //table cells that contain the team name and level data
-				
-				// console.log("--------Teams array:");
-				// console.dir(teams);
-                
-				for (var i = 0; i < teams.length; i++) {
-                    myTeam = teams[i]; 
-                    if (myTeam.teacherName == teacher) { 
-				        myDate = myTeam.levels[0].startPTime;
-				        levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-                        titleCell.innerHTML =  "Results by team and level: " + myTeam.teacherName + ", " + myTeam.class +", " + levelDate;
+
+                // console.log("--------Teams array:");
+                // console.dir(teams);
+
+                for (var i = 0; i < teams.length; i++) {
+                    myTeam = teams[i];
+                    if (myTeam.teacherName == teacher) {
+                        myDate = myTeam.levels[0].startPTime;
+                        levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+                        titleCell.innerHTML = "Results by team and level: " + myTeam.teacherName + ", " + myTeam.class + ", " + levelDate;
                         if (myTeam.members.length == 3) { // Only report teams having three members
                             dataRows[i] = document.createElement("tr"); // row i+2: team, levels a, b, c, d
                             table.appendChild(dataRows[i]);
                             dataCells[i] = [];
                             dataCells[i][0] = document.createElement("td");
-							if (myTeam.members[0].name) { // if the first member name exists...
+                            if (myTeam.members[0].name) { // if the first member name exists...
                                 dataCells[i][0].innerHTML = "<b>" + myTeam.name + "</b><br>&nbsp;" +
                                     myTeam.members[0].name + "<br>&nbsp;" + myTeam.members[1].name + "<br>&nbsp;" +
-                                    myTeam.members[2].name; }
-                            else if (myTeam.members[0].studentName && myTeam.members[0].studentName != "N/A" && myTeam.members[0].studentName != "n/a" ) {
+                                    myTeam.members[2].name;
+                            } else if (myTeam.members[0].studentName && myTeam.members[0].studentName != "N/A" && myTeam.members[0].studentName != "n/a") {
                                 dataCells[i][0].innerHTML = "<b>" + myTeam.name + "</b><br>&nbsp;" +
                                     myTeam.members[0].studentName + "<br>&nbsp;" + myTeam.members[1].studentName + "<br>&nbsp;" +
                                     myTeam.members[2].studentName;
@@ -569,11 +585,11 @@ function teacherReport(teams) {
                                     "<br><font color=green>R0 correctly reported.</font>" :
                                     "<br><font color=red>R0 not reported correctly.</font>");
                                 var successMsg;
-                                var cellContents = "Time (mm:ss): " + levelMinutes + ":" + ("0" + levelSeconds).slice(-2);    
-                                var sTime = new Date(myLevel.startUTime*1000);
-                                var eTime = new Date(myLevel.endUTime*1000);
-                                cellContents += "<br><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
-                                cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "ET </small>";
+                                var cellContents = "Time (mm:ss): " + levelMinutes + ":" + ("0" + levelSeconds).slice(-2);
+                                var sTime = new Date(myLevel.startUTime * 1000);
+                                var eTime = new Date(myLevel.endUTime * 1000);
+                                cellContents += "<br><small>Start: " + sTime.getHours() + ":" + (sTime.getMinutes() < 10 ? '0' : '') + sTime.getMinutes();
+                                cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes() < 10 ? '0' : '') + eTime.getMinutes() + "ET </small>";
                                 cellContents += levelMsg;
                                 if ((myLevel.label == "A") || myLevel.label == "B") {
                                     successMsg = (myLevel.success ?
@@ -592,8 +608,8 @@ function teacherReport(teams) {
                                         "<br><b><font color=green>Level successful.</font></b>" :
                                         "<br><b><font color=red>Level unsuccessful.</font></b>");
                                 }
-                                cellContents += successMsg;	
-								
+                                cellContents += successMsg;
+
                                 dataCells[i][j + 1].innerHTML = cellContents;
                             }
                             maxLevel = "None";
@@ -623,8 +639,8 @@ function teacherReport(teams) {
                 }
             }
         }
-        mssg = "report-tools: teacher report for " + teacher + ", " + teams.length + " teams";
-        console.log(mssg);
+        // mssg = "report-tools: teacher report for " + teacher + ", " + teams.length + " teams";
+        // console.log(mssg);
     }
 }
 

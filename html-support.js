@@ -117,12 +117,19 @@ function setupForm(teams) {
         summaryData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
     //Teacher Reports
+    var teachers = [];
+    for (var i = 0; i < studentDataObjs.length - 1; i++) { //Don't read the last object. I don't know why but it's empty.
+        myTeacher = studentDataObjs[i]["Teachers"];
+        if (!teachers.includes(myTeacher)) {
+            teachers.push(myTeacher);
+        }
+    }
     IDStr = 'id="all-teachers" name="teachers" ';
     onChangeStr = "onchange = \"toggleSelectAll('teachers')\"";
     labelStr = '<b>All teachers</b><br>';
     teacherData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
     for (j = 0; j < teachers.length; j++) {
-        IDStr = 'id=report-' + teachers[j] + ' name=teachers>';
+        IDStr = 'id=report-' + teachers[j].replace(" ", "") + ' name=teachers>';
         teacherData.innerHTML += "<input " + typeStr + IDStr + teachers[j] + "<br>";
     }
 

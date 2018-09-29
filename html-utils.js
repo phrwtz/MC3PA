@@ -5,7 +5,7 @@
 //down the left-hand column, the level labels across the top, and the array
 //values with summary values (either totals, sums, or averages) in the 5th column and 4th row.
 
-function makeTeamTable(team, title, levelData, type, arrMssgScores) {
+function makeTeamTable(team, level, title, levelData, type, arrMssgScores) {
     var table = document.createElement("table"); //the table to be returned
     table.setAttribute("class", type);
     var titleRow = document.createElement("tr"); //contains team name and title
@@ -15,7 +15,6 @@ function makeTeamTable(team, title, levelData, type, arrMssgScores) {
     var levelsArray = ["Member", "Level A", "Level B", "Level C", "Level D", type];
     var dataRows = []; //each element is a <tr> element
     var dataCells = []; //each element is an array of <td> elements
-
 
     var totalRowScores = [0, 0, 0];
     var totalColScores = [0, 0, 0, 0];
@@ -54,30 +53,33 @@ function makeTeamTable(team, title, levelData, type, arrMssgScores) {
         }
     }
     //for the first three rows the first cell contains the team members' names
-    for (var i = 0; i < 3; i++) {
-        dataCells[i][0].innerHTML = "<b>" + team.members[i].name + "</b>";
-    }
-    //for the last row the first cell contains the type
-    dataCells[3][0].innerHTML = "<b>" + type + "</b>";
+    for (var i = 0; i < level.members.length; i++) {
+        var myMember = level.members[i];
+        if (myMember) {
+            dataCells[i][0].innerHTML = "<b>" + level.members[i].name + "</b>";
+        }
+        //for the last row the first cell contains the type
+        dataCells[3][0].innerHTML = "<b>" + type + "</b>";
 
-    //for each of the first three rows
-    for (var i = 0; i < 3; i++) {
-        //the four cells after the first contain score or average score data from each level
-        for (var j = 0; j < levelData.length; j++) { //but not all levels are represented
-            //so we have to figure out where to put the data by looking at the level number
+        //for each of the first three rows
+        for (var i = 0; i < 3; i++) {
+            //the four cells after the first contain score or average score data from each level
+            for (var j = 0; j < levelData.length; j++) { //but not all levels are represented
+                //so we have to figure out where to put the data by looking at the level number
 
-            levelNum = (levelData[j].level.number - 1);
-            if (type == "Average") {
-                dataCells[i][levelNum].innerHTML = levelData[j].averageScores[i];
-            } else if (type == "Number") {
-                dataCells[i][levelNum].innerHTML = levelData[j].numMsgs[i];
-            } else if (type == "Total") {
-                dataCells[i][levelNum].innerHTML = levelData[j].totalScores[i];
+                levelNum = (levelData[j].level.number - 1);
+                if (type == "Average") {
+                    dataCells[i][levelNum].innerHTML = levelData[j].averageScores[i];
+                } else if (type == "Number") {
+                    dataCells[i][levelNum].innerHTML = levelData[j].numMsgs[i];
+                } else if (type == "Total") {
+                    dataCells[i][levelNum].innerHTML = levelData[j].totalScores[i];
+                }
+                totalRowScores[i] += levelData[j].totalScores[i];
+                totalRowMsgs[i] += levelData[j].numMsgs[i];
+                totalColMsgs[j] += levelData[j].numMsgs[i];
+                totalColScores[j] += levelData[j].totalScores[i];
             }
-            totalRowScores[i] += levelData[j].totalScores[i];
-            totalRowMsgs[i] += levelData[j].numMsgs[i];
-            totalColMsgs[j] += levelData[j].numMsgs[i];
-            totalColScores[j] += levelData[j].totalScores[i];
         }
     }
 
@@ -139,19 +141,19 @@ function makeTeamTable(team, title, levelData, type, arrMssgScores) {
 
 //Takes a level and returns a data object with the total number of messages for each actor,
 //at that level, the total score of those messages, and the average score of the messages.
-//The function also returns the level object itself.
+//The level property of the data object is the level itself.
 //(Note: members are identified by their color index so that their scores are
 //consistent across levels.) if a level is missing the scores for each member on
 //that level are zero.
 function scoreActions(level) {
     var mems = level.members, //Array of members for this team/level
         totalScores = [0, 0, 0],
-        returnValues = function () { },
+        returnValues = function () {},
         act,
         type,
         actor,
         score;
-        returnValues.level = level;
+    returnValues.level = level;
     returnValues.numMsgs = [0, 0, 0];
     returnValues.totalScores = [0, 0, 0];
     returnValues.averageScores = [0, 0, 0];

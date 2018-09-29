@@ -444,19 +444,18 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
 //If we already have a team with that name, we use it.
 function addTeam(ro) {
     var userID = ro["username"].slice(0, ro["username"].indexOf("@")); // user id precedes @
-    var myClass = getMemberDataObj(userID)["Class"];
-    var classID = getMemberDataObj(userID)["Class ID"];
-    var teacher = getMemberDataObj(userID)["Teachers"];
+    var memberObject = getMemberObject(userID);
     var teamName = ro.parameters["groupname"];
     var myTeam = inTeams(teamName, teams)
     if (!myTeam) { //If this is a new team, initialize variables
         myTeam = new team;
+        myTeam.levels = [];
         myTeam.name = ro.parameters["groupname"];
-        myTeam.class = myClass;
-        myTeam.classID = classID;
-        myTeam.levels = [];
-        myTeam.teacher = teacher;
-        myTeam.levels = [];
+        if (memberObject) {
+            myTeam.class = memberObject["Class"];
+            myTeam.classID = memberObject["Class ID"];
+            myTeam.teacher = memberObject["Teachers"];
+        }
         teams.push(myTeam); //and put it on the array
     }
     addLevel(myTeam, ro); //add level, if new
@@ -511,13 +510,11 @@ function addMember(myLevel, ro) {
         var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
         myMember.color = colorArray[myMember.colIndex];
         myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
+        if (!(myMember)) { console.log ("Oops!") };
         myLevel.members.push(myMember);
-        console.log("Level " + myLevel.label + " of team " + myLevel.team.name + " now has " + myLevel.members.length + " members.");
-        if (myLevel.members.length == 2) {
-            myLevel.lastJoinedUTime = new Date(ro["time"]).getTime() / 1000;
-        }
     }
 }
+
 //if a team with the name teamName exists in the teams array, return it. Otherwise return null
 function inTeams(teamName, teams) {
     for (var j = 0; j < teams.length; j++) {
@@ -588,14 +585,13 @@ function addLevelValues(myLevel, ro) { //Adds all the global variables for this 
 }
 
 
-function getMemberDataObj(userID) { //Takes the userID and returns the studentData object for that ID
-    var memberDataObject = function () {};
+function getMemberObject(userID) { //Takes the userID and returns the studentData object for that ID
     for (var i = 0; i < studentDataObjs.length; i++) {
         if (studentDataObjs[i]["UserID"] == userID) {
-            memberDataObject = studentDataObjs[i];
+            return studentDataObjs[i];
         }
     }
-    return memberDataObject;
+    return null;
 }
 
 function unixTimeConversion(uTime) {

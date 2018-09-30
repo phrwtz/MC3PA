@@ -457,9 +457,7 @@ function reportMessageScores(teams, type) {
                 for (var i = 0; i < 3; i++) { // push csv data for each player on this team
                     count += arrNumber[i];
                     // Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
-                    newRow = [myTeam.teacherName, levelDate, myTeam.name, , , "MssgScores", myLevel.members[i].name,
-                        arrTotal[i], arrNumber[i], arrAvg[i]
-                    ];
+                    newRow = [myTeam.teacher, levelDate, myTeam.name, , , "MssgScores", myLevel.members[i].name, arrTotal[i], arrNumber[i], arrAvg[i]];
                     csvSummaryArray.push(newRow);
                 }
                 var tableSummary = document.createElement("div");
@@ -483,7 +481,7 @@ function teacherReport(teams) {
     for (var i = 0; i < teams.length; i++) {
         var myTeam = teams[i];
         if (myTeam.teacher) {
-            if ($("#report-" + myTeam.teacher.replace(" ",""))[0].checked) {
+            if ($("#report-" + myTeam.teacher.replace(" ", ""))[0].checked) {
                 reportRequested = true;
             }
         }
@@ -544,10 +542,10 @@ function teacherReport(teams) {
 
                 for (var i = 0; i < teams.length; i++) {
                     myTeam = teams[i];
-                    if (myTeam.teacherName == teacher) {
+                    if (myTeam.teacher == teacher) {
                         myDate = myTeam.levels[0].startPTime;
                         levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-                        titleCell.innerHTML = "Results by team and level: " + myTeam.teacherName + ", " + myTeam.class + ", " + levelDate;
+                        titleCell.innerHTML = "Results by team and level: " + myTeam.teacher + ", " + myTeam.class + ", " + levelDate;
                         if (myTeam.members.length == 3) { // Only report teams having three members
                             dataRows[i] = document.createElement("tr"); // row i+2: team, levels a, b, c, d
                             table.appendChild(dataRows[i]);
@@ -631,7 +629,7 @@ function teacherReport(teams) {
                             myDate = myLevel.startPTime
                             levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
                             // Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
-                            newRow = [myTeam.teacherName, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6) / 10, "MaxLevel"];
+                            newRow = [myTeam.teacher, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6) / 10, "MaxLevel"];
                             csvSummaryArray.push(newRow);
 
                         }
@@ -639,8 +637,6 @@ function teacherReport(teams) {
                 }
             }
         }
-        // mssg = "report-tools: teacher report for " + teacher + ", " + teams.length + " teams";
-        // console.log(mssg);
     }
 }
 

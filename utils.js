@@ -462,12 +462,17 @@ function addTeam(ro) {
 }
 
 //construct a new level from ro and add it to the levels array for myTeam. If the level already exists don't change anything. In either event, try adding a member to the level.
-function addLevel(myTeam, ro) { 
+function addLevel(myTeam, ro) {
     var levelName = ro.parameters["levelName"];
     var levelNumber = getLevelNumber(levelName); //0 for tutorial, 1 for level A, etc.
     var myLevel = inLevels(levelNumber, myTeam.levels)
     if (!myLevel) { //It's a brand new level! Initialize all the necessary variables
         var myLevel = new level;
+
+        
+        if (levelNumber == 0) { return }; //For the moment we're ignoring tutorials
+        
+
         addLevelValues(myLevel, ro); //Add all the global variables for this level
         myLevel.actions = [];
         myLevel.members = [];
@@ -510,7 +515,9 @@ function addMember(myLevel, ro) {
         var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
         myMember.color = colorArray[myMember.colIndex];
         myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
-        if (!(myMember)) { console.log ("Oops!") };
+        if (!(myMember)) {
+            console.log("Oops!")
+        };
         myLevel.members.push(myMember);
     }
 }

@@ -58,28 +58,28 @@ function makeTeamTable(team, level, title, levelData, type, arrMssgScores) {
         if (myMember) {
             dataCells[i][0].innerHTML = "<b>" + level.members[i].name + "</b>";
         }
-        //for the last row the first cell contains the type
-        dataCells[3][0].innerHTML = "<b>" + type + "</b>";
+    }
+    //for the last row the first cell contains the type
+    dataCells[3][0].innerHTML = "<b>" + type + "</b>";
 
-        //for each of the first three rows
-        for (var i = 0; i < 3; i++) {
-            //the four cells after the first contain score or average score data from each level
-            for (var j = 0; j < levelData.length; j++) { //but not all levels are represented
-                //so we have to figure out where to put the data by looking at the level number
+    //for each of the first three data rows
+    for (var i = 0; i < 3; i++) {
+        //the four cells after the first contain score or average score data from each level
+        for (var j = 0; j < levelData.length; j++) { //but not all levels are represented
+            //so we have to figure out where to put the data by looking at the level number
 
-                levelNum = (levelData[j].level.number - 1);
-                if (type == "Average") {
-                    dataCells[i][levelNum].innerHTML = levelData[j].averageScores[i];
-                } else if (type == "Number") {
-                    dataCells[i][levelNum].innerHTML = levelData[j].numMsgs[i];
-                } else if (type == "Total") {
-                    dataCells[i][levelNum].innerHTML = levelData[j].totalScores[i];
-                }
-                totalRowScores[i] += levelData[j].totalScores[i];
-                totalRowMsgs[i] += levelData[j].numMsgs[i];
-                totalColMsgs[j] += levelData[j].numMsgs[i];
-                totalColScores[j] += levelData[j].totalScores[i];
+            levelNum = (levelData[j].level.number); //levelNum runs from 1 to 4, in general
+            if (type == "Average") {
+                dataCells[i][levelNum].innerHTML = levelData[j].averageScores[i];
+            } else if (type == "Number") {
+                dataCells[i][levelNum].innerHTML = levelData[j].numMsgs[i];
+            } else if (type == "Total") {
+                dataCells[i][levelNum].innerHTML = levelData[j].totalScores[i];
             }
+            totalRowScores[i] += levelData[j].totalScores[i];
+            totalRowMsgs[i] += levelData[j].numMsgs[i];
+            totalColMsgs[j] += levelData[j].numMsgs[i];
+            totalColScores[j] += levelData[j].totalScores[i];
         }
     }
 
@@ -134,7 +134,6 @@ function makeTeamTable(team, level, title, levelData, type, arrMssgScores) {
     for (var i = 0; i < 3; i++) {
         arrMssgScores[i] = endRowValue[i];
     }
-
     return table;
 }
 

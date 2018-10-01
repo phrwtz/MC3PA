@@ -21,8 +21,8 @@ function reportResults(teams) { // extract and list actions checked by user
     for (var k = 0; k < teams.length; k++) { // for each team
         var myTeam = teams[k];
         if ($("#team-" + myTeam.name + myTeam.classID)[0].checked) {
-            mssg = "report-tools: analyzing actions for " + team.name + "...";
-            console.log(mssg);
+            Msg = "report-tools: analyzing actions for " + team.name + "...";
+            console.log(Msg);
             for (var j = 0; j < myTeam.levels.length; j++) {
                 var myLevel = myTeam.levels[j];
                 if (!(myLevel.label == "T") && $("#level-" + myLevel.label)[0].checked) { // create summary for each level
@@ -443,40 +443,43 @@ function reportMessageScores(teams, type) {
             var myTeam = teams[j];
             for (var i = 0; i < myTeam.levels.length; i++) {
                 myLevel = myTeam.levels[i];
-                if ((myLevel.members.length != 3) || (myLevel.label == "T")) {
+                if ((myLevel.members.length != 3)) {
                     break;
                 }
                 levelsArray[i] = scoreActions(myLevel);
-                var arrTotal = [];
-                var arrNumber = [];
-                var arrAvg = [];
+            }
+            var arrTotal = [];
+            var arrNumber = [];
+            var arrAvg = [];
 
-                scoreTable = makeTeamTable(myTeam, myLevel, "Total message score", levelsArray, "Total", arrTotal);
-                numberTable = makeTeamTable(myTeam, myLevel, "Number of messages", levelsArray, "Number", arrNumber);
-                averageTable = makeTeamTable(myTeam, myLevel, "Average message score", levelsArray, "Average", arrAvg);
-                for (var i = 0; i < 3; i++) { // push csv data for each player on this team
-                    count += arrNumber[i];
-                    // Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
-                    newRow = [myTeam.teacher, levelDate, myTeam.name, , , "MssgScores", myLevel.members[i].name, arrTotal[i], arrNumber[i], arrAvg[i]];
-                    csvSummaryArray.push(newRow);
-                }
-                var tableSummary = document.createElement("div");
-                tableSummary.className = "tableSummary";
-                var tableRow = document.createElement("tr"); // contains all three: scoreTable, numberTable, averageTable
-                var tableCell = document.createElement("th");
+            scoreTable = makeTeamTable(myTeam, myLevel, "Total message score", levelsArray, "Total", arrTotal);
+            numberTable = makeTeamTable(myTeam, myLevel, "Number of messages", levelsArray, "Number", arrNumber);
+            averageTable = makeTeamTable(myTeam, myLevel, "Average message score", levelsArray, "Average", arrAvg);
+            for (var i = 0; i < myLevel.members.length; i++) { // push csv data for each player on this team
+                count += arrNumber[i];
+                // Teacher / Date / Team / Level / Time / Action / Actor / Total Msg Score / Number Msgs / Avg Msg Score
+                newRow = [myTeam.teacher, levelDate, myTeam.name, , , "MsgScores", myLevel.members[i].name, arrTotal[i], arrNumber[i], arrAvg[i]];
+                csvSummaryArray.push(newRow);
+            }
+            var tableSummary = document.createElement("div");
+            tableSummary.className = "tableSummary";
+            var tableRow = document.createElement("tr"); // contains all three: scoreTable, numberTable, averageTable
+            var tableCell = document.createElement("th");
 
-                document.body.appendChild(tableSummary);
-                tableSummary.appendChild(scoreTable);
-                tableSummary.appendChild(numberTable);
-                tableSummary.appendChild(averageTable);
-            } //Next level
-        } //Next team
-        mssg = "report-tools: " + count + " messages scored";
-        console.log(mssg);
-    }
+            document.body.appendChild(tableSummary);
+            tableSummary.appendChild(scoreTable);
+            tableSummary.appendChild(numberTable);
+            tableSummary.appendChild(averageTable);
+        } //Next level
+    } //Next team
+    Msg = "report-tools: " + count + " messages scored";
+    console.log(Msg);
 }
 
 function teacherReport(teams) {
+    var tableDiv = document.createElement("div");
+    tableDiv.id = "tableDiv";
+    document.body.appendChild(tableDiv);
 
     for (var i = 0; i < teams.length; i++) {
         var myTeam = teams[i];
@@ -486,9 +489,7 @@ function teacherReport(teams) {
             for (k = 0; k < 3; k++) {
                 memberNames[k] = firstLevel.members[k].name;
             }
-            var tableDiv = document.createElement("div");
-            tableDiv.id = "tableDiv";
-            document.body.appendChild(tableDiv);
+
 
             var table = document.createElement("table");
             table.className = "tableTeacher";
@@ -525,79 +526,79 @@ function teacherReport(teams) {
             dataCells[i][0].innerHTML = "<b>" + myTeam.name + "</b><br>&nbsp;" +
                 memberNames[0] + "<br>&nbsp;" + memberNames[1] + "<br>&nbsp;" +
                 memberNames[2];
-        }
-        dataRows[i].appendChild(dataCells[i][0]);
-        for (var j = 1; j < 5; j++) {
-            dataCells[i][j] = document.createElement("td");
-            dataCells[i][j].innerHTML = "Not attempted";
-            dataRows[i].appendChild(dataCells[i][j]);
-        }
-        var myTeamTotalTime = 0;
-        for (var j = 0; j < myTeam.levels.length; j++) {
-            myLevel = myTeam.levels[j];
-            var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
-            var levelMinutes = Math.round(levelTime / 60);
-            var levelSeconds = levelTime % 60;
-            myTeamTotalTime += levelTime;
-            var levelMsg = (myLevel.success ?
-                "<br><font color=green>Goal voltages attained.</font>" :
-                "<br><font color=red>Goal voltages not attained.</font>");
-            var levelEMsg = (myLevel.successE ?
-                "<br><font color=green>E correctly reported.</font>" :
-                "<br><font color=red>E not reported correctly.</font>");
-            var levelRMsg = (myLevel.successR ?
-                "<br><font color=green>R0 correctly reported.</font>" :
-                "<br><font color=red>R0 not reported correctly.</font>");
-            var successMsg;
-            var cellContents = "Time (mm:ss): " + levelMinutes + ":" + ("0" + levelSeconds).slice(-2);
-            var sTime = new Date(myLevel.startUTime * 1000);
-            var eTime = new Date(myLevel.endUTime * 1000);
-            cellContents += "<br><small>Start: " + sTime.getHours() + ":" + (sTime.getMinutes() < 10 ? '0' : '') + sTime.getMinutes();
-            cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes() < 10 ? '0' : '') + eTime.getMinutes() + "ET </small>";
-            cellContents += levelMsg;
-            if ((myLevel.label == "A") || myLevel.label == "B") {
-                successMsg = (myLevel.success ?
-                    "<br><b><font color=green>Level successful.</font></b>" :
-                    "<br><b><font color=red>Level unsuccessful.</font></b>");
+            dataRows[i].appendChild(dataCells[i][0]);
+            for (var j = 1; j < 5; j++) {
+                dataCells[i][j] = document.createElement("td");
+                dataCells[i][j].innerHTML = "Not attempted";
+                dataRows[i].appendChild(dataCells[i][j]);
             }
-            if (myLevel.label == "C") {
-                cellContents += levelEMsg;
-                successMsg = ((myLevel.success && myLevel.successE) ?
-                    "<br><b><font color=green>Level successful.</font></b>" :
-                    "<br><b><font color=red>Level unsuccessful.</font></b>");
-            }
-            if (myLevel.label == "D") {
-                cellContents += levelEMsg + levelRMsg;
-                successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
-                    "<br><b><font color=green>Level successful.</font></b>" :
-                    "<br><b><font color=red>Level unsuccessful.</font></b>");
-            }
-            cellContents += successMsg;
+            var myTeamTotalTime = 0;
+            for (var j = 0; j < myTeam.levels.length; j++) {
+                myLevel = myTeam.levels[j];
+                var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
+                var levelMinutes = Math.round(levelTime / 60);
+                var levelSeconds = levelTime % 60;
+                myTeamTotalTime += levelTime;
+                var levelMsg = (myLevel.success ?
+                    "<br><font color=green>Goal voltages attained.</font>" :
+                    "<br><font color=red>Goal voltages not attained.</font>");
+                var levelEMsg = (myLevel.successE ?
+                    "<br><font color=green>E correctly reported.</font>" :
+                    "<br><font color=red>E not reported correctly.</font>");
+                var levelRMsg = (myLevel.successR ?
+                    "<br><font color=green>R0 correctly reported.</font>" :
+                    "<br><font color=red>R0 not reported correctly.</font>");
+                var successMsg;
+                var cellContents = "Time (mm:ss): " + levelMinutes + ":" + ("0" + levelSeconds).slice(-2);
+                var sTime = new Date(myLevel.startUTime * 1000);
+                var eTime = new Date(myLevel.endUTime * 1000);
+                cellContents += "<br><small>Start: " + sTime.getHours() + ":" + (sTime.getMinutes() < 10 ? '0' : '') + sTime.getMinutes();
+                cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes() < 10 ? '0' : '') + eTime.getMinutes() + "ET </small>";
+                cellContents += levelMsg;
+                if ((myLevel.label == "A") || myLevel.label == "B") {
+                    successMsg = (myLevel.success ?
+                        "<br><b><font color=green>Level successful.</font></b>" :
+                        "<br><b><font color=red>Level unsuccessful.</font></b>");
+                }
+                if (myLevel.label == "C") {
+                    cellContents += levelEMsg;
+                    successMsg = ((myLevel.success && myLevel.successE) ?
+                        "<br><b><font color=green>Level successful.</font></b>" :
+                        "<br><b><font color=red>Level unsuccessful.</font></b>");
+                }
+                if (myLevel.label == "D") {
+                    cellContents += levelEMsg + levelRMsg;
+                    successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+                        "<br><b><font color=green>Level successful.</font></b>" :
+                        "<br><b><font color=red>Level unsuccessful.</font></b>");
+                }
+                cellContents += successMsg;
 
-            dataCells[i][j + 1].innerHTML = cellContents;
-        }
-        maxLevel = "None";
-        for (var j = 0; j < myTeam.levels.length; j++) {
-            myLevel = myTeam.levels[j];
-            if (myLevel.label == "A" && myLevel.success) {
-                maxLevel = "A";
+                dataCells[i][j + 1].innerHTML = cellContents;
             }
-            if (myLevel.label == "B" && myLevel.success) {
-                maxLevel = "B";
+            maxLevel = "None";
+            for (var j = 0; j < myTeam.levels.length; j++) {
+                myLevel = myTeam.levels[j];
+                if (myLevel.label == "A" && myLevel.success) {
+                    maxLevel = "A";
+                }
+                if (myLevel.label == "B" && myLevel.success) {
+                    maxLevel = "B";
+                }
+                if (myLevel.label == "C" && myLevel.success && myLevel.successE) {
+                    maxLevel = "C";
+                }
+                if (myLevel.label == "D" && myLevel.success && myLevel.successE && myLevel.successR) {
+                    maxLevel = "D";
+                }
             }
-            if (myLevel.label == "C" && myLevel.success && myLevel.successE) {
-                maxLevel = "C";
-            }
-            if (myLevel.label == "D" && myLevel.success && myLevel.successE && myLevel.successR) {
-                maxLevel = "D";
-            }
-        }
-        myDate = myLevel.startPTime
-        levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-        // Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
-        newRow = [myTeam.teacher, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6) / 10, "MaxLevel"];
-        csvSummaryArray.push(newRow);
+            myDate = myLevel.startPTime
+            levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+            // Teacher / Date / Team / Level / Time / Action / Actor / Total Msg Score / Number Msgs / Avg Msg Score
+            newRow = [myTeam.teacher, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6) / 10, "MaxLevel"];
+            csvSummaryArray.push(newRow);
 
+        }
     }
 }
 
@@ -623,6 +624,6 @@ function makeSummaryArray(teams) {
         summaryArray.push(summaryRow);
     }
     downloadSummaryCSV(summaryArray);
-    mssg = "report-tools: makeSummaryArray for " + i + " teams";
-    console.log(mssg);
+    Msg = "report-tools: makeSummaryArray for " + i + " teams";
+    console.log(Msg);
 }

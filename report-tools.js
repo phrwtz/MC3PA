@@ -155,8 +155,8 @@ function reportVarRefs(teams) {
         team = teams[k];
         if ($("#team-" + team.name + team.classID)[0].checked) {
             for (var j = 0; j < team.levels.length; j++) {
-                myLevel = team.levels[j];
-                if ((!myLevel.label == "T") && $("#level-" + myLevel.label)[0].checked) {
+                var myLevel = team.levels[j];
+                if ($("#level-" + myLevel.label)[0].checked) {
                     document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + ", level " + myLevel.label + ":</mark><br>");
                     varRefs = myLevel.varRefs;
                     varRefCount = 0;
@@ -535,95 +535,121 @@ function teacherReport(teams) {
             var myTeamTotalTime = 0;
             for (var j = 0; j < myTeam.levels.length; j++) {
                 myLevel = myTeam.levels[j];
-                var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
-                var levelMinutes = Math.round(levelTime / 60);
-                var levelSeconds = levelTime % 60;
-                myTeamTotalTime += levelTime;
-                var levelMsg = (myLevel.success ?
-                    "<br><font color=green>Goal voltages attained.</font>" :
-                    "<br><font color=red>Goal voltages not attained.</font>");
-                var levelEMsg = (myLevel.successE ?
-                    "<br><font color=green>E correctly reported.</font>" :
-                    "<br><font color=red>E not reported correctly.</font>");
-                var levelRMsg = (myLevel.successR ?
-                    "<br><font color=green>R0 correctly reported.</font>" :
-                    "<br><font color=red>R0 not reported correctly.</font>");
-                var successMsg;
-                var cellContents = "Time (mm:ss): " + levelMinutes + ":" + ("0" + levelSeconds).slice(-2);
-                var sTime = new Date(myLevel.startUTime * 1000);
-                var eTime = new Date(myLevel.endUTime * 1000);
-                cellContents += "<br><small>Start: " + sTime.getHours() + ":" + (sTime.getMinutes() < 10 ? '0' : '') + sTime.getMinutes();
-                cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes() < 10 ? '0' : '') + eTime.getMinutes() + "ET </small>";
-                cellContents += levelMsg;
-                if ((myLevel.label == "A") || myLevel.label == "B") {
-                    successMsg = (myLevel.success ?
-                        "<br><b><font color=green>Level successful.</font></b>" :
-                        "<br><b><font color=red>Level unsuccessful.</font></b>");
-                }
-                if (myLevel.label == "C") {
-                    cellContents += levelEMsg;
-                    successMsg = ((myLevel.success && myLevel.successE) ?
-                        "<br><b><font color=green>Level successful.</font></b>" :
-                        "<br><b><font color=red>Level unsuccessful.</font></b>");
-                }
-                if (myLevel.label == "D") {
-                    cellContents += levelEMsg + levelRMsg;
-                    successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
-                        "<br><b><font color=green>Level successful.</font></b>" :
-                        "<br><b><font color=red>Level unsuccessful.</font></b>");
-                }
-                cellContents += successMsg;
 
-                dataCells[i][j + 1].innerHTML = cellContents;
-            }
-            maxLevel = "None";
-            for (var j = 0; j < myTeam.levels.length; j++) {
-                myLevel = myTeam.levels[j];
-                if (myLevel.label == "A" && myLevel.success) {
-                    maxLevel = "A";
+                //For levels A and B the end time for the level is the earlier of the time when they first submitted the correct voltages or, if they never did that, the time of the last action
+                if ((myLevel.label == "A") || (myLevel.label == "B")) {
+                    if (myLevel.successVTime > 0) {
+                        myLevel.endUTime = myLevel.successVTime
+                    } else {
+                        myLevel.endUTime = myLevel.lastActionTime
+                    };
                 }
-                if (myLevel.label == "B" && myLevel.success) {
-                    maxLevel = "B";
-                }
-                if (myLevel.label == "C" && myLevel.success && myLevel.successE) {
-                    maxLevel = "C";
-                }
-                if (myLevel.label == "D" && myLevel.success && myLevel.successE && myLevel.successR) {
-                    maxLevel = "D";
-                }
-            }
-            myDate = myLevel.startPTime
-            levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-            // Teacher / Date / Team / Level / Time / Action / Actor / Total Msg Score / Number Msgs / Avg Msg Score
-            newRow = [myTeam.teacher, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6) / 10, "MaxLevel"];
-            csvSummaryArray.push(newRow);
 
+                //For level C, if they submitted the correct voltages and the correct E the end time is the later of those times, if not the end time is the time of the last action
+                if ((myLevel.label == "C")) {
+                    if ((myLevel.successVTime > 0) && (myLevel.successETime > 0)) {
+                            myLevel.endUTime = Math.max(myLevel.successVTime, myLevel.successETime)
+                        } else {
+                        myLevel.endUTime = myLevel.lastActionTime;
+                        };
+                    }
+                    //For level D, if they submitted the correct voltages and the correct E and R0, the end time is the later of those times, if not the end time is the time of the last action
+                    if ((myLevel.label == "D")) {
+                        if ((myLevel.successVTime > 0) && (myLevel.successETime > 0) && (myLevel.successRTime > 0)) {
+                            myLevel.endUTime = Math.max(myLevel.successVTime, Math.max(myLevel.successETime, myLevel.successRTime));
+                            } else {
+                            myLevel.endUTime = myLevel.lastActionTime;
+                            };
+                        }
+                        var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
+                        var levelMinutes = Math.round(levelTime / 60);
+                        var levelSeconds = levelTime % 60;
+                        myTeamTotalTime += levelTime;
+                        var levelMsg = (myLevel.success ?
+                            "<br><font color=green>Goal voltages attained.</font>" :
+                            "<br><font color=red>Goal voltages not attained.</font>");
+                        var levelEMsg = (myLevel.successE ?
+                            "<br><font color=green>E correctly reported.</font>" :
+                            "<br><font color=red>E not reported correctly.</font>");
+                        var levelRMsg = (myLevel.successR ?
+                            "<br><font color=green>R0 correctly reported.</font>" :
+                            "<br><font color=red>R0 not reported correctly.</font>");
+                        var successMsg;
+                        var cellContents = "Time (mm:ss): " + levelMinutes + ":" + ("0" + levelSeconds).slice(-2);
+                        var sTime = new Date(myLevel.startUTime * 1000);
+                        var eTime = new Date(myLevel.endUTime * 1000);
+                        cellContents += "<br><small>Start: " + sTime.getHours() + ":" + (sTime.getMinutes() < 10 ? '0' : '') + sTime.getMinutes();
+                        cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes() < 10 ? '0' : '') + eTime.getMinutes() + "ET </small>";
+                        cellContents += levelMsg;
+                        if ((myLevel.label == "A") || myLevel.label == "B") {
+                            successMsg = (myLevel.success ?
+                                "<br><b><font color=green>Level successful.</font></b>" :
+                                "<br><b><font color=red>Level unsuccessful.</font></b>");
+                        }
+                        if (myLevel.label == "C") {
+                            cellContents += levelEMsg;
+                            successMsg = ((myLevel.success && myLevel.successE) ?
+                                "<br><b><font color=green>Level successful.</font></b>" :
+                                "<br><b><font color=red>Level unsuccessful.</font></b>");
+                        }
+                        if (myLevel.label == "D") {
+                            cellContents += levelEMsg + levelRMsg;
+                            successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+                                "<br><b><font color=green>Level successful.</font></b>" :
+                                "<br><b><font color=red>Level unsuccessful.</font></b>");
+                        }
+                        cellContents += successMsg;
+
+                        dataCells[i][j + 1].innerHTML = cellContents;
+                    }
+                    maxLevel = "None";
+                    for (var j = 0; j < myTeam.levels.length; j++) {
+                        myLevel = myTeam.levels[j];
+                        if (myLevel.label == "A" && myLevel.success) {
+                            maxLevel = "A";
+                        }
+                        if (myLevel.label == "B" && myLevel.success) {
+                            maxLevel = "B";
+                        }
+                        if (myLevel.label == "C" && myLevel.success && myLevel.successE) {
+                            maxLevel = "C";
+                        }
+                        if (myLevel.label == "D" && myLevel.success && myLevel.successE && myLevel.successR) {
+                            maxLevel = "D";
+                        }
+                    }
+                    myDate = myLevel.startPTime
+                    levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+                    // Teacher / Date / Team / Level / Time / Action / Actor / Total Msg Score / Number Msgs / Avg Msg Score
+                    newRow = [myTeam.teacher, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6) / 10, "MaxLevel"];
+                    csvSummaryArray.push(newRow);
+
+                }
+            }
         }
-    }
-}
 
 
-function makeSummaryArray(teams) {
-    var summaryArray = ["Team", "Teacher", "Level A", "Level B", "Level C", "Level D"]
+        function makeSummaryArray(teams) {
+            var summaryArray = ["Team", "Teacher", "Level A", "Level B", "Level C", "Level D"]
 
-    for (var i = 0; i < teams.length; i++) {
-        myTeam = teams[i]
-        myTeacher = myTeam.teacher;
-        var summaryRow = [myTeam.name, myTeacher];
-        myLevel = myTeam.levels[0];
-        for (var j = 0; j < 4; j++) {
-            if (!myTeam.levels[j]) {
-                summaryRow.push("not attempted");
-            } else if (!myTeam.levels[j].success) {
-                summaryRow.push("unsuccessful");
-            } else {
-                summaryRow.push("successful");
+            for (var i = 0; i < teams.length; i++) {
+                myTeam = teams[i]
+                myTeacher = myTeam.teacher;
+                var summaryRow = [myTeam.name, myTeacher];
+                myLevel = myTeam.levels[0];
+                for (var j = 0; j < 4; j++) {
+                    if (!myTeam.levels[j]) {
+                        summaryRow.push("not attempted");
+                    } else if (!myTeam.levels[j].success) {
+                        summaryRow.push("unsuccessful");
+                    } else {
+                        summaryRow.push("successful");
+                    }
+                }
+                summaryRow.push("/n");
+                summaryArray.push(summaryRow);
             }
+            downloadSummaryCSV(summaryArray);
+            Msg = "report-tools: makeSummaryArray for " + i + " teams";
+            console.log(Msg);
         }
-        summaryRow.push("/n");
-        summaryArray.push(summaryRow);
-    }
-    downloadSummaryCSV(summaryArray);
-    Msg = "report-tools: makeSummaryArray for " + i + " teams";
-    console.log(Msg);
-}

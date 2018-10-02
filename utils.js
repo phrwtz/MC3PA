@@ -485,6 +485,10 @@ function addLevel(myTeam, ro) {
         myLevel.success = false;
         myLevel.successE = false;
         myLevel.successR = false;
+        myLevel.successVTime = -1;
+        myLevel.successETime = -1;
+        myLevel.successRTime = -1;
+        myLevel.endVUtime = null;
         myLevel.attainedVs = false;
         myLevel.attainedVsTime = 0;
         myLevel.movedAwayFromV = false;

@@ -148,7 +148,7 @@ function addAction(ro, type) {
     if ((ro.parameters["currentFlowing"] == "true") || ro.parameters["currentFlowing"] == "TRUE") {
         myAction.currentFlowing = true;
     }
-    myLevel.endUTime = myAction.uTime; //Keep updating: last action "wins"
+    myLevel.lastActionTime = myAction.uTime;
     return myAction;
 }
 
@@ -428,6 +428,7 @@ function addSubmit(ro) {
         if (voltagesCorrectlySubmitted) { //if they've got the right voltages
             if (!(myLevel.success)) { //and this is the first time
                 myLevel.VSuccessTime = myAction.eMinSecs; //remember the time
+                myLevel.successVTime = myAction.uTime;
             }
             myLevel.success = true; //set success true
         }
@@ -445,10 +446,21 @@ function addSubmitER(ro) {
         (ro.parameters["E: Unit"] ? myAction.ESubmitUnit = ro.parameters["E: Unit"] : myAction.ESubmitUnit = "");
         (ro.parameters["R: Value"] ? myAction.RSubmitValue = ro.parameters["R: Value"] : myAction.RSubmitValue = "<No value submitted>");
         (ro.parameters["R: Unit"] ? myAction.RSubmitUnit = ro.parameters["R: Unit"] : myAction.RSubmitUnit = "");
-        (ro.parameters["E: Value"] == myLevel.E ? myLevel.successE = true : myLevel.successE = false);
-        (ro.parameters["R: Value"] == myLevel.R0 ? myLevel.successR = true : myLevel.successR = false);
-        (ro.parameters["E: Value"] == myLevel.E ? myAction.successE = true : myAction.successE = false);
-        (ro.parameters["R: Value"] == myLevel.R0 ? myAction.successR = true : myAction.successR = false);
+
+        if (!myLevel.successE) { //Only set this variable if it's the first time.
+            if ((myAction.ESubmitValue == myLevel.E) && (myAction.ESubmitUnit == 
+                "volts")) {
+                myLevel.successE = true;
+                myLevel.successETime = myAction.uTime;
+            }
+        }
+        if (!myLevel.successR) { //Only set this variable if it's the first time.
+            if ((myAction.RSubmitValue == myLevel.R0) && (myAction.RSubmitUnit == 
+                "ohms")) {
+                myLevel.successR = true;
+                myLevel.successRTime = myAction.uTime;
+            }
+        }
         myAction.varRefs = [];
         myAction.varRefs.push(getVarRefs(myAction, myAction.ESubmitValue));
         myAction.varRefs.push(getVarRefs(myAction, myAction.RSubmitValue));

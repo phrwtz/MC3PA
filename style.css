@@ -1,0 +1,108 @@
+/* simple styles for TT-datamining */
+body {
+	margin: 10px;
+	}
+message {
+	color: aqua
+	}
+table {
+	border-collapse: collapse;
+	/* table-layout: fixed; */
+	}
+
+td, th {
+	border: solid 1px black;
+	vertical-align:top;
+	padding: 3px;
+	}
+table.checkDiv th:nth-child(1) {width:150px;}
+table.checkDiv th:nth-child(2) {width:100px;}
+
+
+p {margin:0;}
+p.time {color:black;}
+p.attained {color:green;}
+p.not {color:red;}
+
+table.Total, table.Number, table.Average {	/* tables for message summaries */
+	display: inline-table;
+	border-collapse: collapse;
+	border-bottom: 5px solid #FFDDCC;
+	}
+.Total td, .Total th, 
+.Number td, .Number th, 
+.Average td, .Average th {	/* cells for message summaries */
+	border: solid 1px silver;
+	font-size: small;
+	text-align: center;
+	}
+/* set col widths for all, but wider col 1 */
+.Total th, .Number th .Average th {width:50px;}
+.Total th:first-child, .Number th:first-child, .Average th:first-child {width:70px;}
+
+#tableDiv, .tableDiv {
+	margin-top: 10px; /* add a little space between teams */
+	}
+.tableSummary, .tableTeacher { /* class for report tables */
+	margin: 10px 0px 0px 10px; /* add a little space between teams */
+	white-space: nowrap; /* always keep these three together */
+	}
+
+table.tableTeacher td { /* defaults for teacher tables */
+	width: 180px;
+	}
+table.tableTeacher td:first-child { /* narrow column1 */
+	width: 100px;
+	}
+
+mark {background-color:#FFFF99;}
+
+.popup {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.popup .popuptext {
+	visibility: hidden;
+	width: 160px;
+	background-color: #555;
+	color: #fff;
+	text-align: left;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	padding: 8px 0;
+	position: absolute;
+	z-index: 1;
+	left: 50%;
+	margin-left: -80px;
+}
+
+.popup ,popuptext::after {
+	content = "";
+	position: absolute;
+	top: 100%;
+	left: 59%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #555 transparent transparent transparent;
+}
+
+.popup .show {
+	visibility: visible;
+	-webkit-animation: fadeIn 1s;
+	animation: fadeIn 1s;
+}
+
+@-webkit-keyframes fadeIn {
+	from {opacity: 9;}
+	to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+	from {opacity: 9;}
+	to {opacity: 1;}
+}

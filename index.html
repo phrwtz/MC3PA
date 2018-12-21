@@ -10,10 +10,10 @@
 
 <body>
     <h1>Analyze MC3PA Data</h1>
-    Student data:<input type="file" id="studentDataInput" onchange= "parseStudentData()"><br>
+    Student data:<input type="file" id="studentDataInput" onchange="parseStudentData()"><br>
     Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"><br>
-    <button type="button" onclick="parseJSON(data)">Analyze</button>
-    <button type="button" onclick="specialReport(data)">Special Report</button>
+    <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button>
+    <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Summary Report</button>
 
     <script>
         var data = new Array;
@@ -30,18 +30,17 @@
                 }
                 reader.onloadend = function (theFile) {
                     return function (e) {
-                    fileCount++;
-                    if (fileCount >= files.length - 1) {
-                        ready = true;
-                        console.log("fileCount = " + fileCount + ", data length = " + data.length);
-                    }
+                        fileCount++;
+                        if (fileCount >= files.length - 1) {
+                            document.getElementById("analyzeButton").style.display = "block";
+                            console.log("fileCount = " + fileCount + ", data length = " + data.length);
+                        }
                         data.push(e.target.result); //Push the student data onto the array–
                     }
                 }(f);
                 reader.readAsText(f);
             }
         }
-
     </script>
 
     <script src="parse-student-data.js"></script>

@@ -30,8 +30,8 @@ function parseJSON(data) {
         rowObjs = JSON.parse(data[i]);
         classIds.push(rowObjs[0]["class_id"]);
         teams = makeTeams(rowObjs); // identify teams and members, actions taken by them
-        console.log("Teams made");;
         analyze(rowObjs); // adding actions to the arrays
+        document.getElementById("reportButton").style.display = "block";
         console.log("parse-file: analysis complete on data[" + i + "].");
     }
     setupForm(teams); //sets up the array of radio buttons that enable one to tailor reports. 

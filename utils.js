@@ -816,3 +816,29 @@ function sortActionsByUTime(actions) {
         return (a.uTime - b.uTime)
     });
 }
+
+function goalVoltagesChatted(myLevel) {
+    var goalV1Communicated = false;
+    var goalV2Communicated = false;
+    var goalV3Communicated = false;
+    for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
+        if (myLevel.varRefs["goalV1"][i][0].type == "message") {
+            goalV1Communicated = true;
+            break;
+        }
+    }
+    for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
+        if (myLevel.varRefs["goalV2"][i][0].type == "message") {
+            goalV2Communicated = true;
+            break;
+        }
+    }
+
+    for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
+        if (myLevel.varRefs["goalV3"][i][0].type == "message") {
+            goalV3Communicated = true;
+            break;
+        }
+    }
+    return ((goalV1Communicated) && (goalV2Communicated) && (goalV3Communicated));
+}

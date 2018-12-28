@@ -109,10 +109,10 @@ function findGuessAndCheck(teams) {
                         }
                     }
                     if ((myLevel.label == "C") || (myLevel.label == "D")) {  
-                        document.getElementById("data").innerHTML += "<br>" + "Team " + myTeam.name + ", level " + myLevel.label + ", " + guessAndCheckEMsg[0] + ", " + guessAndCheckEMsg[1] + ", " + guessAndCheckEMsg[2];
+                        document.getElementById("data").innerHTML += "<br>" + "Team " + myTeam.name + "(" + myTeam.classId + "}, level " + myLevel.label + ", " + guessAndCheckEMsg[0] + ", " + guessAndCheckEMsg[1] + ", " + guessAndCheckEMsg[2];
                     }
                     if (myLevel.label == "D") {
-                            document.getElementById("data").innerHTML += "<br>" + "Team " + myTeam.name + ", level " + myLevel.label + ", " + guessAndCheckRMsg[0] + ", " + guessAndCheckRMsg[1] + ", " + guessAndCheckRMsg[2];
+                            document.getElementById("data").innerHTML += "<br>" + "Team " + myTeam.name + "(" + myTeam.classId + "}, level " + myLevel.label + ", " + guessAndCheckRMsg[0] + ", " + guessAndCheckRMsg[1] + ", " + guessAndCheckRMsg[2];
                         }
                 }
             }

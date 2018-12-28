@@ -157,7 +157,7 @@ function reportVarRefs(teams) {
             for (var j = 0; j < team.levels.length; j++) {
                 var myLevel = team.levels[j];
                 if ($("#level-" + myLevel.label)[0].checked) {
-                    document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + ", level " + myLevel.label + ":</mark><br>");
+                    document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + "(" + team.classId + "), level " + myLevel.label + ":</mark><br>");
                     varRefs = myLevel.varRefs;
                     varRefCount = 0;
                     for (var i = 0; i < vrLabelsArray.length; i++) {

@@ -237,7 +237,7 @@ function addLevelRow(team, level) {
     var teamCell = document.createElement("th");
     teamCell.style.alignItems = "flex-start";
     timeCell.innerHTML = "Time";
-    teamCell.innerHTML = "Team " + team.name + ", Level " + level.label + ", " + level.errorMsg;
+    teamCell.innerHTML = "Team " + team.name + "(" + team.classId + "), Level " + level.label + ", " + level.errorMsg;
     teamCell.setAttribute("colspan", 3);
     headerRow.appendChild(timeCell);
     headerRow.appendChild(teamCell);

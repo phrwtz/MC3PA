@@ -72,7 +72,7 @@ function findSummaryData(myLevel, prFlag) { //Runs through all the actions in my
                     messagesWithoutVsTotal++;
                 }
                 break;
-            //Same for calculations and resistor changes
+                //Same for calculations and resistor changes
             case "calculation":
                 if (myLevel.attainedVs) {
                     if (thisAction.eTime <= myLevel.attainedVsTime) {
@@ -194,15 +194,15 @@ function findSummaryData(myLevel, prFlag) { //Runs through all the actions in my
 
         // Print summary
         if (!myLevel.attempted) {
-            document.getElementById("data").innerHTML += "<br> <mark>Team " + myLevel.team.name + ", level " + myLevel.label + "</mark> <span style=\"color:#FF0000;\"> not attempted.</span><br>";
+            document.getElementById("data").innerHTML += "<br><br><mark>Class " + team.classId + ", team " + team.name + ", level " + myLevel.label + "</mark> <span style=\"color:#FF0000;\"> not attempted.</span><br>";
         } else {
             if (myLevel.success) {
                 successMsg = "<b>Level successful. </b>";
             } else {
                 successMsg = "<b>Level unsuccessful. </b>";
             }
-            document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
-                team.name + ", level " + myLevel.label + "</mark>, start time: " + successMsg + myLevel.startPTime + ", duration: " + levelMinutes + ":" + levelSeconds + "<br>" + goalVMsg + levelMsg + "<br>");
+            document.getElementById("data").innerHTML += ("<br><br><mark>Class " + team.classId + ", team " +
+                team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + successMsg + ", duration: " + levelMinutes + ":" + levelSeconds + "<br>" + goalVMsg + levelMsg + "<br>");
 
             if (myLevel.errorMsg != "") {
                 document.getElementById("data").innerHTML += (myLevel.errorMsg);

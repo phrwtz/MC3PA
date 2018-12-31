@@ -14,7 +14,7 @@
     Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"><br>
     <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button>
     <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Summary Report</button>
-
+<p id="summaryData"></p>
     <script>
         var data = new Array;
         var fileCount = 0;

@@ -16,7 +16,10 @@ function summaryReport() {
     var levelTime = 0,
         avgLevelSuccessMinutes = [0, 0, 0, 0],
         avgLevelSuccessSeconds = [0, 0, 0, 0];
-    document.getElementById("data").innerHTML = "";
+
+    var p = document.getElementById("summaryData");
+
+    p.innerHTML = "<br><b>" + teams.length + " teams analyzed. Here are the results:</b><br>"
     for (var i = 0; i < teams.length; i++) {
         myTeam = teams[i];
         for (var j = 0; j < myTeam.levels.length; j++) {
@@ -52,13 +55,13 @@ function summaryReport() {
         Math.round(levelFailTime[k] / levelFail[k]);
         avgLevelFailActions[k] = Math.round(levelFailActions[k] / levelFail[k]);
 
-        document.getElementById("data").innerHTML += ("<br>At level " + label[k] + ", " + levelSuccess[k] + " teams succeeded, " + levelFail[k] + " failed and " + levelNotAttempted[k] + " didn't attempt the level.<br>");
+        p.innerHTML += ("<br>At level " + label[k] + ", " + levelSuccess[k] + " teams succeeded, " + levelFail[k] + " failed and " + levelNotAttempted[k] + " didn't attempt the level.<br>");
         if (levelSuccess[k]) {
-            document.getElementById("data").innerHTML += ("Average time to success = " + avgLevelSuccessMinutes[k] + ":" + avgLevelSuccessSeconds[k] + ". Average number of actions for success = " + avgLevelSuccessActions[k] +
+            p.innerHTML += ("Average time to success = " + avgLevelSuccessMinutes[k] + ":" + avgLevelSuccessSeconds[k] + ". Average number of actions for success = " + avgLevelSuccessActions[k] +
                 ", percent goals chatted = " + Math.round((1000 * levelSuccessGoalsChatted[k] / levelSuccess[k]) / 10) + ".<br>");
         }
         if (levelFail[k]) {
-            document.getElementById("data").innerHTML += ("Average number of actions for failure = " + avgLevelFailActions[k] + ", percent goals chatted = " + Math.round((1000 * levelFailGoalsChatted[k] / levelFail[k]) / 10) + ".<br>");
+            p.innerHTML += ("Average number of actions for failure = " + avgLevelFailActions[k] + ", percent goals chatted = " + Math.round((1000 * levelFailGoalsChatted[k] / levelFail[k]) / 10) + ".<br>");
         }
     }
 }

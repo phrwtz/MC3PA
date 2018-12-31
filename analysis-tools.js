@@ -80,6 +80,9 @@ function addAction(ro, type) {
     }
     var levelFound = false;
     var levelName = ro.parameters["levelName"];
+    if (!levelName) {
+        alert ("No level name found!");
+    }
     var levelNumber = getLevelNumber(levelName); //0 for tutorial, 1 for level A, etc.
     for (var i = 0; i < myTeam.levels.length; i++) {
         if (myTeam.levels[i].number == levelNumber) {

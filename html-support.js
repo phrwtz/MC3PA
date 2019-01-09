@@ -21,7 +21,7 @@ function setupForm(teams) {
         var checkDiv = document.createElement("div");
         checkDiv.id = "checkDiv";
     }
-    var checkForm = document.createElement("form"); 
+    var checkForm = document.createElement("form");
     checkForm.ID = "checkForm";
     checkForm.style.margin = "5px";
     var checkTeacher = document.createElement("input");
@@ -94,7 +94,7 @@ function setupForm(teams) {
     labelStr = '<b>All levels</b><br>';
     levelData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
     var levelLabels = ["A", "B", "C", "D"];
-    for (j = 0; j < levelLabels.length; j++) { 
+    for (j = 0; j < levelLabels.length; j++) {
         IDStr = 'id=level-' + levelLabels[j] + ' name=level>';
         labelStr = levelLabels[j] + "<br>";
         levelData.innerHTML += "<input " + typeStr + IDStr + labelStr;
@@ -322,17 +322,6 @@ function addActionRow(act, content) {
     actionRow.appendChild(actionCell0);
 
     var cellIndex = bd;
-    // var idArray = [];
-    // if (act.actor.id) {
-    //     for (var h = 0; h < 3; h++) {
-    //         idArray[h] = act.level.members[h].id;
-    //     }
-    //     for (var hh = 0; hh < 3; hh++) {
-    //         if (act.actor.id == idArray[hh]) {
-    //             bd = hh;
-    //         }
-    //     }
-    // }
 
     switch (bd) {
         case 0:
@@ -342,11 +331,6 @@ function addActionRow(act, content) {
             actionRow.appendChild(actionCell1);
             actionRow.appendChild(actionCell2);
             actionRow.appendChild(actionCell3);
-            // actionCell1.addEventListener("mousedown", function () {
-            //     reportAllActions(teams, act);
-            //     element = document.getElementById(actionRow.id);
-            //     element.scrollIntoView(true);
-            // });
             break;
         case 1:
             actionCell1.innerHTML = "";

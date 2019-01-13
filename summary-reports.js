@@ -1,61 +1,120 @@
+var filteredLevels = [] //Includes only levels that were attempted.
+
 function summaryReport() {
     var table = makeSummaryReportTable();
     document.body.appendChild(table);
-    fillLevels();
+    fillAllLevels(); // to be filled with all attempted levels
+    updateLevels(); // update the levels checkboxes
 }
 
-function fillLevels() {
-    var levelSuccess = [0, 0, 0, 0],
-        levelFail = [0, 0, 0, 0],
-        levelNotAttempted = [0, 0, 0, 0];
-    var t11 = document.getElementById("t11"),
-        t21 = document.getElementById("t21"),
-        t31 = document.getElementById("t31"),
-        t41 = document.getElementById("t41");
-    //  var label = ["A", "B", "C", "D"];
+function fillAllLevels() {
     for (var i = 0; i < teams.length; i++) {
         myTeam = teams[i];
         for (var j = 0; j < myTeam.levels.length; j++) {
             myLevel = myTeam.levels[j];
             if (myLevel.attempted) {
                 myLevel.success = setSuccessFlag(myLevel);
-                if (myLevel.success) {
-                    levelSuccess[j]++;
-                } else {
-                    levelFail[j]++;
-                }
+                myLevel.goalsChatted = goalVsChatted(myLevel);
+                filteredLevels.push(myLevel);
             }
         }
     }
-    if (levelSuccess[0] || levelFail[0]) {
-        t11.innerHTML = '<input type="checkbox" name="level" id="levelA" onchange="updateOutcomes()">A(' + parseInt(levelSuccess[0] + levelFail[0]) + ")";
-    }
-    if (levelSuccess[1] || levelFail[1]) {
-        t21.innerHTML = '<input type="checkbox" name="level" id="levelB" onchange="updateOutcomes()">B(' + parseInt(levelSuccess[1] + levelFail[1]) + ")";
-    }
-    if (levelSuccess[2] || levelFail[2]) {
-        t31.innerHTML = '<input type="checkbox" name="level" id="levelC" onchange="updateOutcomes()">C(' + parseInt(levelSuccess[2] + levelFail[2]) + ")";
-    }
-    if (levelSuccess[3] || levelFail[3]) {
-        t41.innerHTML = '<input type="checkbox" name="level" id="levelD" onchange="updateOutcomes()">D(' + parseInt(levelSuccess[3] + levelFail[3]) + ")";
-    }
 }
-// var levelNotAttempted = [0, 0, 0, 0];
-// var levelSuccessTime = [0, 0, 0, 0];
-// var levelFailTime = [0, 0, 0, 0];
-// var levelSuccessActions = [0, 0, 0, 0];
-// var levelSuccessGoalsChatted = [0, 0, 0, 0];
-// var levelFailActions = [0, 0, 0, 0];
-// var avgLevelSuccessTime = [0, 0, 0, 0];
-// var avgLevelSuccessActions = [0, 0, 0, 0];
-// var avgLevelFailTime = [0, 0, 0, 0];
-// var avgLevelFailActions = [0, 0, 0, 0];
-// var levelFailGoalsChatted = [0, 0, 0, 0];
-// var label = ["A", "B", "C", "D"];
-// var levelTime = 0,
-//     avgLevelSuccessMinutes = [0, 0, 0, 0],
-//     avgLevelSuccessSeconds = [0, 0, 0, 0];
 
+function updateLevels() {
+    var levelSuccess = [0, 0, 0, 0],
+        levelFail = [0, 0, 0, 0],
+        t11 = document.getElementById("t11"),
+        t21 = document.getElementById("t21"),
+        t31 = document.getElementById("t31"),
+        t41 = document.getElementById("t41");
+    for (var i = 0; i < filteredLevels.length; i++) {
+        myLevel = filteredLevels[i];
+        index = myLevel.number - 1; // levels start with tutorial
+        if (myLevel.success) {
+            levelSuccess[index]++;
+        } else {
+            levelFail[index]++;
+        }
+    }
+
+        t11.innerHTML = '<input type="checkbox" name="level" id="levelA" onchange="updateOutcomes(); updateGoalsChatted()">A(' + parseInt(levelSuccess[0] + levelFail[0]) + ")";
+    
+        t21.innerHTML = '<input type="checkbox" name="level" id="levelB" onchange="updateOutcomes(); updateGoalsChatted()">B(' + parseInt(levelSuccess[1] + levelFail[1]) + ")";
+    
+        t31.innerHTML = '<input type="checkbox" name="level" id="levelC" onchange="updateOutcomes(); updateGoalsChatted()">C(' + parseInt(levelSuccess[2] + levelFail[2]) + ")";
+    
+        t41.innerHTML = '<input type="checkbox" name="level" id="levelD" onchange="updateOutcomes(); updateGoalsChatted()">D(' + parseInt(levelSuccess[3] + levelFail[3]) + ")";
+    
+}
+
+function updateOutcomes() {
+    var levelsSuccess = 0,
+        levelsFailure = 0,
+        t12 = document.getElementById("t12"),
+        t22 = document.getElementById("t22"),
+        myLevel;
+    for (var i = 0; i < filteredLevels.length; i++) {
+        myLevel = filteredLevels[i];
+        if ($("#level" + myLevel.label)[0].checked) {
+            (myLevel.success) ? levelsSuccess++ : levelsFailure++;
+        }
+    }
+    t12.innerHTML = '<input type="checkbox" name="success" id="success" onchange="updateGoalsChatted()">Success(' + levelsSuccess + ")";
+    t22.innerHTML = '<input type="checkbox" name="failure" id="failure" onchange="updateGoalsChatted()">Failure(' + levelsFailure + ")";
+}
+
+function updateGoalsChatted() {
+    var goalsChattedLevels = 0,
+        noGoalsChattedLevels = 0,
+        t13 = document.getElementById("t13"),
+        t23 = document.getElementById("t23"),
+        myLevel;
+    for (var i = 0; i < filteredLevels.length; i++) {
+        myLevel = filteredLevels[i];
+        if ($("#level" + myLevel.label)[0].checked) {
+            if (($("#success")[0]).checked && myLevel.success) {
+                (myLevel.goalsChatted) ? goalsChattedLevels++ :
+                    noGoalsChattedLevels++;
+            }
+            if (($("#failure")[0]).checked && !myLevel.success) {
+                (myLevel.goalsChatted) ? goalsChattedLevels++ :
+                    noGoalsChattedLevels++;
+            }
+        }
+    }
+
+t13.innerHTML = '<input type="checkbox" name="chatted" id="chatted" onchange="actionRepts()">Goal Vs chatted(' + goalsChattedLevels + ")";
+t23.innerHTML = '<input type="checkbox" name="notChatted" id="notChatted" onchange="actionRepts()">Not chatted(' + noGoalsChattedLevels + ")";
+}
+
+function actionRepts() {};
+
+function goalVsChatted(myLevel) {
+    var goalV1Communicated,
+        goalV2Communicated,
+        goalV3Communicated;
+    for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
+        if (myLevel.varRefs["goalV1"][i][0].type == "message") {
+            goalV1Communicated = true;
+            break;
+        }
+    }
+    for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
+        if (myLevel.varRefs["goalV2"][i][0].type == "message") {
+            goalV2Communicated = true;
+            break;
+        }
+    }
+
+    for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
+        if (myLevel.varRefs["goalV3"][i][0].type == "message") {
+            goalV3Communicated = true;
+            break;
+        }
+    }
+    return (goalV1Communicated && goalV2Communicated && goalV3Communicated);
+}
 
 function makeSummaryReportTable() {
     var summaryTable = document.createElement("table");
@@ -107,162 +166,4 @@ function makeSummaryReportTable() {
     checkboxRow3.appendChild(cell31);
     checkboxRow4.appendChild(cell41);
     return summaryTable;
-}
-
-function updateOutcomes() {
-    var allLevelsSuccess = 0,
-        allLevelsFail = 0;
-    var t12 = document.getElementById("t12"),
-        t22 = document.getElementById("t22");
-    var myTeam,
-        myLevel;
-    for (var i = 0; i < teams.length; i++) {
-        myTeam = teams[i];
-        if (myTeam.levels[0]) {
-            myLevel = myTeam.levels[0];
-            if (myLevel && $("#levelA")[0].checked) {
-                myLevel.success = setSuccessFlag(myLevel);
-                if ((myLevel.attempted) && (myLevel.success)) {
-                    allLevelsSuccess++;
-                } else if ((myLevel.attempted) && (!myLevel.success)) {
-                    allLevelsFail++;
-                }
-            }
-            if (myTeam.levels[1]) {
-                myLevel = myTeam.levels[1];
-                if (myLevel && $("#levelB")[0].checked) {
-                    myLevel.success = setSuccessFlag(myLevel);
-                    if ((myLevel.attempted) && (myLevel.success)) {
-                        allLevelsSuccess++;
-                    } else if ((myLevel.attempted) && (!myLevel.success)) {
-                        allLevelsFail++;
-                    }
-                }
-            }
-            if (myTeam.levels[2]) {
-                myLevel = myTeam.levels[2];
-                if (myLevel && $("#levelC")[0].checked) {
-                    myLevel.success = setSuccessFlag(myLevel);
-                    if ((myLevel.attempted) && (myLevel.success)) {
-                        allLevelsSuccess++;
-                    } else if ((myLevel.attempted) && (!myLevel.success)) {
-                        allLevelsFail++;
-                    }
-                }
-            }
-            if (myTeam.levels[3]) {
-                myLevel = myTeam.levels[3];
-                if (myLevel && $("#levelD")[0].checked) {
-                    myLevel.success = setSuccessFlag(myLevel);
-                    if ((myLevel.attempted) && (myLevel.success)) {
-                        allLevelsSuccess++;
-                    } else if ((myLevel.attempted) && (!myLevel.success)) {
-                        allLevelsFail++;
-                    }
-                }
-            }
-        }
-        t12.innerHTML = '<input type="checkbox" name="success" id="success" onchange="updateGoalsChatted()">Success(' + allLevelsSuccess + ")";
-        t22.innerHTML = '<input type="checkbox" name="failure" id="failure" onchange="updateGoalsChatted()">Failure(' + allLevelsFail + ")";
-    }
-}
-
-function updateGoalsChatted() {
-    var allLevelsGoalsChatted = 0,
-        allLevelsNoGoalsChatted = 0,
-        goalsChattedArray = [0, 0]; // Used for returning values
-    var t13 = document.getElementById("t13"),
-        t23 = document.getElementById("t23");
-    var myTeam,
-        myLevel;
-    for (var i = 0; i < teams.length; i++) {
-        myTeam = teams[i];
-
-        if (myTeam.levels[0]) {
-            myLevel = myTeam.levels[0];
-            myLevel.success = setSuccessFlag(myLevel);
-            if (myLevel.attempted && $("#levelA")[0].checked) {
-                var goalsChattedArray = computeGoalsChattedData(myLevel);
-                allLevelsGoalsChatted += goalsChattedArray[0];
-                allLevelsNoGoalsChatted += goalsChattedArray[1];
-            }
-            if (myTeam.levels[1]) {
-                myLevel = myTeam.levels[1];
-                myLevel.success = setSuccessFlag(myLevel);
-                if (myLevel.attempted && $("#levelB")[0].checked) {
-                    var goalsChattedArray = computeGoalsChattedData(myLevel);
-                    allLevelsGoalsChatted += goalsChattedArray[0];
-                    allLevelsNoGoalsChatted += goalsChattedArray[1];
-                }
-            }
-            if (myTeam.levels[2]) {
-                myLevel = myTeam.levels[2];
-                myLevel.success = setSuccessFlag(myLevel);
-                if (myLevel.attempted && $("#levelC")[0].checked) {
-                    var goalsChattedArray = computeGoalsChattedData(myLevel);
-                    allLevelsGoalsChatted += goalsChattedArray[0];
-                    allLevelsNoGoalsChatted += goalsChattedArray[1];
-                }
-            }
-            if (myTeam.levels[3]) {
-                myLevel = myTeam.levels[3];
-                myLevel.success = setSuccessFlag(myLevel);
-                if (myLevel.attempted && $("#levelD")[0].checked) {
-                    var goalsChattedArray = computeGoalsChattedData(myLevel);
-                    allLevelsGoalsChatted += goalsChattedArray[0];
-                    allLevelsNoGoalsChatted += goalsChattedArray[1];
-                }
-            }
-        }
-    }
-    t13.innerHTML = '<input type="checkbox" name="chatted" id="chatted">Goal Vs chatted(' + allLevelsGoalsChatted + ")";
-    t23.innerHTML = '<input type="checkbox" name="notChatted" id="notChatted">Not chatted(' + allLevelsNoGoalsChatted + ")";
-}
-
-
-function computeGoalsChattedData(myLevel) {
-    var goalsChatted = 0,
-        noGoalsChatted = 0;
-    myLevel.success = setSuccessFlag(myLevel);
-    myLevel.goalsChatted = goalVsChatted(myLevel);
-    if ($("#success")[0].checked) {
-        if (myLevel.success && myLevel.goalsChatted) {
-            goalsChatted++;
-        } else if (myLevel.success && !myLevel.goalsChatted) {
-            noGoalsChatted++;
-        }
-    }
-    if ($("#failure")[0].checked) {
-        if (!myLevel.success && myLevel.goalsChatted) {
-            goalsChatted++;
-        } else if (!myLevel.success && !myLevel.goalsChatted) {
-            noGoalsChatted++;
-        }
-    }
-    return [goalsChatted, noGoalsChatted];
-}
-function goalVsChatted(myLevel) {
-    var goalV1Communicated,
-        goalV2Communicated,
-        goalV3Communicated;
-    for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
-        if (myLevel.varRefs["goalV1"][i][0].type == "message") {
-            goalV1Communicated = true;
-            break;
-        }
-    }
-    for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
-        if (myLevel.varRefs["goalV2"][i][0].type == "message") {
-            goalV2Communicated = true;
-            break;
-        }
-    }
-
-    for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
-        if (myLevel.varRefs["goalV3"][i][0].type == "message") {
-            goalV3Communicated = true;
-            break;
-        }
-    }
-    return (goalV1Communicated && goalV2Communicated && goalV3Communicated);
 }

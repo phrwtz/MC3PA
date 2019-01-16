@@ -26,14 +26,23 @@ var csvFilename;
 
 //This function takes a JSON file and turns it into row objects
 function parseJSON(data) {
+    var analysisBar = document.getElementById("analysisProgress");
     for (var i = 0; i < data.length; i++) {
         rowObjs = JSON.parse(data[i]);
         classIds.push(rowObjs[0]["class_id"]);
         teams = makeTeams(rowObjs); // identify teams and members, actions taken by them
         analyze(rowObjs); // adding actions to the arrays
         console.log("parse-file: analysis complete on " + rowObjs[0].id + ".");
+        displayProgressBar(analysisBar, i, data.length);
     }
+    document.getElementById("analysisProgress").style.display = "none";
     document.getElementById("reportButton").style.display = "block";
-//   setupForm(teams); //sets up the array of radio buttons that enable one to tailor reports. 
-   // console.log("Form set up completed.");
+    //   setupForm(teams); //sets up the array of radio buttons that enable one to tailor reports. 
+    // console.log("Form set up completed.");
+}
+
+function displayProgressBar(bar, count, max) {
+    bar.style.display = "block";
+    bar.max = max;
+    bar.value = count;
 }

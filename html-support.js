@@ -11,7 +11,7 @@ function toggleSelectAll(checkboxName) {
     }
 }
 
-function setupForm(teams) {
+function setupForm(filteredLevels) {
     if (document.getElementById("checkDiv")) { //If checkDiv exists
         var checkDiv = document.getElementById("checkDiv"); //clear it
         while (checkDiv.firstChild) {
@@ -24,11 +24,6 @@ function setupForm(teams) {
     var checkForm = document.createElement("form");
     checkForm.ID = "checkForm";
     checkForm.style.margin = "5px";
-    var checkTeacher = document.createElement("input");
-    checkTeacher.ID = "checkTeacher";
-    checkTeacher.value = "...coming soon: enter teacher name here";
-    checkTeacher.style.width = "250px";
-    //checkForm.appendChild(checkTeacher);
     var checkTable = document.createElement("table");
     checkTable.style.margin = "5px";
     var headerRow = document.createElement("tr");
@@ -37,55 +32,42 @@ function setupForm(teams) {
     var headerCell2 = document.createElement("th");
     var headerCell3 = document.createElement("th");
     var headerCell4 = document.createElement("th");
-    var headerCell5 = document.createElement("th");
-    var headerCell6 = document.createElement("th");
-    var headerCell7 = document.createElement("th");
 
-    headerCell1.innerHTML = "Class ID";
-    headerCell2.innerHTML = "Teams";
-    headerCell3.innerHTML = "Levels";
-    headerCell4.innerHTML = "Actions";
-    headerCell5.innerHTML = "Variable Refs";
-    headerCell6.innerHTML = "Summary Data";
-    headerCell7.innerHTML = "Teacher Reports";
+    headerCell1.innerHTML = "Teams";
+    headerCell2.innerHTML = "Levels";
+    headerCell3.innerHTML = "Actions";
+    headerCell4.innerHTML = "Variable Refs";
 
     headerRow.appendChild(headerCell1);
     headerRow.appendChild(headerCell2);
     headerRow.appendChild(headerCell3);
     headerRow.appendChild(headerCell4);
-    headerRow.appendChild(headerCell5);
-    headerRow.appendChild(headerCell6);
-    headerRow.appendChild(headerCell7);
 
-    var classData = document.createElement("td");
     var teamData = document.createElement("td");
     var levelData = document.createElement("td");
     var actionData = document.createElement("td");
-    var summaryData = document.createElement("td");
     var varRefData = document.createElement("td");
-    var teacherData = document.createElement("td");
-
+    var myTeam;
+    var myLevel;
+    var filteredTeams = [];
+    var acts = [];
+for (var k = 0; k < filteredLevels.length; k++) {
+    myLevel = filteredLevels[k];
+    myTeam = myLevel.team;
+    filteredTeams.push(myTeam);
+    acts = myLevel.actions.sort(function (a, b) {
+        return (a.uTime - b.uTime)
+    });
+}
+    //Teams
     var typeStr = 'type="checkbox"  ';
-
-    // Class ID
-    var IDStr = 'id="all-classes" name="class" ';
-    var onChangeStr = "onchange = \"toggleSelectAll('class')\"";
-    var labelStr = '<b>All classes</b><br>';
-    classData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    for (var ii = 0; ii < classIds.length; ii++) {
-        IDStr = 'id=class-' + classIds[ii] + ' name=class>';
-        labelStr = (classIds[ii] + "<br>");
-        classData.innerHTML += "<input " + typeStr + IDStr + labelStr;
-    }
-
-    // Teams
     var IDStr = 'id="all-teams" name="team" ';
     var onChangeStr = "onchange = \"toggleSelectAll('team')\"";
     var labelStr = '<b>All teams</b><br>';
     teamData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    for (var i = 0; i < teams.length; i++) {
-        IDStr = 'id=team-' + teams[i].name + teams[i].classId + ' name=team>';
-        labelStr = (teams[i].classId ? teams[i].name + "(" + teams[i].classId + ")<br>" : teams[i].name + "<br>");
+    for (var i = 0; i < filteredTeams.length; i++) {
+        IDStr = 'id=team-' + filteredTeams[i].name + filteredTeams[i].classId + ' name=team>';
+        labelStr = (filteredTeams[i].classId ? filteredTeams[i].name + "(" + filteredTeams[i].classId + ")<br>" : filteredTeams[i].name + "<br>");
         teamData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
     // Levels
@@ -153,13 +135,10 @@ function setupForm(teams) {
     checkForm.appendChild(checkTable);
     checkTable.appendChild(headerRow);
     checkTable.appendChild(checkBoxRow);
-    checkBoxRow.appendChild(classData);
     checkBoxRow.appendChild(teamData);
     checkBoxRow.appendChild(levelData);
     checkBoxRow.appendChild(actionData);
     checkBoxRow.appendChild(varRefData);
-    checkBoxRow.appendChild(summaryData);
-    checkBoxRow.appendChild(teacherData);
 
     var submitButton = document.createElement("button");
     var clearButton = document.createElement("button");
@@ -170,7 +149,7 @@ function setupForm(teams) {
     var submitText = document.createTextNode("Submit query");
     submitButton.appendChild(submitText);
     submitButton.type = "submit";
-    submitButton.setAttribute("onclick", "generateReport(teams); return false;");
+    submitButton.setAttribute("onclick", "generateReport(filteredTeams); return false;");
     checkForm.appendChild(submitButton);
 
     var clearText = document.createTextNode("Clear screen");
@@ -192,7 +171,7 @@ function setupForm(teams) {
 
     var strategyText = document.createTextNode("Find guess and check");
     strategyButton.appendChild(strategyText);
-    strategyButton.setAttribute("onclick", "findGuessAndCheck(teams); return false;");
+    strategyButton.setAttribute("onclick", "findGuessAndCheck(filteredTeams); return false;");
     //  checkForm.appendChild(strategyButton);
     console.log("guess and check search completed");
 
@@ -212,7 +191,7 @@ function clearReport() {
     }
 }
 
-function setUpActionsReport(teams) { //Sets up a table with three columns into which the actions can be inserted with a different column for each actor
+function setUpActionsReport(filteredTeams) { //Sets up a table with three columns into which the actions can be inserted with a different column for each actor
     if (document.getElementById("reportDiv")) { //If reportDiv exists
         var reportDiv = document.getElementById("reportDiv"); //clear it
         while (reportDiv.firstChild) {

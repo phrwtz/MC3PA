@@ -10,13 +10,13 @@
 
 <body>
     <h1>Analyze MC3PA Data</h1>
-    Student data:<input type="file" id="studentDataInput" onchange="parseStudentData()"><br>
     Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"><br>
     <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button>
+    <progress id="fileProgress" style="display:none"></progress>
     <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Summary Report</button>
+    <progress id="analysisProgress" style="display:none"></progress>
     <div id="summaryDiv"></div>
-    <button type="button" id="actionRepts" style="display:none">Actions report</button>
-    <p id="summaryData"></p>
+    <button type="button" id="actionRepts" style="display:none" onclick="actionsReport()">Actions report</button>
     <script>
         var data = new Array;
         var fileCount = 0;
@@ -33,8 +33,13 @@
                 reader.onloadend = function (theFile) {
                     return function (e) {
                         fileCount++;
+                        var progBar = document.getElementById("fileProgress");
+                        progBar.value = fileCount;
+                        progBar.max = files.length;
+                        progBar.style.display = "block";
                         if (fileCount >= files.length - 1) {
                             document.getElementById("analyzeButton").style.display = "block";
+                        progBar.style.display = "none";
                         }
                         data.push(e.target.result); //Push the student data onto the array–
                     }

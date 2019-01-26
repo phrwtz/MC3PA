@@ -10,13 +10,19 @@
 
 <body>
     <h1>Analyze MC3PA Data</h1>
-    Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"><br>
-    <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button>
+    Chats to search for:<input type="file" id="chats" name="chats[]" onchange="openChats(event)"></input><br><br>
+    Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"></input><br><br>
+    <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button><br>
     <progress id="fileProgress" style="display:none"></progress>
-    <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Summary Report</button>
+    <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Summary report</button><br>
     <progress id="analysisProgress" style="display:none"></progress>
+    <button type="button" height="400" id="SetActionReportsVisibility" style="display:none" onclick="actionsReport()">Actions
+    </button><br>
+    <div id="loading" img src="giphy.gif" style.display="none"></div>
     <div id="summaryDiv"></div>
-    <button type="button" id="actionRepts" style="display:none" onclick="actionsReport()">Actions report</button>
+    <div id="chatsDiv">
+    </div>
+    <p id="data"></p>
     <script>
         var data = new Array;
         var fileCount = 0;
@@ -33,19 +39,36 @@
                 reader.onloadend = function (theFile) {
                     return function (e) {
                         fileCount++;
-                        var progBar = document.getElementById("fileProgress");
-                        progBar.value = fileCount;
-                        progBar.max = files.length;
-                        progBar.style.display = "block";
+                        //                      progBar.value = fileCount;
+                        //                      progBar.max = files.length - 1;
+                        //                      progBar.style.display = "block";
                         if (fileCount >= files.length - 1) {
                             document.getElementById("analyzeButton").style.display = "block";
-                        progBar.style.display = "none";
+                            //                          progBar.style.display = "none";
                         }
                         data.push(e.target.result); //Push the student data onto the array–
                     }
                 }(f);
                 reader.readAsText(f);
             }
+        }
+
+        function openChats(evt) {
+            var chatFiles = evt.target.files;
+            var chats = "";
+            var f = chatFiles[0];
+            var reader = new FileReader();
+            reader.onerror = function (err) {
+                console.log(err);
+            }
+            reader.onloadend = function (theChats) {
+                return function (e) {
+                    chats = e.target.result;
+                    chatsList = chats.split(", ");
+                }
+            }(f)
+            reader.readAsText(f);
+            //          console.log("file read");
         }
     </script>
 

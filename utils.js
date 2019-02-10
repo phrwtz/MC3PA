@@ -947,55 +947,6 @@ function goalRsChatted(myLevel) {
             break;
         }
     }
-<<<<<<< HEAD
-    return ((goalV1Communicated) && (goalV2Communicated) && (goalV3Communicated));
-}
-
-function onInitFs(fs) {
-    console.log('Opened file system: ' + fs.name);
-    // Note: The file system has been prefixed as of Google Chrome 12:
-    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-    window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024 /*5MB*/, onInitFs, errorHandler);
-}
-
-function onInitFs(fs) {
-    fs.root.getFile('log.txt', {create: true, exclusive: true}, function(fileEntry) {
-  
-      // fileEntry.isFile === true
-      // fileEntry.name == 'log.txt'
-      // fileEntry.fullPath == '/log.txt'
-  
-    }, errorHandler);
-  
-}
-  
-function errorHandler(e) {
-    var msg = '';
-  
-    switch (e.code) {
-      case FileError.QUOTA_EXCEEDED_ERR:
-        msg = 'QUOTA_EXCEEDED_ERR';
-        break;
-      case FileError.NOT_FOUND_ERR:
-        msg = 'NOT_FOUND_ERR';
-        break;
-      case FileError.SECURITY_ERR:
-        msg = 'SECURITY_ERR';
-        break;
-      case FileError.INVALID_MODIFICATION_ERR:
-        msg = 'INVALID_MODIFICATION_ERR';
-        break;
-      case FileError.INVALID_STATE_ERR:
-        msg = 'INVALID_STATE_ERR';
-        break;
-      default:
-        msg = 'Unknown Error';
-        break;
-    };
-  
-    console.log('Error: ' + msg);
-  }
-=======
     for (var i = 0; i < myLevel.varRefs["goalR2"].length; i++) {
         var myVarRefs = myLevel.varRefs["goalR2"];
         for (var j = 0; j < myVarRefs.length; j++) {
@@ -1116,4 +1067,3 @@ function attemptedLevels() { //Also adds success flag and Vgoals chatted propert
     }
     return levelsAttempted;
 }
->>>>>>> gh-pages

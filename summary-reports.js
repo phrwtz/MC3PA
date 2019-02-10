@@ -1,46 +1,17 @@
 function summaryReport() {
-    if (!document.getElementById("reptTable")) {
-        var reptTable = document.createElement(table);
-        reptTable.id = "reptTable";
-        document.body.appendChild(reptTable);
-        var reptRow = document.createElement("tr");
-        reptRow.id = "reptRow";
-        reptTable.appendChild(reptRow);
-    }
-    if (!document.getElementById("summaryTable")) {
-        var table = makeSummaryReportTable();
-        reptRow.appendChild(table);
-    }
-    filteredLevels = attemptedLevels();
-    updateLevels(attemptedLevels());
+    var filterTable = document.getElementById("filterTable");
+    filterTable.style.display = "block";
+    updateLevels();
+    updateOutcomes();
+    updateVGoals();
+    updateRGoals();
 }
 
-function attemptedLevels() {
-    levelsAttempted = [];
-    for (var i = 0; i < teams.length; i++) {
-        myTeam = teams[i];
-        for (var j = 0; j < myTeam.levels.length; j++) {
-            myLevel = myTeam.levels[j];
-            if (myLevel.attempted) {
-                myLevel.success = setSuccessFlag(myLevel);
-                myLevel.goalsChatted = goalVsChatted(myLevel);
-                if (typeof (myLevel.goalsChatted) == "undefined") {
-                    console.log("goalsChatted undefined for level " + myLevel.team.name + ", level " + myLevel.label);
-                }
-                levelsAttempted.push(myLevel);
-            }
-        }
-    }
-    return levelsAttempted;
-}
-
-function updateLevels(levels) {
-    var levelSuccess = [0, 0, 0, 0],
-        levelFail = [0, 0, 0, 0],
-        t11 = document.getElementById("t11"),
-        t21 = document.getElementById("t21"),
-        t31 = document.getElementById("t31"),
-        t41 = document.getElementById("t41");
+function updateLevels() {
+    var levels = attemptedLevels(), //Also adds success flag and Vgoals chatted property
+        filterTable = $("#filterTable"),
+        levelSuccess = [0, 0, 0, 0],
+        levelFail = [0, 0, 0, 0];
     for (var i = 0; i < levels.length; i++) {
         myLevel = levels[i];
         index = myLevel.number - 1; // levels start with tutorial so level A is level 1
@@ -50,120 +21,276 @@ function updateLevels(levels) {
             levelFail[index]++;
         }
     }
-
-    t11.innerHTML = '<input type="checkbox" name="level" id="levelA" onchange="updateOutcomes(); updateGoalsChatted()">A(' + parseInt(levelSuccess[0] + levelFail[0]) + ")";
-
-    t21.innerHTML = '<input type="checkbox" name="level" id="levelB" onchange="updateOutcomes(); updateGoalsChatted()">B(' + parseInt(levelSuccess[1] + levelFail[1]) + ")";
-
-    t31.innerHTML = '<input type="checkbox" name="level" id="levelC" onchange="updateOutcomes(); updateGoalsChatted()">C(' + parseInt(levelSuccess[2] + levelFail[2]) + ")";
-
-    t41.innerHTML = '<input type="checkbox" name="level" id="levelD" onchange="updateOutcomes(); updateGoalsChatted()">D(' + parseInt(levelSuccess[3] + levelFail[3]) + ")";
-    //   updateOutcomes(filteredLevels);
-    //  updateGoalsChatted(filteredLevels);
+    document.getElementById("A#").innerHTML = parseInt(levelSuccess[0] + levelFail[0]);
+    document.getElementById("B#").innerHTML = parseInt(levelSuccess[1] + levelFail[1]);
+    document.getElementById("C#").innerHTML = parseInt(levelSuccess[2] + levelFail[2]);
+    document.getElementById("D#").innerHTML = parseInt(levelSuccess[3] + levelFail[3]);
+    updateOutcomes();
+    updateVGoals();
+    updateRGoals();
 }
 
 function updateOutcomes() {
     var levelsSuccess = 0,
         levelsFailure = 0,
         levels = [],
-        t12 = document.getElementById("t12"),
-        t22 = document.getElementById("t22"),
         myLevel;
     levels = attemptedLevels();
-    for (var i = 0; i < levels.length; i++) {
-        myLevel = levels[i];
+    for (var i = 0, myLevel; myLevel = levels[i]; i++) {
         if ($("#level" + myLevel.label)[0].checked) {
             (myLevel.success) ? levelsSuccess++ : levelsFailure++;
-        } else {
-            filteredLevels.splice(i, i);
         }
     }
-    t12.innerHTML = '<input type="checkbox" name="success" id="success" onchange="updateGoalsChatted()">Success(' + levelsSuccess + ")";
-    t22.innerHTML = '<input type="checkbox" name="failure" id="failure" onchange="updateGoalsChatted()">Failure(' + levelsFailure + ")";
+    document.getElementById("Success#").innerHTML = levelsSuccess;
+    document.getElementById("Failure#").innerHTML = levelsFailure;
+    updateVGoals();
+    updateRGoals();
 }
 
-function updateGoalsChatted() {
-    var goalsChattedLevels = 0,
-        noGoalsChattedLevels = 0,
-        levels = [],
-        t13 = document.getElementById("t13"),
-        t23 = document.getElementById("t23"),
-        myLevel;
+function updateVGoals() {
+    var allGoalsChatted = 0,
+        someGoalsChatted = 0,
+        noGoalsChatted = 0,
+        levels = [];
     levels = attemptedLevels();
-    for (var i = 0; i < levels.length; i++) {
-        myLevel = levels[i];
+    for (var i = 0, myLevel; myLevel = levels[i]; i++) {
         if ($("#level" + myLevel.label)[0].checked) {
             if (($("#success")[0]).checked) {
                 if (myLevel.success) {
-                    (myLevel.goalsChatted) ? goalsChattedLevels++ :
-                    noGoalsChattedLevels++;
+                    if (myLevel.goalVsChatted == "all") {
+                        allGoalsChatted++
+                    }
+                    if (myLevel.goalVsChatted == "some") {
+                        someGoalsChatted++
+                    }
+                    if (myLevel.goalVsChatted == "none") {
+                        noGoalsChatted++
+                    }
                 }
             }
             if (($("#failure")[0]).checked) {
                 if (!myLevel.success) {
-                    (myLevel.goalsChatted) ? goalsChattedLevels++ :
-                    noGoalsChattedLevels++;
+                    if (myLevel.goalVsChatted == "all") {
+                        allGoalsChatted++
+                    }
+                    if (myLevel.goalVsChatted == "some") {
+                        someGoalsChatted++
+                    }
+                    if (myLevel.goalVsChatted == "none") {
+                        noGoalsChatted++
+                    }
                 }
             }
         }
-
-        t13.innerHTML = '<input type="checkbox" name="chatted" id="chatted" onchange="SetActionReportsVisibility()">Goal Vs chatted(' + goalsChattedLevels + ")";
-        t23.innerHTML = '<input type="checkbox" name="notChatted" id="notChatted" onchange="SetActionReportsVisibility()">Not chatted(' + noGoalsChattedLevels + ")";
     }
+    document.getElementById("VAllChatted#").innerHTML = allGoalsChatted;
+    document.getElementById("VSomeChatted#").innerHTML = someGoalsChatted;
+    document.getElementById("VNotChatted#").innerHTML = noGoalsChatted;
+    updateRGoals();
 }
 
-function SetActionReportsVisibility() {
-    var levelsToLookAt = []
-    if ($("#chatted")[0].checked || $("#notChatted")[0].checked) {
-        $("#SetActionReportsVisibility")[0].style.display = "block";
-    } else {
-        $("#SetActionReportsVisibility")[0].style.display = "none";
+function updateRGoals() {
+    var allGoalsChatted = 0,
+        someGoalsChatted = 0,
+        noGoalsChatted = 0,
+        allGoalsCalculated = 0,
+        someGoalsCalculated = 0,
+        noGoalsCalculated = 0,
+        levels = attemptedLevels();
+    for (var i = 0, myLevel; myLevel = levels[i]; i++) {
+        if ($("#level" + myLevel.label)[0].checked) {
+            if ((($("#success")[0]).checked) && (myLevel.success)) {
+                switch (myLevel.goalVsChatted) {
+                    case "all":
+                        if (($("#VAllChat")[0].checked)) {
+                            switch (myLevel.goalRsChatted) {
+                                case "all":
+                                    allGoalsChatted++;
+                                    break;
+                                case "some":
+                                    someGoalsChatted++;
+                                    break;
+                                case "none":
+                                    noGoalsChatted++;
+                                    break;
+                            }
+                            switch (myLevel.goalRsCalculated) {
+                                case "all":
+                                    allGoalsCalculated++;
+                                    break;
+                                case "some":
+                                    someGoalsCalculated++;
+                                    break;
+                                case "none":
+                                    noGoalsCalculated++;
+                                    break;
+                            }
+                        }
+                        break;
+                    case "some":
+                        if (($("#VSomeChat")[0].checked)) {
+                            switch (myLevel.goalRsChatted) {
+                                case "all":
+                                    allGoalsChatted++;
+                                    break;
+                                case "some":
+                                    someGoalsChatted++;
+                                    break;
+                                case "none":
+                                    noGoalsChatted++;
+                                    break;
+                            }
+                            switch (myLevel.goalRsCalculated) {
+                                case "all":
+                                    allGoalsCalculated++;
+                                    break;
+                                case "some":
+                                    someGoalsCalculated++;
+                                    break;
+                                case "none":
+                                    noGoalsCalculated++;
+                                    break;
+                            }
+                        }
+                        break;
+                    case "none":
+                        if (($("#VNoChat")[0].checked)) {
+                            switch (myLevel.goalRsChatted) {
+                                case "all":
+                                    allGoalsChatted++;
+                                    break;
+                                case "some":
+                                    someGoalsChatted++;
+                                    break;
+                                case "none":
+                                    noGoalsChatted++;
+                                    break;
+                            }
+                            switch (myLevel.goalRsCalculated) {
+                                case "all":
+                                    allGoalsCalculated++;
+                                    break;
+                                case "some":
+                                    someGoalsCalculated++;
+                                    break;
+                                case "none":
+                                    noGoalsCalculated++;
+                                    break;
+                            }
+                        }
+                }
+            }
+            if ((($("#failure")[0]).checked) && (!myLevel.success)) {
+                switch (myLevel.goalVsChatted) {
+                    case "all":
+                        if (($("#VAllChat")[0].checked)) {
+                            switch (myLevel.goalRsChatted) {
+                                case "all":
+                                    allGoalsChatted++;
+                                    break;
+                                case "some":
+                                    someGoalsChatted++;
+                                    break;
+                                case "none":
+                                    noGoalsChatted++;
+                                    break;
+                            }
+                            switch (myLevel.goalRsCalculated) {
+                                case "all":
+                                    allGoalsCalculated++;
+                                    break;
+                                case "some":
+                                    someGoalsCalculated++;
+                                    break;
+                                case "none":
+                                    noGoalsCalculated++;
+                                    break;
+                            }
+                        }
+                        break;
+                    case "some":
+                        if (($("#VSomeChat")[0].checked)) {
+                            switch (myLevel.goalRsChatted) {
+                                case "all":
+                                    allGoalsChatted++;
+                                    break;
+                                case "some":
+                                    someGoalsChatted++;
+                                    break;
+                                case "none":
+                                    noGoalsChatted++;
+                                    break;
+                            }
+                            switch (myLevel.goalRsCalculated) {
+                                case "all":
+                                    allGoalsCalculated++;
+                                    break;
+                                case "some":
+                                    someGoalsCalculated++;
+                                    break;
+                                case "none":
+                                    noGoalsCalculated++;
+                                    break;
+                            }
+                            break;
+                        }
+                    case "none":
+                        if (($("#VNoChat")[0].checked)) {
+                            switch (myLevel.goalRsChatted) {
+                                case "all":
+                                    allGoalsChatted++;
+                                    break;
+                                case "some":
+                                    someGoalsChatted++;
+                                    break;
+                                case "none":
+                                    noGoalsChatted++;
+                                    break;
+                            }
+                            switch (myLevel.goalRsCalculated) {
+                                case "all":
+                                    allGoalsCalculated++;
+                                    break;
+                                case "some":
+                                    someGoalsCalculated++;
+                                    break;
+                                case "none":
+                                    noGoalsCalculated++;
+                                    break;
+                            }
+                            break;
+                        }
+                }
+            }
+        }
     }
-    makeChatsTable(filterLevels());
+    document.getElementById("RAllChatted#").innerHTML = allGoalsChatted;
+    document.getElementById("RSomeChatted#").innerHTML = someGoalsChatted;
+    document.getElementById("RNotChatted#").innerHTML = noGoalsChatted;
+    document.getElementById("RAllCalculated#").innerHTML = allGoalsCalculated;
+    document.getElementById("RSomeCalculated#").innerHTML = someGoalsCalculated;
+    document.getElementById("RNotCalculated#").innerHTML = noGoalsCalculated;
 }
 
 function actionsReport() { //list actions on all levels checked by user
-    if (document.getElementById("data")) {
-        var p = document.getElementById("data");
-    } else {
-        var p = document.createElement("paragraph");
-        p.id = "data";
-        document.body.appendChild(p);
+    var p = document.getElementById("data"),
+        levelsToLookAt = filterLevels();
+    p.innerHTML = "";
+    if (levelsToLookAt.length == 0) {
+        p.innerHTML = "<br>There are no levels to look at:<br>";
+        return;
     }
-    var levelsToLookAt = filterLevels();
-    p.innerHTML = "Here are the " + levelsToLookAt.length + " levels to look at:<br>";
+    if (levelsToLookAt.length == 1) {
+        p.innerHTML = "<br>This is the level to look at:<br>";
+    } else {
+        p.innerHTML = "<br>These are the levels to look at:<br>";
+    }
     for (var i = 0; i < levelsToLookAt.length; i++) {
         myLevel = levelsToLookAt[i];
-        p.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + "<br>";
+        idStr = ' id=level-' + myLevel.id;
+        typeStr = ' type="checkbox" '
+        p.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input ' + typeStr + idStr + ' onchange="showLevels()">' + "<br>";
     }
-    return levelsToLookAt;
-}
-
-function goalVsChatted(myLevel) {
-    var goalV1Communicated = false;
-    var goalV2Communicated = false;
-    var goalV3Communicated = false;
-
-    for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
-        if (myLevel.varRefs["goalV1"][i][0].type == "message") {
-            goalV1Communicated = true;
-            break;
-        }
-    }
-    for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
-        if (myLevel.varRefs["goalV2"][i][0].type == "message") {
-            goalV2Communicated = true;
-            break;
-        }
-    }
-
-    for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
-        if (myLevel.varRefs["goalV3"][i][0].type == "message") {
-            goalV3Communicated = true;
-            break;
-        }
-    }
-    return (goalV1Communicated && goalV2Communicated && goalV3Communicated);
 }
 
 function makeSummaryReportTable() {
@@ -228,28 +355,58 @@ function filterLevels() {
                 if ($("#level" + myLevel.label)[0].checked) {
                     if (($("#success")[0]).checked) {
                         if (myLevel.success) {
-                            if (($("#chatted")[0]).checked) {
+                            if (($("#VChat")[0]).checked) {
                                 if (myLevel.goalsChatted) {
-                                    filteredLevels.push(myLevel);
+                                    if (($("#RChat")[0]).checked) {
+                                        if (goalRsChatted(myLevel)) {}
+                                        filteredLevels.push(myLevel);
+                                    }
+                                    if (!($("#RNoChat")[0]).checked) {
+                                        if (!goalRsChatted(myLevel)) {}
+                                        filteredLevels.push(myLevel);
+                                    }
                                 }
-                            }
-                            if (($("#notChatted")[0]).checked) {
-                                if (!myLevel.goalsChatted) {
-                                    filteredLevels.push(myLevel);
+                                if (($("#VNoChat")[0]).checked) {
+                                    if (!myLevel.goalsChatted) {
+                                        if (($("#RChat")[0]).checked) {
+                                            if (goalRsChatted(myLevel)) {}
+                                            filteredLevels.push(myLevel);
+                                        }
+                                        if (!($("#RNoChat")[0]).checked) {
+                                            if (!goalRsChatted(myLevel)) {}
+                                            filteredLevels.push(myLevel);
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                    if (($("#failure")[0]).checked) {
-                        if (!myLevel.success) {
-                            if (($("#chatted")[0]).checked) {
-                                if (myLevel.goalsChatted) {
-                                    filteredLevels.push(myLevel);
+                        if (($("#failure")[0]).checked) {
+                            if (!myLevel.success) {
+                                if (($("#Vchat")[0]).checked) {
+                                    if (myLevel.goalsChatted) {
+                                        if (($("#RChat")[0]).checked) {
+                                            if (goalRsChatted(myLevel)) {}
+                                            filteredLevels.push(myLevel);
+                                        }
+                                        if (!($("#RNoChat")[0]).checked) {
+                                            if (!goalRsChatted(myLevel)) {}
+                                            filteredLevels.push(myLevel);
+                                        }
+                                    }
                                 }
-                            }
-                            if ((($("#notChatted")[0]).checked)) {
-                                if (!myLevel.goalsChatted) {
-                                    filteredLevels.push(myLevel);
+                                if ((($("#VNoChat")[0]).checked)) {
+                                    if (!myLevel.goalsChatted) {
+                                        if (($("#RChat")[0]).checked) {
+                                            if (goalRsChatted(myLevel)) {
+                                                filteredLevels.push(myLevel)
+                                            }
+                                        }
+                                        if (!($("#RNoChat")[0]).checked) {
+                                            if (!goalRsChatted(myLevel)) {
+                                                filteredLevels.push(myLevel);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -262,27 +419,46 @@ function filterLevels() {
 }
 
 function makeChatsTable(levels) {
-    var chatsFound = function () {}; //Will contain all message actions that match a given search message 
-    var chatsList = ["volt", "what"]; //temporary list of search msgs.
-    var searchMsg = "",
-        msg = "";
-    if (document.getElementById("chatsTable")) { //If chatsTable exists, clear it and all its children
-        t = document.getElementById("chatsTable");
-        t.parentNode.removeChild(t);
-    } // and then create one.
+    var chatsFound = findChats(levels);
+    removeElement("chatsTable"); // So that we don't keep adding to it.
     var chatsTable = document.createElement("table");
     chatsTable.id = "chatsTable";
-    reptRow.appendChild(chatsTable);
+    summaryDiv.appendChild(chatsTable);
     var headerRow = document.createElement("tr");
     headerRow.style.backgroundColor = "#DDFFDD";
     chatsTable.appendChild(headerRow);
     var chatsCell = document.createElement("th");
     chatsCell.innerHTML = ("Chat searches");
     headerRow.appendChild(chatsCell);
+    for (var m = 0, myChat; myChat = chatsList[m]; m++) {
+        chatsRow = document.createElement("tr");
+        chatsTable.appendChild(chatsRow);
+        chatsCell = document.createElement("td");
+        chatsCell.innerHTML = ('<input type="checkbox" id= myChat >' + myChat + " (" + chatsFound[myChat].length + ")")
+        chatsRow.appendChild(chatsCell);
+    }
+    return (chatsTable);
+}
+
+function removeElement(id) {
+    var t = document.getElementById(id);
+    if (t) {
+        while (t.firstChild) {
+            t.removeChild(t.firstChild);
+            t.parentNode.removeChild;
+        }
+    }
+}
+
+function findChats(levels) {
+    var chatsFound = function () {}; //Will contain all message actions that match a given search message 
+    var searchMsg = "",
+        msg = "";
     //initialize the chatsFound arrays
     for (var kk = 0; kk < chatsList.length; kk++) {
         chatsFound[chatsList[kk]] = [];
     }
+    //then populate them.
     for (var i = 0, myLevel; myLevel = levels[i]; i++) {
         for (j = 0, myAction; myAction = myLevel.actions[j]; j++) {
             if (myAction.type == "message") {
@@ -295,48 +471,63 @@ function makeChatsTable(levels) {
             }
         }
     }
-    for (var m = 0, myChat; myChat = chatsList[m]; m++) {
-        chatRow = document.createElement("tr");
-        chatsTable.appendChild(chatRow);
-        chatCell = document.createElement("td");
-        chatCell.innerHTML = ('<input type="checkbox" id=' + myChat + '>' + myChat + "(" + chatsFound[myChat].length + ")  " + '<input type="button" style.display="block">Close</input>');
-        chatRow.appendChild(chatCell);
-    }
-    return (chatsTable);
+    return (chatsFound);
 }
 
-
-function concatenateChats(levels) { //Returns a long string for searching
-    var chainedChats = "";
-    for (var i = 0, myLevel; myLevel = levels[i]; i++) {
-        for (var j = 0, myAction; myAction = myLevel.actions[j]; j++) {
-            if (myAction.type == "message") {
-                chainedChats += myAction.msg;
+function countGoalRVarRefs(levels) {
+    var grSelfInCalc = 0,
+        grOtherInCalc = 0,
+        grSelfInChat = 0,
+        grOtherInChat = 0;
+    for (var i = 1, myLevel; myLevel = levels[i]; i++) {
+        myVr1 = myLevel.varRefs["goalR1"];
+        myVr2 = myLevel.varRefs["goalR2"];
+        myVr3 = myLevel.varRefs["goalR3"];
+        if (myVr1.length > 0) {
+            myAct = myVr1[0][0];
+            if ((myAct.type == "message") && (myAct.board == 0)) {
+                grSelfInChat++;
+            }
+            if ((myAct.type == "calculation") && (myAct.board == 0)) {
+                grSelfInCalc++;
+            }
+            if ((myAct.type == "message") && (myAct.board != 0)) {
+                grOtherInChat++;
+            }
+            if ((myAct.type == "calculation") && (myAct.board != 0)) {
+                grOtherInCalc++;
+            }
+        }
+        if (myVr2.length > 0) {
+            myAct = myVr2[0][0];
+            if ((myAct.type == "message") && (myAct.board == 1)) {
+                grSelfInChat++;
+            }
+            if ((myAct.type == "calculation") && (myAct.board == 1)) {
+                grSelfInCalc++;
+            }
+            if ((myAct.type == "message") && (myAct.board != 1)) {
+                grOtherInChat++;
+            }
+            if ((myAct.type == "calculation") && (myAct.board != 1)) {
+                grOtherInCalc++;
+            }
+        }
+        if (myVr3.length > 0) {
+            myAct = myVr3[0][0];
+            if ((myAct.type == "message") && (myAct.board == 2)) {
+                grSelfInChat++;
+            }
+            if ((myAct.type == "calculation") && (myAct.board == 2)) {
+                grSelfInCalc++;
+            }
+            if ((myAct.type == "message") && (myAct.board != 2)) {
+                grOtherInChat++;
+            }
+            if ((myAct.type == "calculation") && (myAct.board != 2)) {
+                grOtherInCalc++;
             }
         }
     }
-    return chainedChats;
-}
-
-function findMsg(actions) { //Finds the first action of type "message"
-    for (var i = 0; i < actions.length; i++) {
-        if (actions[i].type == 'message') {
-            alert("i = " + i);
-            break;
-        }
-    }
-}
-
-function countOccurrences(searchStr, str) {
-    var count = 0;
-    var testStr = str;
-    var pos = -1;
-    var len = searchStr.length;
-    pos = testStr.indexOf(searchStr);
-    if (!(pos == -1)) {
-        count++;
-        testStr = testStr.slice(pos + len);
-        count = count + countOccurrences(searchStr, testStr);
-    }
-    return count;
+    document.getElementById("varRefs").innerHTML = "Chatted own goal resistance = " + grSelfInChat + ", used own goal resistance in calculation = " + grSelfInCalc + "<br>Chatted other\'s goal resistance = " + grOtherInChat + ", used other\'s goal resistance in calculation = " + grOtherInCalc;
 }

@@ -6,6 +6,7 @@ var action = function () { };
 var chatsList = ["voltage", "current"]; //Array of strings to search for in chats
 var rows = [];
 var teams = [];
+var filteredLevels = [];
 var classIds = [];
 var teachers = [];
 var studentDataObjs = [];

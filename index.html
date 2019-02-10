@@ -10,13 +10,125 @@
 
 <body>
     <h1>Analyze MC3PA Data</h1>
-    Student data:<input type="file" id="studentDataInput" onchange="parseStudentData()"><br>
-    Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"><br>
-    <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button>
-    <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Summary Report</button>
+
+    Chats to search for:<input type="file" id="chats" name="chats[]" onchange="openChats(event)"></input><br><br>
+
+    Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"></input><br><br>
+
+    <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button><br>
+
+    <span>
+        <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Summary report</button>
+        <button type="button" id="downloadButton" style="display:none" onclick="download(teams.txt, teams)">Download teams</button><br>
+    </span>
+
+
+
+
+    <div id="loading" img src="giphy.gif" style.display="none"></div>
+    <div id="filter">
+        <table id="filterTable" style="display:none">
+            <tr>
+                <th>Level</td>
+                <th>Outcome</td>
+                <th>Goal Voltages</td>
+                <th>Goal Resistances</td>
+            </tr>
+            <tr>
+                <td>
+                    A(<span id="A#"></span>)
+                    <input type="checkbox" name="level" id="levelA" onchange="updateOutcomes()">
+                    </input>
+                </td>
+                <td>Success(<span id="Success#"></span>)
+                    <input type="checkbox" name="outcome" id="success" onchange="updateVGoals()">
+                <td>All chatted(<span id="VAllChatted#"></span>)
+                    <input type="checkbox" name="voltage" id="VAllChat" onchange="updateRGoals()">
+                    </input>
+                </td>
+                <td>
+                    All chatted(<span id="RAllChatted#"></span>)
+                    <input type="checkbox" name="resistance" id="RAllChat" onchange="actionsReport()">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    B(<span id="B#"></span>)
+                    <input type="checkbox" name="level" id="levelB" onchange="updateOutcomes()"></input>
+                </td>
+                <td>Failure(<span id="Failure#"></span>)
+                    <input type="checkbox" name="outcome" id="failure" onchange="updateVGoals()">
+                    </input>
+                </td>
+                <td>
+                    Some chatted(<span id="VSomeChatted#"></span>)
+                    <input type="checkbox" name="voltage" id="VSomeChat" onchange="updateRGoals()">
+                    </input>
+                </td>
+                <td>Some chatted(<span id="RSomeChatted#"></span>)
+                    <input type="checkbox" name="resistance" id="RSomeChat" onchange="actionsReport()">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    C(<span id="C#"></span>)
+                    <input type="checkbox" name="level" id="levelC" onchange="updateOutcomes()"></input>
+                </td>
+                <td></td>
+                <td>None chatted(<span id="VNotChatted#"></span>)
+                    <input type="checkbox" name="resistance" id="VNoChat" onchange="updateOutcomes()">
+                    </input>
+                </td>
+                <td>None chatted(<span id="RNotChatted#"></span>)
+                    <input type="checkbox" name="resistance" id="RNotChat" onchange="actionsReport()">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    D(<span id="D#"></span>)
+                    <input type="checkbox" name="level" id="levelD" onchange="updateOutcomes()"></input>
+                </td>
+                <td></td>
+                <td></td>
+                <td>All calculated(<span id="RAllCalculated#"></span>)
+                    <input type="checkbox" name="resistance" id="RAllCalc" onchange="actionsReport()">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Some calculated(<span id="RSomeCalculated#"></span>)
+                    <input type="checkbox" name="resistance" id="RSomeCalc" onchange="actionsReport()">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>None calculated(<span id="RNotCalculated#"></span>)
+                    <input type="checkbox" name="resistance" id="RNoCalc" onchange="actionsReport()">
+                    </input>
+                </td>
+            </tr>
+        </table>
+    </div>
     <div id="summaryDiv"></div>
-    <button type="button" id="actionRepts" style="display:none">Actions report</button>
-    <p id="summaryData"></p>
+    </div>
+    <p id="data"></p>
+    <p id="varRefs"></p>
+    <style>
+        #summaryDiv table {
+            display: inline-block;
+            margin: 10px;
+            width: 300px;
+        }
+    </style>
     <script>
         var data = new Array;
         var fileCount = 0;
@@ -35,12 +147,30 @@
                         fileCount++;
                         if (fileCount >= files.length - 1) {
                             document.getElementById("analyzeButton").style.display = "block";
+                            //                          progBar.style.display = "none";
                         }
                         data.push(e.target.result); //Push the student data onto the array–
                     }
                 }(f);
                 reader.readAsText(f);
             }
+        }
+
+        function openChats(evt) {
+            var chatFiles = evt.target.files;
+            var chats = "";
+            var f = chatFiles[0];
+            var reader = new FileReader();
+            reader.onerror = function (err) {
+                console.log(err);
+            }
+            reader.onloadend = function (theChats) {
+                return function (e) {
+                    chats = e.target.result;
+                    chatsList = chats.split(", ");
+                }
+            }(f)
+            reader.readAsText(f);
         }
     </script>
 

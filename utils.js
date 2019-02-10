@@ -477,6 +477,7 @@ function addLevel(myTeam, ro) {
 
         myLevel.firstActionUTime = new Date(ro["time"]).getTime() / 1000;
         addLevelValues(myLevel, ro); //Add all the global variables for this level
+        myLevel.id = ID();
         myLevel.actions = [];
         myLevel.members = [];
         myLevel.number = levelNumber;
@@ -682,7 +683,6 @@ function makeStudentDataObjects(rows) {
     return rowObjs;
 }
 
-
 function getAlphabeticLabel(index) {
     var alphaArray = ["T", "A", "B", "C", "D"];
     if ((index >= 0) && (index <= 4)) {
@@ -706,6 +706,21 @@ function saveData(data) {
         a.click();
         window.URL.revokeObjectURL(url);
     }
+}
+
+function downloadTeamsArray(teams) {
+
+
+
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
 }
 
 function downloadLogCSV(csvDataArray) {
@@ -817,29 +832,122 @@ function sortActionsByUTime(actions) {
     });
 }
 
-function goalVoltagesChatted(myLevel) {
-    var goalV1Communicated = false;
-    var goalV2Communicated = false;
-    var goalV3Communicated = false;
+function LocationInCalculation(action) { //Takes a calculation and returns "input"  
+    var vrInInput = false;
+    var vrInResult = false;
+    //Check to see whether the varRef is in the input of the calculation
+    for (var kk = 0; kk < act.cvarRefs.length; kk++) {
+        for (var kkk = 0; kkk < act.cvarRefs[kk].length; kkk++) {
+            if (act.cvarRefs[kk][kkk][1] == vrStr) {
+                vrInInput = true;
+            }
+        }
+    }
+    //Check to see whether the varRef is in the result of the calculation
+    for (var rr = 0; rr < act.rvarRefs.length; rr++) {
+        for (var rrr = 0; rrr < act.rvarRefs[rr].length; rrr++) {
+            if (act.rvarRefs[rr][rrr][1] == vrStr) {
+                vrInResult = true;
+            }
+        }
+    }
+    console.log("Goal r1 detected");
+    return myLevel;
+}
+
+var ID = function () {
+    return '_' + Math.random().toString(36).substr(2, 9);
+};
+
+function concatenateChats(levels) { //Returns a long string for searching
+    var chainedChats = "";
+    for (var i = 0, myLevel; myLevel = levels[i]; i++) {
+        for (var j = 0, myAction; myAction = myLevel.actions[j]; j++) {
+            if (myAction.type == "message") {
+                chainedChats += myAction.msg;
+            }
+        }
+    }
+    return chainedChats;
+}
+
+function findMsg(actions) { //Finds the first action of type "message"
+    for (var i = 0; i < actions.length; i++) {
+        if (actions[i].type == 'message') {
+            alert("i = " + i);
+            break;
+        }
+    }
+}
+
+function countOccurrences(searchStr, str) {
+    var count = 0;
+    var testStr = str;
+    var pos = -1;
+    var len = searchStr.length;
+    pos = testStr.indexOf(searchStr);
+    if (!(pos == -1)) {
+        count++;
+        testStr = testStr.slice(pos + len);
+        count = count + countOccurrences(searchStr, testStr);
+    }
+    return count;
+}
+
+function goalVsChatted(myLevel) {
+    var goalV1Chatted = false,
+        goalV2Chatted = false,
+        goalV3Chatted = false;
+
     for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
         if (myLevel.varRefs["goalV1"][i][0].type == "message") {
-            goalV1Communicated = true;
+            goalV1Chatted = true;
             break;
         }
     }
     for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
         if (myLevel.varRefs["goalV2"][i][0].type == "message") {
-            goalV2Communicated = true;
+            goalV2Chatted = true;
             break;
         }
     }
 
     for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
         if (myLevel.varRefs["goalV3"][i][0].type == "message") {
-            goalV3Communicated = true;
+            goalV3Chatted = true;
             break;
         }
     }
+    if (goalV1Chatted && goalV2Chatted && goalV3Chatted) {
+        return "all";
+    } else if (goalV1Chatted || goalV2Chatted || goalV3Chatted) {
+        return "some";
+    } else {
+        return "none";
+    }
+}
+
+function goalRsChatted(myLevel) {
+    var goalR1Chatted = false,
+        goalR2Chatted = false,
+        goalR3Chatted = false,
+        goalR1ChattedToOther = false,
+        goalR2ChattedToOther = false,
+        goalR3ChattedToOther = false;
+    for (var i = 0; i < myLevel.varRefs["goalR1"].length; i++) {
+        var myVarRefs = myLevel.varRefs["goalR1"];
+        for (var j = 0; j < myVarRefs.length; j++) {
+            myAction = myVarRefs[j][0];
+            if (myAction.type == "message") {
+                goalR1Chatted = true;
+                if (myAction.board != 0) {
+                    goalR1ChattedToOther = true;
+                }
+            }
+            break;
+        }
+    }
+<<<<<<< HEAD
     return ((goalV1Communicated) && (goalV2Communicated) && (goalV3Communicated));
 }
 
@@ -887,3 +995,125 @@ function errorHandler(e) {
   
     console.log('Error: ' + msg);
   }
+=======
+    for (var i = 0; i < myLevel.varRefs["goalR2"].length; i++) {
+        var myVarRefs = myLevel.varRefs["goalR2"];
+        for (var j = 0; j < myVarRefs.length; j++) {
+            myAction = myVarRefs[j][0];
+            if (myAction.type == "message") {
+                goalR2Chatted = true;
+                if (myAction.board != 1) {
+                    goalR2ChattedToOther = true;
+                }
+            }
+            break;
+        }
+    }
+    for (var i = 0; i < myLevel.varRefs["goalR3"].length; i++) {
+        var myVarRefs = myLevel.varRefs["goalR3"];
+        for (var j = 0; j < myVarRefs.length; j++) {
+            myAction = myVarRefs[j][0];
+            if (myAction.type == "message") {
+                goalR3Chatted = true;
+                if (myAction.board != 2) {
+                    goalR3ChattedToOther = true;
+                }
+            }
+            break;
+        }
+    }
+    if ((goalR1ChattedToOther && goalR2ChattedToOther) ||
+        (goalR2ChattedToOther && goalR3ChattedToOther) || (goalR1ChattedToOther && goalR3ChattedToOther)) {
+    return "all";
+} else if (goalR1ChattedToOther || goalR2ChattedToOther || goalR3ChattedToOther) {
+    return "some";
+} else {
+    return "none";
+}
+}
+
+function goalVsCalculated(myLevel) {
+    var goalV1Calculated = false,
+        goalV2Calculated = false,
+        goalV3Calculated = false;
+
+    for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
+        if (myLevel.varRefs["goalV1"][i][0].type == "calculation") {
+            goalV1Calculated = true;
+            break;
+        }
+    }
+    for (var i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
+        if (myLevel.varRefs["goalV2"][i][0].type == "calculation") {
+            goalV2Calculated = true;
+            break;
+        }
+    }
+    for (var i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
+        if (myLevel.varRefs["goalV3"][i][0].type == "calculation") {
+            goalV3Calculated = true;
+            break;
+        }
+    }
+    if (goalV1Calculated && goalV2Calculated && goalV3Calculated) {
+        return "all";
+    } else if (goalV1Calculated || goalV2Calculated || goalV3Calculated) {
+        return "some";
+    } else {
+        return "none";
+    }
+}
+
+function goalRsCalculated(myLevel) {
+    var goalR1Calculated = false,
+        goalR2Calculated = false,
+        goalR3Calculated = false;
+
+    for (var i = 0; i < myLevel.varRefs["goalR1"].length; i++) {
+        if (myLevel.varRefs["goalR1"][i][0].type == "calculation") {
+            goalR1Calculated = true;
+            break;
+        }
+    }
+    for (var i = 0; i < myLevel.varRefs["goalR2"].length; i++) {
+        if (myLevel.varRefs["goalR2"][i][0].type == "calculation") {
+            goalR2Calculated = true;
+            break;
+        }
+    }
+    for (var i = 0; i < myLevel.varRefs["goalR3"].length; i++) {
+        if (myLevel.varRefs["goalR3"][i][0].type == "calculation") {
+            goalR3Calculated = true;
+            break;
+        }
+    }
+    if (goalR1Calculated && goalR2Calculated && goalR3Calculated) {
+        return "all";
+    } else if (goalR1Calculated || goalR2Calculated || goalR3Calculated) {
+        {
+            return "some";
+        }
+    } else {
+        return "none";
+    }
+}
+
+function attemptedLevels() { //Also adds success flag and Vgoals chatted property
+    levelsAttempted = [];
+    for (var i = 0; i < teams.length; i++) {
+        myTeam = teams[i];
+        for (var j = 0; j < myTeam.levels.length; j++) {
+            myLevel = myTeam.levels[j];
+            if (myLevel.attempted) {
+                myLevel.success = setSuccessFlag(myLevel);
+                myLevel.goalVsChatted = goalVsChatted(myLevel);
+                myLevel.goalRsChatted = goalRsChatted(myLevel);
+                myLevel.goalVsCalculated = goalVsCalculated(myLevel);
+                myLevel.goalRsCalculated = goalRsCalculated(myLevel);
+                levelsAttempted.push(myLevel);
+            }
+        }
+    }
+    return levelsAttempted;
+}
+>>>>>>> gh-pages

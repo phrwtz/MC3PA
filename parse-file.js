@@ -2,7 +2,8 @@
 var team = function () {};
 var level = function () {};
 var member = function () {};
-var action = function () {};
+var action = function () { };
+var chatsList = ["voltage", "current"]; //Array of strings to search for in chats
 var rows = [];
 var teams = [];
 var classIds = [];
@@ -26,14 +27,25 @@ var csvFilename;
 
 //This function takes a JSON file and turns it into row objects
 function parseJSON(data) {
+    //     var analysisBar = document.getElementById("analysisProgress");
+    //     var count = 0;
+    //     analysisBar.max = 1;
+    //     analysisBar.value;
+    var loading = document.getElementById("loading");
+    loading.style.display = "block";
     for (var i = 0; i < data.length; i++) {
+        count = i / (data.length - 1);
         rowObjs = JSON.parse(data[i]);
         classIds.push(rowObjs[0]["class_id"]);
         teams = makeTeams(rowObjs); // identify teams and members, actions taken by them
         analyze(rowObjs); // adding actions to the arrays
-        console.log("parse-file: analysis complete on " + rowObjs[0].id + ".");
+        // analysisBar.value = count;
+        // analysisBar.style.display = "block";
+
+        console.log("parse-file: analysis complete on " + rowObjs[0].id + "count = " + count + ".");
     }
-    document.getElementById("reportButton").style.display = "block";
-//   setupForm(teams); //sets up the array of radio buttons that enable one to tailor reports. 
-   // console.log("Form set up completed.");
+    //   document.getElementById("analysisProgress").style.display = "none";
+
+    document.getElementById("reportButton").style.display = "inline";
+    document.getElementById("downloadButton").style.display = "inline";
 }

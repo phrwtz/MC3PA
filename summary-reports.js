@@ -386,23 +386,23 @@ function updateRGoals() {
 }
 
 function actionsReport() { //list actions on all levels checked by user
-    var p = document.getElementById("data"),
+    var f = document.getElementById("levels"),
         levelsToLookAt = filteredLevels;
-    p.innerHTML = "";
     if (levelsToLookAt.length == 0) {
-        p.innerHTML = "<br>There are no levels to look at:<br>";
+        f.innerHTML = "<br>There are no levels to look at:<br>";
         return;
     }
     if (levelsToLookAt.length == 1) {
-        p.innerHTML = "<br>This is the level to look at:<br>";
+        f.innerHTML = "<br>This is the level to look at:<br>";
     } else {
-        p.innerHTML = "<br>These are the " + levelsToLookAt.length + " levels to look at:<br>";
+        f.innerHTML = "<br>These are the " + levelsToLookAt.length + " levels to look at:<br><form ";
     }
     for (var i = 0; i < levelsToLookAt.length; i++) {
         myLevel = levelsToLookAt[i];
-        idStr = ' id=level-' + myLevel.id;
-        typeStr = ' type="checkbox" '
-        p.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input ' + typeStr + idStr + ' onchange="showLevels()">' + "<br>";
+        idStr = ' id=level-' + myLevel.id
+        nameStr = ' name="levelRadioButton" '
+        typeStr = ' type="radio" '
+        f.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input ' + typeStr + idStr + nameStr + ' onchange="inspect(myLevel)">' + "<br>";
     }
 }
 
@@ -572,4 +572,11 @@ function countGoalRVarRefs(levels) {
         }
     }
     document.getElementById("varRefs").innerHTML = "Chatted own goal resistance = " + grSelfInChat + ", used own goal resistance in calculation = " + grSelfInCalc + "<br>Chatted other\'s goal resistance = " + grOtherInChat + ", used other\'s goal resistance in calculation = " + grOtherInCalc;
+}
+
+function inspect(level) { //Takes a single level and opens up all its actions
+    var acts = level.actions;
+    for (var i = 0, myAct; myAct = acts[i]; i++) {
+        console.log(myAct.actor);
+    }
 }

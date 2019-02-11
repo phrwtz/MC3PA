@@ -6,6 +6,7 @@ var action = function () { };
 var chatsList = ["voltage", "current"]; //Array of strings to search for in chats
 var rows = [];
 var teams = [];
+var filteredLevels = [];
 var classIds = [];
 var teachers = [];
 var studentDataObjs = [];
@@ -31,8 +32,8 @@ function parseJSON(data) {
     //     var count = 0;
     //     analysisBar.max = 1;
     //     analysisBar.value;
-    var loading = document.getElementById("loading");
-    loading.style.display = "block";
+    // var loading = document.getElementById("loading");
+    // loading.style.display = "block";
     for (var i = 0; i < data.length; i++) {
         count = i / (data.length - 1);
         rowObjs = JSON.parse(data[i]);

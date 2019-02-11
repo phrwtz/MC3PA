@@ -28,6 +28,7 @@ function updateLevels() {
     updateOutcomes();
     updateVGoals();
     updateRGoals();
+    actionsReport();
 }
 
 function updateOutcomes() {
@@ -45,6 +46,7 @@ function updateOutcomes() {
     document.getElementById("Failure#").innerHTML = levelsFailure;
     updateVGoals();
     updateRGoals();
+    actionsReport();
 }
 
 function updateVGoals() {
@@ -87,6 +89,7 @@ function updateVGoals() {
     document.getElementById("VSomeChatted#").innerHTML = someGoalsChatted;
     document.getElementById("VNotChatted#").innerHTML = noGoalsChatted;
     updateRGoals();
+    actionsReport();
 }
 
 function updateRGoals() {
@@ -119,7 +122,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsChatted++;
-                                    if ($("#RNoChat")[0].checked) {
+                                    if ($("#RNotChat")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -139,7 +142,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsCalculated++;
-                                    if ($("#RNoCalc")[0].checked) {
+                                    if ($("#RNotCalc")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -163,7 +166,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsChatted++;
-                                    if ($("#RNoChat")[0].checked) {
+                                    if ($("#RNotChat")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -183,7 +186,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsCalculated++;
-                                    if ($("#RNoCalc")[0].checked) {
+                                    if ($("#RNotCalc")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -207,7 +210,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsChatted++;
-                                    if ($("#RNoChat")[0].checked) {
+                                    if ($("#RNotChat")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -227,7 +230,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsCalculated++;
-                                    if ($("#RNoCalc")[0].checked) {
+                                    if ($("#RNotCalc")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -254,7 +257,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsChatted++;
-                                    if ($("#RNoChat")[0].checked) {
+                                    if ($("#RNotChat")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -274,7 +277,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsCalculated++;
-                                    if ($("#RNoCalc")[0].checked) {
+                                    if ($("#RNotCalc")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -298,7 +301,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsChatted++;
-                                    if ($("#RNoChat")[0].checked) {
+                                    if ($("#RNotChat")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -318,7 +321,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsCalculated++;
-                                    if ($("#RNoCalc")[0].checked) {
+                                    if ($("#RNotCalc")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -342,7 +345,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsChatted++;
-                                    if ($("#RNoChat")[0].checked) {
+                                    if ($("#RNotChat")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -362,7 +365,7 @@ function updateRGoals() {
                                     break;
                                 case "none":
                                     noGoalsCalculated++;
-                                    if ($("#RNoCalc")[0].checked) {
+                                    if ($("#RNotCalc")[0].checked) {
                                         filteredLevels.push(myLevel);
                                     }
                                     break;
@@ -379,6 +382,7 @@ function updateRGoals() {
     document.getElementById("RAllCalculated#").innerHTML = allGoalsCalculated;
     document.getElementById("RSomeCalculated#").innerHTML = someGoalsCalculated;
     document.getElementById("RNotCalculated#").innerHTML = noGoalsCalculated;
+    actionsReport();
 }
 
 function actionsReport() { //list actions on all levels checked by user
@@ -392,7 +396,7 @@ function actionsReport() { //list actions on all levels checked by user
     if (levelsToLookAt.length == 1) {
         p.innerHTML = "<br>This is the level to look at:<br>";
     } else {
-        p.innerHTML = "<br>These are the levels to look at:<br>";
+        p.innerHTML = "<br>These are the " + levelsToLookAt.length + " levels to look at:<br>";
     }
     for (var i = 0; i < levelsToLookAt.length; i++) {
         myLevel = levelsToLookAt[i];

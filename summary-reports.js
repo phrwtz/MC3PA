@@ -5,6 +5,8 @@ function summaryReport() {
     updateOutcomes();
     updateVGoals();
     updateRGoals();
+    actionsReport();
+    inspectChats();
 }
 
 function updateLevels() {
@@ -29,6 +31,7 @@ function updateLevels() {
     updateVGoals();
     updateRGoals();
     actionsReport();
+    inspectChats();
 }
 
 function updateOutcomes() {
@@ -47,6 +50,7 @@ function updateOutcomes() {
     updateVGoals();
     updateRGoals();
     actionsReport();
+    inspectChats();
 }
 
 function updateVGoals() {
@@ -90,6 +94,7 @@ function updateVGoals() {
     document.getElementById("VNotChatted#").innerHTML = noGoalsChatted;
     updateRGoals();
     actionsReport();
+    inspectChats();
 }
 
 function updateRGoals() {
@@ -399,10 +404,11 @@ function actionsReport() { //list actions on all levels checked by user
     }
     for (var i = 0; i < levelsToLookAt.length; i++) {
         myLevel = levelsToLookAt[i];
+        myID = myLevel.id;
         idStr = ' id=level-' + myLevel.id
         nameStr = ' name="levelRadioButton" '
-        typeStr = ' type="radio" '
-        f.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input ' + typeStr + idStr + nameStr + ' onchange="inspect(myLevel)">' + "<br>";
+        typeStr = ' type="checkbox" '
+        f.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input ' + typeStr + idStr + nameStr + ' onchange="inspectChats()">' + "<br>";
     }
 }
 
@@ -574,9 +580,53 @@ function countGoalRVarRefs(levels) {
     document.getElementById("varRefs").innerHTML = "Chatted own goal resistance = " + grSelfInChat + ", used own goal resistance in calculation = " + grSelfInCalc + "<br>Chatted other\'s goal resistance = " + grOtherInChat + ", used other\'s goal resistance in calculation = " + grOtherInCalc;
 }
 
-function inspect(level) { //Takes a single level and opens up all its actions
-    var acts = level.actions;
-    for (var i = 0, myAct; myAct = acts[i]; i++) {
-        console.log(myAct.actor);
+function inspectChats() {
+    var acts = [],
+        chatP = document.getElementById("chatsPara"),
+        noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and"],
+        include,
+        str = "",
+        strFound,
+        strArray = [],
+        strCountArray = [];
+    chatP.innerHTML = "";
+    for (var r = 0, myLevel; myLevel = filteredLevels[r]; r++) {
+        if ($("#level-" + myLevel.id)[0].checked) {
+            acts = myLevel.actions;
+            for (var i = 0, myAct; myAct = acts[i]; i++) {
+                if (myAct.type == "message") {
+                    str += myAct.msg + " ";
+                }
+            }
+        }
     }
+    str2 = str.toLowerCase();
+    strArray = str2.split(" ");
+    for (var j = 0, myStr; myStr = strArray[j]; j++) {
+        strFound = false;
+        for (var k = 0; k < strCountArray.length; k++) {
+            if (strCountArray[k].string == myStr) {
+                strCountArray[k].count++;
+                strFound = true;
+                break;
+            }
+        }
+        if (!strFound && !noInclude.includes(myStr)) {
+            myStrCount = new StrCount;
+            myStrCount.string = myStr;
+            myStrCount.count = 1;
+            strCountArray.push(myStrCount)
+        }
+    }
+    sca = strCountArray.sort(function (a, b) {
+        return b.count - a.count
+    });
+    for (var kk = 0; kk < 10; kk++) {
+        chatP.innerHTML += (sca[kk].string + " : " + sca[kk].count + "<br>")
+    }
+}
+
+function StrCount(string, count) {
+    this.string = string;
+    this.count = count;
 }

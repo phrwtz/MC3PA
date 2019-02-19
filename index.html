@@ -10,107 +10,109 @@
 
 <body>
     <h1>Analyze MC3PA Data</h1>
-
+    <!--
     Chats to search for:<input type="file" id="chats" name="chats[]" onchange="openChats(event)"></input><br><br>
-
+-->
     Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"></input><br><br>
 
     <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button><br>
 
     <span>
         <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Summary report</button>
-        <button type="button" id="downloadButton" style="display:none" onclick="download(teams.txt, teams)">Download
-            teams</button><br>
     </span>
 
-    <div id="filter">
+    <div id="filter" style="margin-top: 30px">
         <table id="filterTable" style="display:none">
-            <tr>
+            <tr style=background-color:palegreen>
                 <th>Level</td>
                 <th>Outcome</td>
-                <th>Goal Voltages</td>
-                <th>Goal Resistances</td>
+                <th>Goal Voltage Chats</td>
+                <th>Goal Resistance Calcs</td>
+                <th>Goal Resistance Chats</td>
+            </tr>
+            <tr style=background-color:lightblue>
+                <td>all/none(<span id="levels#"></span>)<input type="checkbox"  id="levels" name="level" onChange="toggleSelectAll('level'); updateLevels()"></input>
+                </td>
+                <td>all/none(<span id="outcomes#"></span>)
+                    <input type="checkbox"  id="outcomes" name="outcome" onChange="toggleSelectAll('outcome'); updateLevels()"></input>
+                </td>
+                <td>
+                    all/none(<span id="vchats#"></span>)<input type="checkbox"  id="vchats" name="vchat" onChange="toggleSelectAll('vchat');updateLevels()"></input>
+                </td>
+                <td>all/none(<span id="rcalcs#"></span>)<input type="checkbox"  id="rcalcs" name="rcalc" onChange="toggleSelectAll('rcalc');updateLevels()"></input>
+                </td>
+                <td>all/none(<span id="rchats#"></span>)<input type="checkbox"  id="rchats" name="rchat" onChange="toggleSelectAll('rchat');updateLevels()"></input>
+                </td>
             </tr>
             <tr>
                 <td>
                     A(<span id="A#"></span>)
-                    <input type="checkbox" name="level" id="levelA" onchange="updateOutcomes()">
+                    <input type="checkbox"  name="level" id="levelA" onchange="updateLevels()">
                     </input>
                 </td>
+
                 <td>Success(<span id="Success#"></span>)
-                    <input type="checkbox" name="outcome" id="success" onchange="updateVGoals()">
+                    <input type="checkbox"  name="outcome" id="success" onchange="updateLevels()">
+                </td>
                 <td>All chatted(<span id="VAllChatted#"></span>)
-                    <input type="checkbox" name="voltage" id="VAllChat" onchange="updateRGoals()">
+                    <input type="checkbox"  name="vchat" id="VAllChat" onchange="updateLevels()">
+                    </input>
+                </td>
+                <td>All calculated(<span id="RAllCalculated#"></span>)
+                    <input type="checkbox"  name="rcalc" id="RAllCalc" onchange="updateLevels()">
                     </input>
                 </td>
                 <td>
                     All chatted(<span id="RAllChatted#"></span>)
-                    <input type="checkbox" name="resistance" id="RAllChat" onchange="updateRGoals(); actionsReport()">
+                    <input type="checkbox"  name="rchat" id="RAllChat" onchange="actionsReport()">
                     </input>
                 </td>
             </tr>
             <tr>
                 <td>
                     B(<span id="B#"></span>)
-                    <input type="checkbox" name="level" id="levelB" onchange="updateOutcomes()"></input>
+                    <input type="checkbox"  name="level" id="levelB" onchange="updateLevels()"></input>
                 </td>
                 <td>Failure(<span id="Failure#"></span>)
-                    <input type="checkbox" name="outcome" id="failure" onchange="updateVGoals()">
+                    <input type="checkbox"  name="outcome" id="failure" onchange="updateLevels()">
                     </input>
                 </td>
                 <td>
                     Some chatted(<span id="VSomeChatted#"></span>)
-                    <input type="checkbox" name="voltage" id="VSomeChat" onchange="updateRGoals()">
+                    <input type="checkbox"  name="vchat" id="VSomeChat" onchange="updateLevels()">
+                    </input>
+                </td>
+                <td>Some calculated(<span id="RSomeCalculated#"></span>)
+                    <input type="checkbox"  name="rcalc" id="RSomeCalc" onchange="updateLevels()">
                     </input>
                 </td>
                 <td>Some chatted(<span id="RSomeChatted#"></span>)
-                    <input type="checkbox" name="resistance" id="RSomeChat" onchange="updateRGoals(); actionsReport()">
+                    <input type="checkbox"  name="rchat" id="RSomeChat" onchange="actionsReport()">
                     </input>
                 </td>
             </tr>
             <tr>
                 <td>
                     C(<span id="C#"></span>)
-                    <input type="checkbox" name="level" id="levelC" onchange="updateOutcomes()"></input>
+                    <input type="checkbox"  name="level" id="levelC" onchange="updateLevels()"></input>
                 </td>
                 <td></td>
                 <td>None chatted(<span id="VNotChatted#"></span>)
-                    <input type="checkbox" name="resistance" id="VNoChat" onchange="updateOutcomes()">
+                    <input type="checkbox"  name="vchat" id="VNoChat" onchange="updateLevels()">
+                    </input>
+                </td>
+                <td>None calculated(<span id="RNotCalculated#"></span>)
+                    <input type="checkbox"  name="rcalc" id="RNoCalc" onchange="updateLevels()">
                     </input>
                 </td>
                 <td>None chatted(<span id="RNotChatted#"></span>)
-                    <input type="checkbox" name="resistance" id="RNotChat" onchange="updateRGoals(); actionsReport()">
+                    <input type="checkbox"  name="rchat" id="RNoChat" onchange="actionsReport()">
                     </input>
                 </td>
-            </tr>
             <tr>
                 <td>
                     D(<span id="D#"></span>)
-                    <input type="checkbox" name="level" id="levelD" onchange="updateOutcomes()"></input>
-                </td>
-                <td></td>
-                <td></td>
-                <td>All calculated(<span id="RAllCalculated#"></span>)
-                    <input type="checkbox" name="resistance" id="RAllCalc" onchange="updateRGoals(); actionsReport()">
-                    </input>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>Some calculated(<span id="RSomeCalculated#"></span>)
-                    <input type="checkbox" name="resistance" id="RSomeCalc" onchange="updateRGoals(); actionsReport()">
-                    </input>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>None calculated(<span id="RNotCalculated#"></span>)
-                    <input type="checkbox" name="resistance" id="RNotCalc" onchange="updateRGoals(); actionsReport()">
-                    </input>
+                    <input type="checkbox"  name="level" id="levelD" onchange="updateLevels()"></input>
                 </td>
             </tr>
         </table>
@@ -132,7 +134,6 @@
     <script>
         var data = new Array;
         var fileCount = 0;
-        var ready = false; //Will turn true when all the files have been read
 
         function openFiles(evt) {
             var files = evt.target.files; // FileList object

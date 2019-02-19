@@ -975,12 +975,12 @@ function goalRsChatted(myLevel) {
     }
     if ((goalR1ChattedToOther && goalR2ChattedToOther) ||
         (goalR2ChattedToOther && goalR3ChattedToOther) || (goalR1ChattedToOther && goalR3ChattedToOther)) {
-    return "all";
-} else if (goalR1ChattedToOther || goalR2ChattedToOther || goalR3ChattedToOther) {
-    return "some";
-} else {
-    return "none";
-}
+        return "all";
+    } else if (goalR1ChattedToOther || goalR2ChattedToOther || goalR3ChattedToOther) {
+        return "some";
+    } else {
+        return "none";
+    }
 }
 
 function goalVsCalculated(myLevel) {
@@ -1049,21 +1049,30 @@ function goalRsCalculated(myLevel) {
     }
 }
 
-function attemptedLevels() { //Also adds success flag and Vgoals chatted property
-    levelsAttempted = [];
+function addGoalsToLevels() { //Adds success flag and Vgoals and Rgoals properties
     for (var i = 0; i < teams.length; i++) {
         myTeam = teams[i];
         for (var j = 0; j < myTeam.levels.length; j++) {
             myLevel = myTeam.levels[j];
-            if (myLevel.attempted) {
-                myLevel.success = setSuccessFlag(myLevel);
-                myLevel.goalVsChatted = goalVsChatted(myLevel);
-                myLevel.goalRsChatted = goalRsChatted(myLevel);
-                myLevel.goalVsCalculated = goalVsCalculated(myLevel);
-                myLevel.goalRsCalculated = goalRsCalculated(myLevel);
-                levelsAttempted.push(myLevel);
-            }
+            myLevel.success = setSuccessFlag(myLevel);
+            myLevel.goalVsChatted = goalVsChatted(myLevel);
+            myLevel.goalRsChatted = goalRsChatted(myLevel);
+            myLevel.goalVsCalculated = goalVsCalculated(myLevel);
+            myLevel.goalRsCalculated = goalRsCalculated(myLevel);
         }
     }
-    return levelsAttempted;
+}
+
+
+function deleteAndFill(array, index) {
+    if (array.length > 1) {
+        delete(array[index]);
+        for (i = index; i < array.length; i++) {
+            array[i] = array[i + 1];
+        }
+        array.pop();
+    } else {
+        array = [];
+    }
+    return array;
 }

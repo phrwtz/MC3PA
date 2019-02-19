@@ -1065,14 +1065,15 @@ function addGoalsToLevels() { //Adds success flag and Vgoals and Rgoals properti
 
 
 function deleteAndFill(array, index) {
+    var returnArray = array;
     if (array.length > 1) {
-        delete(array[index]);
-        for (i = index; i < array.length; i++) {
-            array[i] = array[i + 1];
+        delete(returnArray[index]);
+        for (var i = index; i < returnArray.length; i++) {
+            returnArray[i] = returnArray[i + 1];
         }
-        array.pop();
+        returnArray.pop();
     } else {
-        array = [];
+        returnArray = [];
     }
-    return array;
+    return returnArray;
 }

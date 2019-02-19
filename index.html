@@ -64,7 +64,7 @@
                 </td>
                 <td>
                     All chatted(<span id="RAllChatted#"></span>)
-                    <input type="checkbox"  name="rchat" id="RAllChat" onchange="actionsReport()">
+                    <input type="checkbox"  name="rchat" id="RAllChat" onchange="updateLevels()">
                     </input>
                 </td>
             </tr>
@@ -87,7 +87,7 @@
                     </input>
                 </td>
                 <td>Some chatted(<span id="RSomeChatted#"></span>)
-                    <input type="checkbox"  name="rchat" id="RSomeChat" onchange="actionsReport()">
+                    <input type="checkbox"  name="rchat" id="RSomeChat" onchange="updateLevels()">
                     </input>
                 </td>
             </tr>
@@ -106,7 +106,7 @@
                     </input>
                 </td>
                 <td>None chatted(<span id="RNotChatted#"></span>)
-                    <input type="checkbox"  name="rchat" id="RNoChat" onchange="actionsReport()">
+                    <input type="checkbox"  name="rchat" id="RNoChat" onchange="updateLevels()">
                     </input>
                 </td>
             <tr>
@@ -121,7 +121,7 @@
     </div>
     <p id="data"></p>
     <span>
-        <p id="levels"></p>
+        <p id="levelsPara"></p>
         <p id="chatsPara"></p>
     </span>
     <style>

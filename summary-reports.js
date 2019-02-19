@@ -50,22 +50,21 @@ function updateOutcomes(levels) {
         levelsFailure = 0,
         filteredLevels = []; //So we can run filters without changing the length of the array we're scanning
     if (levels.length > 0) {
-        filteredLevels = levels;
         for (var i = 0, myLevel; myLevel = levels[i]; i++) {
             if (myLevel.success) {
                 levelsSuccess++;
-                if (!$("#success")[0].checked) {
-                    filteredLevels = deleteAndFill(levels[i]);
+                if ($("#success")[0].checked) {
+                    filteredLevels.push(myLevel);
                 }
             } else {
                 levelsFailure++
-                if (!$("#failure")[0].checked) {
-                    filteredLevels = deleteAndFill(levels[i]);
+                if ($("#failure")[0].checked) {
+                    filteredLevels.push(myLevel);
                 }
             }
         }
     }
-    document.getElementById("outcomes#").innerHTML = levels.length;
+    document.getElementById("outcomes#").innerHTML = filteredLevels.length;
     document.getElementById("Success#").innerHTML = levelsSuccess;
     document.getElementById("Failure#").innerHTML = levelsFailure;
     updateVChats(filteredLevels);
@@ -77,28 +76,30 @@ function updateVChats(levels) {
         noGoalsChatted = 0,
         filteredLevels = []; //So we can run filters without changing the length of the array
     if (levels.length > 0) {
-        filteredLevels = levels; 
         for (var i = 0, myLevel; myLevel = levels[i]; i++) {
             switch (myLevel.goalVsChatted) {
                 case "all":
                     allGoalsChatted++
-                    if (!($("#VAllChat")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#VAllChat")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
+                    break;
                 case "some":
                     someGoalsChatted++
-                    if (!($("#VSomeChat")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#VSomeChat")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
+                    break;
                 case "none":
                     noGoalsChatted++
-                    if (!($("#VNoChat")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#VNoChat")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
+                    break;
             }
         }
     }
-    document.getElementById("vchats#").innerHTML = levels.length;
+    document.getElementById("vchats#").innerHTML = filteredLevels.length;
     document.getElementById("VAllChatted#").innerHTML = allGoalsChatted;
     document.getElementById("VSomeChatted#").innerHTML = someGoalsChatted;
     document.getElementById("VNotChatted#").innerHTML = noGoalsChatted;
@@ -111,31 +112,30 @@ function updateRCalcs(levels) {
         noGoalsCalculated = 0,
         filteredLevels = []; //So we can run filters without changing the length of the array
     if (levels.length > 0) {
-        filteredLevels = levels;
         for (var i = 0, myLevel; myLevel = levels[i]; i++) {
             switch (myLevel.goalRsCalculated) {
                 case "all":
                     allGoalsCalculated++;
-                    if (!($("#RAllCalc")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#RAllCalc")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
                     break;
                 case "some":
                     someGoalsCalculated++;
-                    if (!($("#RSomeCalc")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#RSomeCalc")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
                     break;
                 case "none":
                     noGoalsCalculated++;
-                    if (!($("#RNoCalc")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#RNoCalc")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
                     break;
             }
         }
     }
-    document.getElementById("rcalcs#").innerHTML = levels.length;
+    document.getElementById("rcalcs#").innerHTML = filteredLevels.length;
     document.getElementById("RAllCalculated#").innerHTML = allGoalsCalculated;
     document.getElementById("RSomeCalculated#").innerHTML = someGoalsCalculated;
     document.getElementById("RNotCalculated#").innerHTML = noGoalsCalculated;
@@ -148,25 +148,24 @@ function updateRChats(levels) {
         noGoalsChatted = 0,
         filteredLevels = []; //So we can run filters without changing the length of the array;
     if (levels.length > 0) {
-        filteredLevels = levels;
         for (var i = 0, myLevel; myLevel = levels[i]; i++) {
             switch (myLevel.goalRsChatted) {
                 case "all":
                     allGoalsChatted++;
-                    if (!($("#RAllCalc")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#RAllChat")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
                     break;
                 case "some":
                     someGoalsChatted++;
-                    if ((!$("#RSomeCalc")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#RSomeChat")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
                     break;
                 case "none":
                     noGoalsChatted++;
-                    if (!($("#RNoChat")[0].checked)) {
-                        filteredLevels = deleteAndFill(levels[i]);
+                    if (($("#RNoChat")[0].checked)) {
+                        filteredLevels.push(myLevel);
                     }
                     break;
             }
@@ -180,7 +179,7 @@ function updateRChats(levels) {
 }
 
 function actionsReport(levels) { //list actions on all levels checked by user
-    var f = document.getElementById("levels");
+    var f = document.getElementById("levelsPara");
     if (levels.length == 0) {
         f.innerHTML = "<br>There are no levels to look at:<br>";
         return;

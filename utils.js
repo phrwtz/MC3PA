@@ -1077,3 +1077,13 @@ function deleteAndFill(array, index) {
     }
     return returnArray;
 }
+
+function removeElement(id) {
+    var t = document.getElementById(id);
+    if (t) {
+        while (t.firstChild) {
+            t.removeChild(t.firstChild);
+            t.parentNode.removeChild;
+        }
+    }
+}

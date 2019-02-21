@@ -178,112 +178,136 @@ function updateRChats(levels) {
     actionsReport(filteredLevels);
 }
 
-function actionsReport(levels) { //list actions on all levels checked by user
+function actionsReport(actionLevels) { //list actions on all levels checked by user
     var f = document.getElementById("levelsPara");
-    if (levels.length == 0) {
-        f.innerHTML = "<br>There are no levels to look at:<br>";
+    var c = document.getElementById("chatsPara");
+    if (actionLevels.length == 0) {
+        f.innerHTML = "<br>There are no levels to look at.<br>";
+        c.innerHTML = "";
         return;
     }
-    if (levels.length == 1) {
+    if (actionLevels.length == 1) {
         f.innerHTML = "<br>This is the level to look at:<br>";
+        c.innerHTML = "";
     } else {
-        f.innerHTML = "<br>These are the " + levels.length + " levels to look at:<br><form ";
+        f.innerHTML = "<br>These are the " + actionLevels.length + " levels to look at:<br>";
+        c.innerHTML = "";
     }
-    for (var i = 0; i < levels.length; i++) {
-        myLevel = levels[i];
+    for (var i = 0; i < actionLevels.length; i++) {
+        myLevel = actionLevels[i];
         myID = myLevel.id;
         idStr = ' id=level-' + myLevel.id
-        nameStr = ' name="levelRadioButton" '
+        nameStr = ' name="levelCheckbox" '
         typeStr = ' type="checkbox" '
-        f.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input ' + typeStr + idStr + nameStr + ' onchange="countChats(levels)">' + "<br>";
+        f.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input ' + typeStr + idStr + nameStr + '>' + "<br>";
+    }
+    countChats();
+}
+
+function countChats() {
+    var levels = findFilteredLevels();
+    var acts = [],
+        chatP = document.getElementById("chatsPara"),
+        noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and"],
+        str = "",
+        strFound,
+        strArray = [],
+        strCountArray = [],
+        sca = [],
+        weightedstrs, //sum of unique strings times their frequency
+        limit,
+        strMsg = "",
+        noIncludeStrs = 0,
+        voltageCount = 0;
+    strFound = false;
+    chatP.innerHTML = "";
+    if (levels.length == 1) {
+        strMsg = "<br>Most frequent strings for this level:<br>"
+    }
+    if (levels.length > 1) {
+        strMsg = "<br>Most frequent strings for these " + levels.length + " levels:<br>";
+    }
+    if (levels.length > 0) {
+        for (var r = 0, myLevel; myLevel = levels[r]; r++) {
+            chatP.innerHTML = strMsg;
+            acts = myLevel.actions;
+            for (var i = 0, myAct; myAct = acts[i]; i++) {
+                if (myAct.type == "message") {
+                    str += myAct.msg + " ";
+                }
+            }
+        }
+        str2 = str.toLowerCase();
+        strArray = str2.split(" ");
+        for (var j = 0; j < strArray.length; j++) {
+            myStr = strArray[j];
+            if (myStr == "voltage") {
+                voltageCount++;
+            }
+            if (strCountArray.length == 0) {
+                myStrCount = new StrCount;
+                myStrCount.string = myStr;
+                myStrCount.count = 1;
+                strCountArray.push(myStrCount);
+            } else if (noInclude.includes(myStr)) {
+                noIncludeStrs++;
+            } else {
+                strFound = false;
+                for (var k = 0; k < strCountArray.length; k++) {
+                    if (strCountArray[k].string == myStr) {
+                        strCountArray[k].count++;
+                        strFound = true;
+                    }
+                }
+                if (!strFound) {
+                    myStrCount = new StrCount;
+                    myStrCount.string = myStr;
+                    myStrCount.count = 1;
+                    strCountArray.push(myStrCount);
+                }
+            }
+        }
+        sca = strCountArray.sort(function (a, b) {
+            return b.count - a.count
+        });
+        limit = Math.min(20, sca.length);
+        weightedStrs = 0;
+        for (var kk = 0; kk < limit; kk++) {
+            weightedStrs += sca[kk].count;
+            chatP.innerHTML += (sca[kk].string + " : " + sca[kk].count + "<br>")
+        }
+//        console.log("levels = " + levels.length + ", strings = " + strArray.length + " unique strings = " + sca.length + ", sum of unique strings times frequency = " + weightedStrs + ". " + noIncludeStrs + " strings not included. Voltage mentioned " + voltageCount + " times.");
     }
 }
 
-function makeSummaryReportTable() {
-    var summaryTable = document.createElement("table");
-    summaryTable.id = "summaryTable";
-    var headerRow = document.createElement("tr");
-    var levelCell = document.createElement("th");
-    var outcomeCell = document.createElement("th");
-    var goalsCell = document.createElement("th");
-    headerRow.style.backgroundColor = "#DDFFDD";
-    levelCell.innerHTML = ("Level");
-    outcomeCell.innerHTML = ("Outcome");
-    goalsCell.innerHTML = ("Goals chatted?");
-    summaryDiv.appendChild(summaryTable);
-    summaryTable.appendChild(headerRow);
-    headerRow.appendChild(levelCell);
-    headerRow.appendChild(outcomeCell);
-    headerRow.appendChild(goalsCell);
 
-    var checkboxRow1 = document.createElement("tr");
-    var checkboxRow2 = document.createElement("tr");
-    var checkboxRow3 = document.createElement("tr");
-    var checkboxRow4 = document.createElement("tr");
-    var cell11 = document.createElement("td");
-    var cell12 = document.createElement("td");
-    var cell13 = document.createElement("td");
-    var cell21 = document.createElement("td");
-    var cell22 = document.createElement("td");
-    var cell23 = document.createElement("td");
-    var cell31 = document.createElement("td");
-    var cell41 = document.createElement("td");
-    cell11.id = "t11";
-    cell12.id = "t12";
-    cell13.id = "t13";
-    cell21.id = "t21";
-    cell22.id = "t22";
-    cell23.id = "t23";
-    cell31.id = "t31";
-    cell41.id = "t41";
-    summaryTable.appendChild(checkboxRow1);
-    summaryTable.appendChild(checkboxRow2);
-    summaryTable.appendChild(checkboxRow3);
-    summaryTable.appendChild(checkboxRow4);
-    checkboxRow1.appendChild(cell11);
-    checkboxRow1.appendChild(cell12);
-    checkboxRow1.appendChild(cell13);
-    checkboxRow2.appendChild(cell21);
-    checkboxRow2.appendChild(cell22);
-    checkboxRow2.appendChild(cell23);
-    checkboxRow3.appendChild(cell31);
-    checkboxRow4.appendChild(cell41);
-    return summaryTable;
+function StrCount(string, count) {
+    this.string = string;
+    this.count = count;
 }
 
-// functio
-
-function makeChatsTable(levels) {
-    var chatsFound = findChats(levels);
-    removeElement("chatsTable"); // So that we don't keep adding to it.
-    var chatsTable = document.createElement("table");
-    chatsTable.id = "chatsTable";
-    summaryDiv.appendChild(chatsTable);
-    var headerRow = document.createElement("tr");
-    headerRow.style.backgroundColor = "#DDFFDD";
-    chatsTable.appendChild(headerRow);
-    var chatsCell = document.createElement("th");
-    chatsCell.innerHTML = ("Chat searches");
-    headerRow.appendChild(chatsCell);
-    for (var m = 0, myChat; myChat = chatsList[m]; m++) {
-        chatsRow = document.createElement("tr");
-        chatsTable.appendChild(chatsRow);
-        chatsCell = document.createElement("td");
-        chatsCell.innerHTML = ('<input type="checkbox" id= myChat >' + myChat + " (" + chatsFound[myChat].length + ")")
-        chatsRow.appendChild(chatsCell);
-    }
-    return (chatsTable);
-}
-
-function removeElement(id) {
-    var t = document.getElementById(id);
-    if (t) {
-        while (t.firstChild) {
-            t.removeChild(t.firstChild);
-            t.parentNode.removeChild;
+function findFilteredLevels() { //Returns an array of all the levels for which there are checkboxes after filtering
+    var filteredLevels = [];
+    for (var i = 0, myTeam; myTeam = teams[i]; i++) {
+        for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
+            if (document.getElementById("level-" + myLevel.id)) {
+                filteredLevels.push(myLevel);
+            }
         }
     }
+    return filteredLevels;
 }
+
+function findSelectedLevels(filteredLevels) { //Returns an array of all the filtered levels whose checkboxes have been checked.
+    var selectedLevels = [];
+    for (var i = 0, myLevel; myLevel = filteredLevels[i]; i++) {
+        if (document.getElementById("level-" + myLevel.id).checked) {
+            selectedLevels.push(myLevel);
+        }
+    }
+    return selectedLevels;
+}
+
 
 function findChats(levels) {
     var chatsFound = function () {}; //Will contain all message actions that match a given search message 
@@ -365,56 +389,4 @@ function countGoalRVarRefs(levels) {
         }
     }
     document.getElementById("varRefs").innerHTML = "Chatted own goal resistance = " + grSelfInChat + ", used own goal resistance in calculation = " + grSelfInCalc + "<br>Chatted other\'s goal resistance = " + grOtherInChat + ", used other\'s goal resistance in calculation = " + grOtherInCalc;
-}
-
-function countChats(levels) {
-    var acts = [],
-        chatP = document.getElementById("chatsPara"),
-        noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and"],
-        str = "",
-        strFound,
-        strArray = [],
-        strCountArray = [];
-    chatP.innerHTML = "";
-    if (levels.length > 0) {
-        for (var r = 0, myLevel; myLevel = levels[r]; r++) {
-            if ($("#level" + myLevel.id)[0].checked) {
-                acts = myLevel.actions;
-                for (var i = 0, myAct; myAct = acts[i]; i++) {
-                    if (myAct.type == "message") {
-                        str += myAct.msg + " ";
-                    }
-                }
-            }
-        }
-        str2 = str.toLowerCase();
-        strArray = str2.split(" ");
-        for (var j = 0, myStr; myStr = strArray[j]; j++) {
-            strFound = false;
-            for (var k = 0; k < strCountArray.length; k++) {
-                if (strCountArray[k].string == myStr) {
-                    strCountArray[k].count++;
-                    strFound = true;
-                    break;
-                }
-            }
-            if (!strFound && !noInclude.includes(myStr)) {
-                myStrCount = new StrCount;
-                myStrCount.string = myStr;
-                myStrCount.count = 1;
-                strCountArray.push(myStrCount)
-            }
-        }
-        sca = strCountArray.sort(function (a, b) {
-            return b.count - a.count
-        });
-        for (var kk = 0; kk < 10; kk++) {
-            chatP.innerHTML += (sca[kk].string + " : " + sca[kk].count + "<br>")
-        }
-    }
-}
-
-function StrCount(string, count) {
-    this.string = string;
-    this.count = count;
 }

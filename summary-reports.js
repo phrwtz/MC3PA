@@ -15,25 +15,20 @@ function updateLevels() {
         numberCLevels = 0,
         numberDLevels = 0,
         filteredLevels = [];
-    for (var i = 0; i < teams.length; i++) {
-        myTeam = teams[i];
-        for (var j = 0; j < myTeam.levels.length; j++) {
-            myLevel = myTeam.levels[j];
-            if (myLevel.attempted) {
-                label = myLevel.label;
-                if ($("#level" + myLevel.label)[0].checked) {
-                    filteredLevels.push(myLevel);
-                }
-                if (label == "A") {
-                    numberALevels++;
-                } else if (label == "B") {
-                    numberBLevels++;
-                } else if (label == "C") {
-                    numberCLevels++;
-                } else if (label == "D") {
-                    numberDLevels++;
-                }
-            }
+    for (var i = 0; i < attemptedLevels.length; i++) {
+        myLevel = attemptedLevels[i];
+        label = myLevel.label;
+        if ($("#level" + label)[0].checked) {
+            filteredLevels.push(myLevel);
+        }
+        if (label == "A") {
+            numberALevels++;
+        } else if (label == "B") {
+            numberBLevels++;
+        } else if (label == "C") {
+            numberCLevels++;
+        } else if (label == "D") {
+            numberDLevels++;
         }
     }
     document.getElementById("levels#").innerHTML = filteredLevels.length;
@@ -178,34 +173,32 @@ function updateRChats(levels) {
     actionsReport(filteredLevels);
 }
 
-function actionsReport(actionLevels) { //list actions on all levels checked by user
+function actionsReport(filteredLevels) { //generates a radio button for each level in filteredLevels
     var f = document.getElementById("levelsPara");
     var c = document.getElementById("chatsPara");
-    if (actionLevels.length == 0) {
+    var selectedLevel = findSelectedLevel();
+    var myLevel;
+    if (filteredLevels.length == 0) {
         f.innerHTML = "<br>There are no levels to look at.<br>";
         c.innerHTML = "";
         return;
     }
-    if (actionLevels.length == 1) {
+    if (filteredLevels.length == 1) {
         f.innerHTML = "<br>This is the level to look at:<br>";
         c.innerHTML = "";
     } else {
-        f.innerHTML = "<br>These are the " + actionLevels.length + " levels to look at:<br>";
+        f.innerHTML = "<br>These are the " + filteredLevels.length + " levels to look at:<br>";
         c.innerHTML = "";
     }
-    for (var i = 0; i < actionLevels.length; i++) {
-        myLevel = actionLevels[i];
-        myID = myLevel.id;
-        idStr = ' id=level-' + myLevel.id
-        nameStr = ' name="levelCheckbox" '
-        typeStr = ' type="checkbox" '
-        f.innerHTML += "Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input ' + typeStr + idStr + nameStr + '>' + "<br>";
+    for (var i = 0; i < filteredLevels.length; i++) {
+        var checkTable = document.getElementById("checkTable");
+        myLevel = filteredLevels[i];
+        f.innerHTML += ("Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=setupActionsForm();reportResults()></input>' + "<br>")
     }
-    countChats();
+    countChats(filteredLevels);
 }
 
-function countChats() {
-    var levels = findFilteredLevels();
+function countChats(filteredLevels) {
     var acts = [],
         chatP = document.getElementById("chatsPara"),
         noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and"],
@@ -218,17 +211,17 @@ function countChats() {
         limit,
         strMsg = "",
         noIncludeStrs = 0,
-        voltageCount = 0;
-    strFound = false;
+        strFound = false;
+    chatP.style.display = "inline";
     chatP.innerHTML = "";
-    if (levels.length == 1) {
+    if (filteredLevels.length == 1) {
         strMsg = "<br>Most frequent strings for this level:<br>"
     }
-    if (levels.length > 1) {
-        strMsg = "<br>Most frequent strings for these " + levels.length + " levels:<br>";
+    if (filteredLevels.length > 1) {
+        strMsg = "<br>Most frequent strings for these " + filteredLevels.length + " levels:<br>";
     }
-    if (levels.length > 0) {
-        for (var r = 0, myLevel; myLevel = levels[r]; r++) {
+    if (filteredLevels.length > 0) {
+        for (var r = 0, myLevel; myLevel = filteredLevels[r]; r++) {
             chatP.innerHTML = strMsg;
             acts = myLevel.actions;
             for (var i = 0, myAct; myAct = acts[i]; i++) {
@@ -241,9 +234,6 @@ function countChats() {
         strArray = str2.split(" ");
         for (var j = 0; j < strArray.length; j++) {
             myStr = strArray[j];
-            if (myStr == "voltage") {
-                voltageCount++;
-            }
             if (strCountArray.length == 0) {
                 myStrCount = new StrCount;
                 myStrCount.string = myStr;
@@ -276,8 +266,8 @@ function countChats() {
             weightedStrs += sca[kk].count;
             chatP.innerHTML += (sca[kk].string + " : " + sca[kk].count + "<br>")
         }
-//        console.log("levels = " + levels.length + ", strings = " + strArray.length + " unique strings = " + sca.length + ", sum of unique strings times frequency = " + weightedStrs + ". " + noIncludeStrs + " strings not included. Voltage mentioned " + voltageCount + " times.");
     }
+    setupActionsForm();
 }
 
 
@@ -286,31 +276,10 @@ function StrCount(string, count) {
     this.count = count;
 }
 
-function findFilteredLevels() { //Returns an array of all the levels for which there are checkboxes after filtering
-    var filteredLevels = [];
-    for (var i = 0, myTeam; myTeam = teams[i]; i++) {
-        for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
-            if (document.getElementById("level-" + myLevel.id)) {
-                filteredLevels.push(myLevel);
-            }
-        }
-    }
-    return filteredLevels;
-}
-
-function findSelectedLevels(filteredLevels) { //Returns an array of all the filtered levels whose checkboxes have been checked.
-    var selectedLevels = [];
-    for (var i = 0, myLevel; myLevel = filteredLevels[i]; i++) {
-        if (document.getElementById("level-" + myLevel.id).checked) {
-            selectedLevels.push(myLevel);
-        }
-    }
-    return selectedLevels;
-}
 
 
 function findChats(levels) {
-    var chatsFound = function () {}; //Will contain all message actions that match a given search message 
+    var chatsFound = function () {}; //Will contain all message actions that match a given search message and their count
     var searchMsg = "",
         msg = "";
     //initialize the chatsFound arrays
@@ -389,4 +358,19 @@ function countGoalRVarRefs(levels) {
         }
     }
     document.getElementById("varRefs").innerHTML = "Chatted own goal resistance = " + grSelfInChat + ", used own goal resistance in calculation = " + grSelfInCalc + "<br>Chatted other\'s goal resistance = " + grOtherInChat + ", used other\'s goal resistance in calculation = " + grOtherInCalc;
+}
+
+function displayChatsAndActions() {
+    var filteredLevels = findFilteredLevels();
+    var selectedLevel = findSelectedLevel();
+    var actionTable = document.getElementById("actionWindos");
+    var checkDiv = document.getElementById("checkDiv");
+    if (filteredLevels.length > 0) {
+        checkDiv.style.display = "inline";
+    } else {
+        checkDiv.style.display = "none";
+    }
+    if (selectedLevel) {
+        countChats;
+    }
 }

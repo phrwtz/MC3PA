@@ -1,138 +1,131 @@
-function generateReport(teams) {
-    //    document.getElementByID("data").innerHTML = ""; //Clear the screen
-    reportResults(teams);
-    console.log("results reported");
-    reportResistorChanges(teams);
-    console.log("resistor changes reported");
-    reportMessageScores(teams);
-    console.log("message scores reported");
-    //  teacherReport(teams);
-    console.log("teacher report");
-    reportVarRefs(teams);
-    console.log("varRefs report");
+function reportResults() {
+    var myLevel = findSelectedLevel();
+    var reportDiv = document.getElementById("reportDiv");
+    if (myLevel) {
+        clearElement("actionsTable"); //start with a blank slate
+        var actionsTable = document.createElement("table");
+        actionsTable.id = "actionsTable";
+        actionsTable.style.display = "inline";
+        reportDiv.appendChild(actionsTable);
+        var headerRow = document.createElement("tr");
+        actionsTable.appendChild(headerRow);
+        var header = document.createElement("th");
+        header.setAttribute("colspan", 4);
+        headerRow.appendChild(header);
+        var team = myLevel.team;
+        header.innerHTML = "Team " + team.name + " (class ID " + team.classId + "), level " + myLevel.label;
+        //Run through the actions publishing each in a separate row if it has been selected on the form
+        for (var i = 0; i < myLevel.actions.length; i++) {
+            var act = myLevel.actions[i],
+                bd = act.board + 1,
+                actor = act.actor,
+                styledName = actor.styledName,
+                currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing."),
+                preTime, //Used to decide when to insert a horizontal line in the output
+                uTime = act.uTime,
+                eTime = Math.round((act.uTime - myLevel.startUTime) * 10) / 10, //Elapsed time since start of level
+                interval = 45; //Maximum interval between logged actions for considering them linked.
+            switch (act.type) {
+                case "submitClicked":
+                    if ($("#action-submit-V")[0].checked) {
+                        reportSubmitVoltages(act);
+                    }
+                    break;
+
+                case "submitER":
+                    if ($("#action-submit-ER")[0].checked) {
+                        reportSubmitER(act);
+                    }
+                    break;
+
+                case "resistorChange":
+                    if ($("#action-resistorChange")[0].checked) {
+                        reportResistorChange(act);
+                    }
+                    break;
+
+                case "message":
+                    if ($("#action-message")[0].checked) {
+                        reportMessage(act);
+                    }
+                    break;
+
+                case "calculation":
+                    if ($("#action-calculation")[0].checked) {
+                        reportCalculation(act);
+                    }
+                    break;
+
+                case "attach-probe":
+                    if ($("#action-attach-probe")[0].checked) {
+                        reportAttachProbe(act);
+                    }
+                    break;
+
+                case "detach-probe":
+                    if ($("#action-detach-probe")[0].checked) {
+                        reportDetachProbe(act);
+                    }
+                    break;
+
+                case "connect-lead":
+                    if ($("#action-connect-lead")[0].checked) {
+                        reportConnectLead(act);
+                    }
+                    break;
+
+                case "disconnect-lead":
+                    if ($("#action-disconnect-lead")[0].checked) {
+                        reportDisconnectLead(act);
+                    }
+                    break;
+
+                case "joined-group":
+                    if ($("#action-joined-group")[0].checked) {
+                        reportJoinedGroup(act);
+                    }
+                    break;
+
+                case "opened-zoom":
+                    if ($("#action-opened-zoom")[0].checked) {
+                        reportOpenedZoom(act);
+                    }
+                    break;
+
+                case "closed-zoom":
+                    if ($("#action-closed-zoom")[0].checked) {
+                        reportClosedZoom(act);
+                    }
+                    break;
+
+                case "measurement":
+                    if ($("#action-measurement")[0].checked) {
+                        reportMeasurement(act);
+                    }
+                    break;
+
+                case "move-dial":
+                    if ($("#action-move-DMM-dial")[0].checked) {
+                        reportMovedDial(act);
+                    }
+                    break;
+
+                case "activity-settings":
+                    if ($("#action-activity-settings")[0].checked) {
+                        reportActivitySettings(act);
+                    }
+                    break;
+            } //End of switch block
+        } //End of actions
+        //  reportVarRefs(acts);
+    } else {
+        document.getElementById("actionsTable").style.display = "none";
+     }
 }
 
-    // for (var k = 0; k < filteredLevels.length; k++) { // for each team
-    //     myLevel = filteredLevels[k];
-    //     myTeam = myLevel.team;
-    //     filteredTeams.push(myTeam);
-    //     //     findSummaryData(myLevel, true);
-    //     acts = myLevel.actions.sort(function (a, b) {
-    //         return (a.uTime - b.uTime)
-    //     });
-    // }
-
-    // setUpActionsReport(filteredTeams);
-    // setupForm(filteredTeams);
-
-    //Now run through the actions a second time, publishing each in a separate row if it has been selected
-//     for (var i = 0; i < acts.length; i++) {
-//         var act = acts[i],
-//             bd = act.board + 1,
-//             actor = act.actor,
-//             styledName = actor.styledName,
-//             currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing."),
-//             preTime, //Used to decide when to insert a horizontal line in the output
-//             uTime = act.uTime,
-//             eTime = Math.round((act.uTime - myLevel.startUTime) * 10) / 10, //Elapsed time since start of level
-//             interval = 45; //Maximum interval between logged actions for considering them linked.
-//         switch (act.type) {
-//             case "submitClicked":
-//                 if ($("#action-submit-V")[0].checked) {
-//                     reportSubmitVoltages(act);
-//                 }
-//                 break;
-
-//             case "submitER":
-//                 if ($("#action-submit-ER")[0].checked) {
-//                     reportSubmitER(act);
-//                 }
-//                 break;
-
-//             case "resistorChange":
-//                 if ($("#action-resistorChange")[0].checked) {
-//                     reportResistorChange(act);
-//                 }
-//                 break;
-
-//             case "message":
-//                 if ($("#action-message")[0].checked) {
-//                     reportMessage(act);
-//                 }
-//                 break;
-
-//             case "calculation":
-//                 if ($("#action-calculation")[0].checked) {
-//                     reportCalculation(act);
-//                 }
-//                 break;
-
-//             case "attach-probe":
-//                 if ($("#action-attach-probe")[0].checked) {
-//                     reportAttachProbe(act);
-//                 }
-//                 break;
-
-//             case "detach-probe":
-//                 if ($("#action-detach-probe")[0].checked) {
-//                     reportDetachProbe(act);
-//                 }
-//                 break;
-
-//             case "connect-lead":
-//                 if ($("#action-connect-lead")[0].checked) {
-//                     reportConnectLead(act);
-//                 }
-//                 break;
-
-//             case "disconnect-lead":
-//                 if ($("#action-disconnect-lead")[0].checked) {
-//                     reportDisconnectLead(act);
-//                 }
-//                 break;
-
-//             case "joined-group":
-//                 if ($("#action-joined-group")[0].checked) {
-//                     reportJoinedGroup(act);
-//                 }
-//                 break;
-
-//             case "opened-zoom":
-//                 if ($("#action-opened-zoom")[0].checked) {
-//                     reportOpenedZoom(act);
-//                 }
-//                 break;
-
-//             case "closed-zoom":
-//                 if ($("#action-closed-zoom")[0].checked) {
-//                     reportClosedZoom(act);
-//                 }
-//                 break;
-
-//             case "measurement":
-//                 if ($("#action-measurement")[0].checked) {
-//                     reportMeasurement(act);
-//                 }
-//                 break;
-
-//             case "move-dial":
-//                 if ($("#action-move-DMM-dial")[0].checked) {
-//                     reportMovedDial(act);
-//                 }
-//                 break;
-
-//             case "activity-settings":
-//                 if ($("#action-activity-settings")[0].checked) {
-//                     reportActivitySettings(act);
-//                 }
-//                 break;
-//         } //End of switch block
-//     } //End of actions 
-// }
-
-function reportVarRefs(teams) {
-    var team,
-        level,
+function reportVarRefs(acts) {
+    var level = acts[0].level,
+        team = level.team,
         varRefs,
         vrArray,
         vr,
@@ -142,106 +135,96 @@ function reportVarRefs(teams) {
         oMsg,
         vrScore;
 
-    for (var k = 0; k < teams.length; k++) {
-        team = teams[k];
-        if ($("#team-" + team.name + team.classId)[0].checked) {
-            for (var j = 0; j < team.levels.length; j++) {
-                var myLevel = team.levels[j];
-                if ($("#level-" + myLevel.label)[0].checked) {
-                    document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + "(" + team.classId + "), level " + myLevel.label + ":</mark><br>");
-                    varRefs = myLevel.varRefs;
-                    varRefCount = 0;
-                    for (var i = 0; i < vrLabelsArray.length; i++) {
-                        vrStr = vrLabelsArray[i];
-                        try {
-                            if ($("#varRef-" + vrStr)[0].checked) {
-                                document.getElementById("data").innerHTML += ("<br>");
-                                vrArray = varRefs[vrStr].sort(function (a, b) {
-                                    return (a[0].uTime - b[0].uTime)
-                                }); //contains all the varRefs of type vrStr;
-                                for (var ii = 0; ii < vrArray.length; ii++) {
-                                    vr = vrArray[ii];
-                                    act = vr[0];
-                                    o = ""; // String used to return other matching varRefs
-                                    vrNum = vr[2];
-                                    vrScore = vr[3];
-                                    var t = act.type;
-                                    var bd = parseInt(act.board) + 1;
-                                    oMsg = ""
-                                    switch (t) {
-                                        case "message":
-                                            t = "<span style=\"color:#FF0000;\">message</span>";
-                                            o = findOtherVariables(vr);
-                                            break;
-                                        case "calculation":
-                                            var vrInInput = false;
-                                            var vrInResult = false;
-                                            //Check to see whether the varRef is in the input of the calculation
-                                            for (var kk = 0; kk < act.cvarRefs.length; kk++) {
-                                                for (var kkk = 0; kkk < act.cvarRefs[kk].length; kkk++) {
-                                                    if (act.cvarRefs[kk][kkk][1] == vrStr) {
-                                                        vrInInput = true;
-                                                    }
-                                                }
-                                            }
-                                            //Check to see whether the varRef is in the result of the calculation
-                                            for (var rr = 0; rr < act.rvarRefs.length; rr++) {
-                                                for (var rrr = 0; rrr < act.rvarRefs[rr].length; rrr++) {
-                                                    if (act.rvarRefs[rr][rrr][1] == vrStr) {
-                                                        vrInResult = true;
-                                                    }
-                                                }
-                                            }
-                                            //Insert appropriate text. (Note: if varRef is in both we report that it's in the result.)
-                                            if (vrInInput) {
-                                                t = "<span style=\"color:#FF00FF;\">calculation input</span>";
-                                                o = findOtherVariables(vr);
-                                            }
-                                            if (vrInResult) {
-                                                t = "<span style=\"color:#FF00FF;\">calculation result</span>";
-                                                o = findOtherVariables(vr);
-                                            }
-                                            break;
-                                        case "measurement":
-                                            t = "<span style=\"color:#0000FF;\">measurement</span>";
-                                            o = findOtherVariables(vr);
-                                            break;
-                                        case "submitClicked":
-                                            t = "<span style=\"color:#00AAAA;\"></span>";
-                                            o = findOtherVariables(vr);
-                                            break;
-                                        case "submitER":
-                                            t = "<span style=\"color:#00AAAA;\">submitER</span>";
-                                            o = findOtherVariables(vr);
-                                            break;
+    document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + "(" + team.classId + "), level " + myLevel.label + ":</mark><br>");
+    varRefs = myLevel.varRefs;
+    varRefCount = 0;
+    for (var i = 0; i < vrLabelsArray.length; i++) {
+        vrStr = vrLabelsArray[i];
+        try {
+            if ($("#varRef-" + vrStr)[0].checked) {
+                document.getElementById("data").innerHTML += ("<br>");
+                vrArray = varRefs[vrStr].sort(function (a, b) {
+                    return (a[0].uTime - b[0].uTime)
+                }); //contains all the varRefs of type vrStr;
+                for (var ii = 0; ii < vrArray.length; ii++) {
+                    vr = vrArray[ii];
+                    act = vr[0];
+                    o = ""; // String used to return other matching varRefs
+                    vrNum = vr[2];
+                    vrScore = vr[3];
+                    var t = act.type;
+                    var bd = parseInt(act.board) + 1;
+                    oMsg = ""
+                    switch (t) {
+                        case "message":
+                            t = "<span style=\"color:#FF0000;\">message</span>";
+                            o = findOtherVariables(vr);
+                            break;
+                        case "calculation":
+                            var vrInInput = false;
+                            var vrInResult = false;
+                            //Check to see whether the varRef is in the input of the calculation
+                            for (var kk = 0; kk < act.cvarRefs.length; kk++) {
+                                for (var kkk = 0; kkk < act.cvarRefs[kk].length; kkk++) {
+                                    if (act.cvarRefs[kk][kkk][1] == vrStr) {
+                                        vrInInput = true;
                                     }
-                                    if (o.length == 0) {
-                                        oMsg = ". No other references.";
-                                    } else if (o.length == 1) {
-                                        oMsg = ". One other reference: " + o[0];
-                                    } else {
-                                        oMsg += ". Other references: " + o[0];
-                                        for (var jj = 1; jj < o.length; jj++) {
-                                            oMsg += ", " + o[jj];
-                                        }
-                                    }
-                                    document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eMinSecs +
-                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + oMsg + "<br>");
-                                    if (t == "calculation") {
-                                        console.log("vrInInput = " + vrInInput + ", vrInResult = " + vrInResult);
-                                    };
-                                    varRefCount++;
                                 }
                             }
-                        } catch (err) {
-                            console.log(err + " in variable references report, vrStr = " + vrStr)
+                            //Check to see whether the varRef is in the result of the calculation
+                            for (var rr = 0; rr < act.rvarRefs.length; rr++) {
+                                for (var rrr = 0; rrr < act.rvarRefs[rr].length; rrr++) {
+                                    if (act.rvarRefs[rr][rrr][1] == vrStr) {
+                                        vrInResult = true;
+                                    }
+                                }
+                            }
+                            //Insert appropriate text. (Note: if varRef is in both we report that it's in the result.)
+                            if (vrInInput) {
+                                t = "<span style=\"color:#FF00FF;\">calculation input</span>";
+                                o = findOtherVariables(vr);
+                            }
+                            if (vrInResult) {
+                                t = "<span style=\"color:#FF00FF;\">calculation result</span>";
+                                o = findOtherVariables(vr);
+                            }
+                            break;
+                        case "measurement":
+                            t = "<span style=\"color:#0000FF;\">measurement</span>";
+                            o = findOtherVariables(vr);
+                            break;
+                        case "submitClicked":
+                            t = "<span style=\"color:#00AAAA;\"></span>";
+                            o = findOtherVariables(vr);
+                            break;
+                        case "submitER":
+                            t = "<span style=\"color:#00AAAA;\">submitER</span>";
+                            o = findOtherVariables(vr);
+                            break;
+                    }
+                    if (o.length == 0) {
+                        oMsg = ". No other references.";
+                    } else if (o.length == 1) {
+                        oMsg = ". One other reference: " + o[0];
+                    } else {
+                        oMsg += ". Other references: " + o[0];
+                        for (var jj = 1; jj < o.length; jj++) {
+                            oMsg += ", " + o[jj];
                         }
                     }
-                    console.log("report-tools: variable references report generated with " + varRefCount + " lines");
+                    document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eMinSecs +
+                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + oMsg + "<br>");
+                    if (t == "calculation") {
+                        console.log("vrInInput = " + vrInInput + ", vrInResult = " + vrInResult);
+                    };
+                    varRefCount++;
                 }
             }
+        } catch (err) {
+            console.log(err + " in variable references report, vrStr = " + vrStr)
         }
     }
+    console.log("report-tools: variable references report generated with " + varRefCount + " lines");
 }
 
 function variableInVarRef(vrStr, vrArray) { //Looks for the vrStr in vrArray. Returns true if found.

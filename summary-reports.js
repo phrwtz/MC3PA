@@ -264,7 +264,7 @@ function countChats(filteredLevels) {
         weightedStrs = 0;
         for (var kk = 0; kk < limit; kk++) {
             weightedStrs += sca[kk].count;
-            chatP.innerHTML += (sca[kk].string + " : " + sca[kk].count + "<br>")
+            chatP.innerHTML += ((kk + 1) + ". " + sca[kk].string + " : " + sca[kk].count + "<br>");
         }
     }
     setupActionsForm();

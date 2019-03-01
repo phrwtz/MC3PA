@@ -1,16 +1,17 @@
 function reportResults() {
+    clearElement("actionsTable");
     var myLevel = findSelectedLevel();
-    var reportDiv = document.getElementById("reportDiv");
     if (myLevel) {
-        clearElement("actionsTable"); //start with a blank slate
         var actionsTable = document.createElement("table");
         actionsTable.id = "actionsTable";
-        actionsTable.style.display = "inline";
-        reportDiv.appendChild(actionsTable);
+        actionsTable.style.float = "left";
+        document.getElementById("reportDiv").appendChild(actionsTable);
         var headerRow = document.createElement("tr");
+        headerRow.id = "headerRow";
         actionsTable.appendChild(headerRow);
         var header = document.createElement("th");
         header.setAttribute("colspan", 4);
+        header.style.backgroundColor = "#DDFFDD";
         headerRow.appendChild(header);
         var team = myLevel.team;
         header.innerHTML = "Team " + team.name + " (class ID " + team.classId + "), level " + myLevel.label;
@@ -120,7 +121,7 @@ function reportResults() {
         //  reportVarRefs(acts);
     } else {
         document.getElementById("actionsTable").style.display = "none";
-     }
+    }
 }
 
 function reportVarRefs(acts) {

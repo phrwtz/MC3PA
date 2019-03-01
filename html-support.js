@@ -4,7 +4,9 @@ function setupActionsForm() {
         document.getElementById("checkActions").style.display = "inline";
     } else {
         document.getElementById("checkActions").style.display = "none";
-        document.getElementById("actionsTable").style.display = "none";
+        if (document.getElementById("actionsTable")) {
+            document.getElementById("actionsTable").style.display = "none";
+        }
     }
 }
     
@@ -145,7 +147,14 @@ function setupActionsForm() {
     }
 
     function addActionRow(act, content) {
+        var reportDiv = document.getElementById("reportDiv");
         var actionsTable = document.getElementById("actionsTable");
+        if (!actionsTable) {
+            actionsTable = document.createElement("table");
+            actionsTable.id = "actionsTable";
+            actionsTable.style.float = "left";
+            reportDiv.appendChild(actionsTable);
+        }
         var actionRow = document.createElement("tr");
         actionRow.id = 'row-' + rowIndex.count();
         var actionCell0 = document.createElement("td");

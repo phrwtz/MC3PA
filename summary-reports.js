@@ -267,6 +267,7 @@ function countChats(filteredLevels) {
             chatP.innerHTML += ((kk + 1) + ". " + sca[kk].string + " : " + sca[kk].count + "<br>");
         }
     }
+ //   countGoalRVarRefs(filteredLevels);
     setupActionsForm();
 }
 
@@ -276,37 +277,12 @@ function StrCount(string, count) {
     this.count = count;
 }
 
-
-
-function findChats(levels) {
-    var chatsFound = function () {}; //Will contain all message actions that match a given search message and their count
-    var searchMsg = "",
-        msg = "";
-    //initialize the chatsFound arrays
-    for (var kk = 0; kk < chatsList.length; kk++) {
-        chatsFound[chatsList[kk]] = [];
-    }
-    //then populate them.
-    for (var i = 0, myLevel; myLevel = levels[i]; i++) {
-        for (j = 0, myAction; myAction = myLevel.actions[j]; j++) {
-            if (myAction.type == "message") {
-                msg = myAction.msg
-                for (var k = 0, searchChat; searchChat = chatsList[k]; k++) {
-                    if (!(msg.search(searchChat) == -1)) {
-                        chatsFound[searchChat].push(myAction);
-                    }
-                }
-            }
-        }
-    }
-    return (chatsFound);
-}
-
 function countGoalRVarRefs(levels) {
     var grSelfInCalc = 0,
         grOtherInCalc = 0,
         grSelfInChat = 0,
-        grOtherInChat = 0;
+        grOtherInChat = 0,
+        varRefsPara = document.getElementById("varRefs");
     for (var i = 1, myLevel; myLevel = levels[i]; i++) {
         myVr1 = myLevel.varRefs["goalR1"];
         myVr2 = myLevel.varRefs["goalR2"];
@@ -357,20 +333,29 @@ function countGoalRVarRefs(levels) {
             }
         }
     }
-    document.getElementById("varRefs").innerHTML = "Chatted own goal resistance = " + grSelfInChat + ", used own goal resistance in calculation = " + grSelfInCalc + "<br>Chatted other\'s goal resistance = " + grOtherInChat + ", used other\'s goal resistance in calculation = " + grOtherInCalc;
+    varRefsPara.innerHTML = "<br>Chatted own goal resistance = " + grSelfInChat + ", used own goal resistance in calculation = " + grSelfInCalc + "<br>Chatted other\'s goal resistance = " + grOtherInChat + ", used other\'s goal resistance in calculation = " + grOtherInCalc;
 }
 
-function displayChatsAndActions() {
-    var filteredLevels = findFilteredLevels();
-    var selectedLevel = findSelectedLevel();
-    var actionTable = document.getElementById("actionWindos");
-    var checkDiv = document.getElementById("checkDiv");
-    if (filteredLevels.length > 0) {
-        checkDiv.style.display = "inline";
-    } else {
-        checkDiv.style.display = "none";
+function findChats(levels) {
+    var chatsFound = function () {}; //Will contain all message actions that match a given search message and their count
+    var searchMsg = "",
+        msg = "";
+    //initialize the chatsFound arrays
+    for (var kk = 0; kk < chatsList.length; kk++) {
+        chatsFound[chatsList[kk]] = [];
     }
-    if (selectedLevel) {
-        countChats;
+    //then populate them.
+    for (var i = 0, myLevel; myLevel = levels[i]; i++) {
+        for (j = 0, myAction; myAction = myLevel.actions[j]; j++) {
+            if (myAction.type == "message") {
+                msg = myAction.msg
+                for (var k = 0, searchChat; searchChat = chatsList[k]; k++) {
+                    if (!(msg.search(searchChat) == -1)) {
+                        chatsFound[searchChat].push(myAction);
+                    }
+                }
+            }
+        }
     }
+    return (chatsFound);
 }

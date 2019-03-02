@@ -24,8 +24,13 @@ function reportResults() {
                 currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing."),
                 preTime, //Used to decide when to insert a horizontal line in the output
                 uTime = act.uTime,
-                eTime = Math.round((act.uTime - myLevel.startUTime) * 10) / 10, //Elapsed time since start of level
+                eTime, //Elapsed time since start of level (will be negative for some actions)
                 interval = 45; //Maximum interval between logged actions for considering them linked.
+            if ((act.uTime - myLevel.startUTime) > 0) {
+                eTime = (Math.round((act.uTime - myLevel.startUTime) * 10) / 10).toString();
+            } else {
+                eTime = "-" + (Math.round((myLevel.startUTime - act.uTime) * 10) / 10).toString();
+            }
             switch (act.type) {
                 case "submitClicked":
                     if ($("#action-submit-V")[0].checked) {

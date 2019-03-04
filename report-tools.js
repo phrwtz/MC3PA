@@ -181,8 +181,7 @@ function reportResults() {
         document.getElementById("detachProbe#").innerHTML = detachProbeCount;
         document.getElementById("connectLead#").innerHTML = connectLeadCount;
         document.getElementById("disconnectLead#").innerHTML = disconnectLeadCount;
-        document.getElementById("moveDMMDial#").innerHTML = measurementCount;
-        document.getElementById("measurement#").innerHTML = moveDMMDialCount;
+        document.getElementById("moveDMMDial#").innerHTML = moveDMMDialCount;
         document.getElementById("submitV#").innerHTML = submitVCount;
         document.getElementById("submitER#").innerHTML = submitERCount;
         document.getElementById("joinedGroup#").innerHTML = joinedGroupCount;

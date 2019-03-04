@@ -9,7 +9,7 @@ function setupActionsForm() {
         }
     }
 }
-    
+
 {
     //         var onchangeStr;
     //         var checkDiv = document.createElement("div");
@@ -180,6 +180,24 @@ function setupActionsForm() {
         })
 
         switch (act.type) {
+            case "joined-group":
+                actionCell0.style.backgroundColor = "#EAEEBB";
+                break;
+            case "activity-settings":
+                actionCell0.style.backgroundColor = "#E5FFCC";
+                break;
+            case "attach-probe":
+                actionCell0.style.backgroundColor = "#FFE5CC";
+                break;
+            case "detach-probe":
+                actionCell0.style.backgroundColor = "#FFE5CC";
+                break;
+            case "connect-lead":
+                actionCell0.style.backgroundColor = "#CCFFE5";
+                break;
+            case "disconnect-lead":
+                actionCell0.style.backgroundColor = "#CCFFE5";
+                break;
             case "message":
                 actionCell0.style.backgroundColor = "#F9D593";
                 break;
@@ -200,6 +218,12 @@ function setupActionsForm() {
                 break;
             case "closed-zoom":
                 actionCell0.style.backgroundColor = "#D9D6FF";
+                break;
+            case "submitClicked":
+                actionCell0.style.backgroundColor = "#DDDDFF";
+                break;
+            case "submitER":
+                actionCell0.style.backgroundColor = "#CCCCFF";
                 break;
         }
         actionRow.appendChild(actionCell0);

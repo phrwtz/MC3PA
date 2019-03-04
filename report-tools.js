@@ -15,6 +15,7 @@ function reportResults() {
         headerRow.appendChild(header);
         var team = myLevel.team;
         header.innerHTML = "Team " + team.name + " (class ID " + team.classId + "), level " + myLevel.label;
+        sortActionsByUTime(myLevel.actions);
         //Run through the actions publishing each in a separate row if it has been selected on the form
         for (var i = 0; i < myLevel.actions.length; i++) {
             var act = myLevel.actions[i],

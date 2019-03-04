@@ -147,6 +147,7 @@ function setupActionsForm() {
     }
 
     function addActionRow(act, content) {
+
         var reportDiv = document.getElementById("reportDiv");
         var actionsTable = document.getElementById("actionsTable");
         if (!actionsTable) {
@@ -202,7 +203,6 @@ function setupActionsForm() {
                 break;
         }
         actionRow.appendChild(actionCell0);
-
         var cellIndex = bd;
 
         switch (bd) {

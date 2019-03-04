@@ -1,6 +1,23 @@
 function reportResults() {
     clearElement("actionsTable");
     var myLevel = findSelectedLevel();
+    var messageCount = 0,
+        activitySettingsCount = 0,
+        messageCount = 0,
+        calculationCount = 0,
+        resistorChangeCount = 0,
+        measurementCount = 0,
+        attachProbeCount = 0,
+        detachProbeCount = 0,
+        connectLeadCount = 0,
+        disconnectLeadCount = 0,
+        moveDMMDialCount = 0,
+        submitVCount = 0,
+        submitERCount = 0,
+        joinedGroupCount = 0,
+        openedZoomCount = 0,
+        closedZoomCount = 0,
+        allActionsCount = 0;
     if (myLevel) {
         var actionsTable = document.createElement("table");
         actionsTable.id = "actionsTable";
@@ -34,96 +51,141 @@ function reportResults() {
             }
             switch (act.type) {
                 case "submitClicked":
+                    allActionsCount++;
+                    submitVCount++;
                     if ($("#action-submit-V")[0].checked) {
                         reportSubmitVoltages(act);
                     }
                     break;
 
                 case "submitER":
+                    allActionsCount++;
+                    submitERCount++;
                     if ($("#action-submit-ER")[0].checked) {
                         reportSubmitER(act);
                     }
                     break;
 
                 case "resistorChange":
+                    allActionsCount++;
+                    resistorChangeCount++;
                     if ($("#action-resistorChange")[0].checked) {
                         reportResistorChange(act);
                     }
                     break;
 
                 case "message":
+                    allActionsCount++;
+                    messageCount++;
                     if ($("#action-message")[0].checked) {
                         reportMessage(act);
                     }
                     break;
 
                 case "calculation":
+                    allActionsCount++;
+                    calculationCount++;
                     if ($("#action-calculation")[0].checked) {
                         reportCalculation(act);
                     }
                     break;
 
                 case "attach-probe":
+                    allActionsCount++;
+                    attachProbeCount++;
                     if ($("#action-attach-probe")[0].checked) {
                         reportAttachProbe(act);
                     }
                     break;
 
                 case "detach-probe":
+                    allActionsCount++;
+                    detachProbeCount++;
                     if ($("#action-detach-probe")[0].checked) {
                         reportDetachProbe(act);
                     }
                     break;
 
                 case "connect-lead":
+                    allActionsCount++;
+                    connectLeadCount++;
                     if ($("#action-connect-lead")[0].checked) {
                         reportConnectLead(act);
                     }
                     break;
 
                 case "disconnect-lead":
+                    allActionsCount++;
+                    disconnectLeadCount++;
                     if ($("#action-disconnect-lead")[0].checked) {
                         reportDisconnectLead(act);
                     }
                     break;
 
                 case "joined-group":
+                    allActionsCount++;
+                    joinedGroupCount++;
                     if ($("#action-joined-group")[0].checked) {
                         reportJoinedGroup(act);
                     }
                     break;
 
                 case "opened-zoom":
+                    allActionsCount++;
+                    openedZoomCount++;
                     if ($("#action-opened-zoom")[0].checked) {
                         reportOpenedZoom(act);
                     }
                     break;
 
                 case "closed-zoom":
+                    allActionsCount++;
+                    closedZoomCount++;
                     if ($("#action-closed-zoom")[0].checked) {
                         reportClosedZoom(act);
                     }
                     break;
 
                 case "measurement":
+                    allActionsCount++;
+                    measurementCount++;
                     if ($("#action-measurement")[0].checked) {
                         reportMeasurement(act);
                     }
                     break;
 
                 case "move-dial":
+                    allActionsCount++;
+                    moveDMMDialCount++;
                     if ($("#action-move-DMM-dial")[0].checked) {
                         reportMovedDial(act);
                     }
                     break;
 
                 case "activity-settings":
+                    allActionsCount++;
+                    activitySettingsCount++;
                     if ($("#action-activity-settings")[0].checked) {
                         reportActivitySettings(act);
                     }
                     break;
             } //End of switch block
         } //End of actions
+        document.getElementById("allActions#").innerHTML = allActionsCount;
+        document.getElementById("activitySettings#").innerHTML = activitySettingsCount;
+        document.getElementById("message#").innerHTML = messageCount;
+        document.getElementById("calculation#").innerHTML = calculationCount;
+        document.getElementById("resistorChange#").innerHTML = resistorChangeCount;
+        document.getElementById("measurement#").innerHTML = measurementCount;
+        document.getElementById("attachProbe#").innerHTML = attachProbeCount;
+        document.getElementById("detachProbe#").innerHTML = detachProbeCount;
+        document.getElementById("connectLead#").innerHTML = connectLeadCount;
+        document.getElementById("disconnectLead#").innerHTML = disconnectLeadCount;
+        document.getElementById("moveDMMDial#").innerHTML = measurementCount;
+        document.getElementById("measurement#").innerHTML = moveDMMDialCount;
+        document.getElementById("submitV#").innerHTML = submitVCount;
+        document.getElementById("submitER#").innerHTML = submitERCount;
+        document.getElementById("joinedGroup#").innerHTML = joinedGroupCount;
         //  reportVarRefs(acts);
     } else {
         document.getElementById("actionsTable").style.display = "none";

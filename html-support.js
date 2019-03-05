@@ -254,4 +254,3 @@ function addActionRow(act, content) {
             break;
     }
 }
-}

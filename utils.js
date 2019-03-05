@@ -1223,10 +1223,5 @@ function levelFilter(level) {
     if (($("#levelD")[0].checked) && (myLevel.label == "D")) {
         returnBoolean = true;
     }
-<<<<<<< HEAD
-    return levelsAttempted;
-}
-=======
     return returnBoolean;
 }
->>>>>>> gh-pages

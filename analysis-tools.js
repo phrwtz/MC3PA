@@ -91,59 +91,65 @@ function addAction(ro, type) {
     } else {
         console.log("No level name found! Class " + ro.class_id);
     }
-        if (!levelFound) {
-            // console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
-            return;
+    if (!levelFound) {
+        // console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
+        return;
+    }
+    var memberID = ro["username"].slice(0, ro["username"].indexOf("@")); // memberID precedes @, changed with MC3PA!
+    var memberFound = false;
+    for (var j = 0; j < myLevel.members.length; j++) {
+        if (myLevel.members[j].id == memberID) {
+            memberFound = true;
+            myMember = myLevel.members[j];
         }
-        var memberID = ro["username"].slice(0, ro["username"].indexOf("@")); // memberID precedes @, changed with MC3PA!
-        var memberFound = false;
-        for (var j = 0; j < myLevel.members.length; j++) {
-            if (myLevel.members[j].id == memberID) {
-                memberFound = true;
-                myMember = myLevel.members[j];
+    }
+    if (!memberFound) {
+        return;
+    }
+    var myAction = new action;
+    myAction.R = [];
+    myAction.V = [];
+    myAction.goalR = [];
+    myAction.goalRIndex = [];
+    myAction.goalV = [];
+    myAction.E = myLevel.E;
+    myAction.R0 = myLevel.R0;
+    if ((type != "resistorChange") && (myAction.R.length == 3)) {
+        var newR = [];
+        //Check to make sure R hasn't changed.
+        newR[0] = parseInt(ro.parameters["r1"]);
+        newR[1] = parseInt(ro.parameters["r2"]);
+        newR[2] = parseInt(ro.parameters["r3"]);
+        for (var ii = 0; ii < 3; ii++) {
+            if (newR[ii] != myLevel.R[ii]) {
+                console.log("mysterious R change detected");
             }
         }
-        if (!memberFound) {
-            return;
-        }
-        var myAction = new action;
-        myAction.R = [];
-        myAction.V = [];
-        myAction.goalR = [];
-        myAction.goalRIndex = [];
-        myAction.goalV = [];
-        myAction.E = myLevel.E;
-        myAction.R0 = myLevel.R0;
-        if ((type != "resistorChange") && (myAction.R.length == 3)) {
-            var newR = [];
-            //Check to make sure R hasn't changed.
-            newR[0] = parseInt(ro.parameters["r1"]);
-            newR[1] = parseInt(ro.parameters["r2"]);
-            newR[2] = parseInt(ro.parameters["r3"]);
-            for (var ii = 0; ii < 3; ii++) {
-                if (newR[ii] != myLevel.R[ii]) {
-                    console.log("mysterious R change detected");
-                }
-            }
-        }
-        for (var j = 0; j < 3; j++) {
-            myAction.R[j] = myLevel.R[j];
-            myAction.V[j] = myLevel.V[j];
-            myAction.goalR[j] = myLevel.goalR[j]; //goal values may change during the level if something goes wrong
-            grStr = myAction.goalR[j].toString();
-            myAction.goalRIndex[j] = resIndex[grStr];
-            myAction.goalV[j] = myLevel.goalV[j];
-        }
-        myAction.type = type;
-        myAction.team = myTeam;
-        myAction.level = myLevel;
-        myAction.actor = myMember;
-        myAction.actor.id = myMember.id;
-        myAction.time = ro["time"];
-        myAction.uTime = new Date(ro["time"]).getTime() / 1000;
-        myAction.eTime = Math.round(myAction.uTime - myLevel.firstActionUTime);
+    }
+    for (var j = 0; j < 3; j++) {
+        myAction.R[j] = myLevel.R[j];
+        myAction.V[j] = myLevel.V[j];
+        myAction.goalR[j] = myLevel.goalR[j]; //goal values may change during the level if something goes wrong
+        grStr = myAction.goalR[j].toString();
+        myAction.goalRIndex[j] = resIndex[grStr];
+        myAction.goalV[j] = myLevel.goalV[j];
+    }
+    myAction.type = type;
+    myAction.team = myTeam;
+    myAction.level = myLevel;
+    myAction.actor = myMember;
+    myAction.actor.id = myMember.id;
+    myAction.time = ro["time"];
+    myAction.uTime = new Date(ro["time"]).getTime() / 1000;
+    myAction.eTime = Math.round(myAction.uTime - myLevel.firstActionUTime);
+    if (myAction.eTime >= 0) {
         var eMins = String(Math.floor(myAction.eTime / 60));
         var eSecs = myAction.eTime % 60 > 9 ? String(myAction.eTime % 60) : "0" + String(myAction.eTime % 60);
+    } else {
+        var absETime = -myAction.eTime;
+        var eMins = "-" + String(Math.floor((absETime / 60)));
+            var eSecs = (absETime % 60 > 9) ? String(absETime % 60) : "0" + String(absETime % 60);
+        }
         myAction.eMinSecs = eMins + ":" + eSecs;
         myAction.pTime = unixTimeConversion(myAction.uTime);
         myAction.board = parseInt(ro.parameters["board"]);

@@ -633,6 +633,26 @@ function unixTimeConversion(uTime) {
     return (formattedTime);
 }
 
+function toggleSelectAll(checkboxName) {
+    var checkboxArray = $("input[name=" + checkboxName + "]");
+    if (checkboxArray[0].checked) {
+        for (var i = 0; i < checkboxArray.length - 1; i++) {
+            checkboxArray[i + 1].checked = true;
+        }
+    } else {
+        for (var j = 0; j < checkboxArray.length - 1; j++) {
+            checkboxArray[j + 1].checked = false;
+        }
+    }
+}
+
+function deselectAll(checkboxName) {
+    var checkboxArray = $("input[name=" + checkboxName + "]");
+    for (var i = 0; i < checkboxArray.length; i++) {
+        checkboxArray[i].checked = false;
+    }
+}
+
 function arrayToObjects(rows) { //takes and array with a header and some data and returns objects
     var headers = rows[0];
 
@@ -709,8 +729,6 @@ function saveData(data) {
 }
 
 function downloadTeamsArray(teams) {
-
-
 
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
@@ -975,12 +993,12 @@ function goalRsChatted(myLevel) {
     }
     if ((goalR1ChattedToOther && goalR2ChattedToOther) ||
         (goalR2ChattedToOther && goalR3ChattedToOther) || (goalR1ChattedToOther && goalR3ChattedToOther)) {
-    return "all";
-} else if (goalR1ChattedToOther || goalR2ChattedToOther || goalR3ChattedToOther) {
-    return "some";
-} else {
-    return "none";
-}
+        return "all";
+    } else if (goalR1ChattedToOther || goalR2ChattedToOther || goalR3ChattedToOther) {
+        return "some";
+    } else {
+        return "none";
+    }
 }
 
 function goalVsCalculated(myLevel) {
@@ -1049,8 +1067,7 @@ function goalRsCalculated(myLevel) {
     }
 }
 
-function attemptedLevels() { //Also adds success flag and Vgoals chatted property
-    levelsAttempted = [];
+function addGoalsToLevels() { //Adds success flag and Vgoals and Rgoals properties
     for (var i = 0; i < teams.length; i++) {
         myTeam = teams[i];
         for (var j = 0; j < myTeam.levels.length; j++) {
@@ -1061,9 +1078,155 @@ function attemptedLevels() { //Also adds success flag and Vgoals chatted propert
                 myLevel.goalRsChatted = goalRsChatted(myLevel);
                 myLevel.goalVsCalculated = goalVsCalculated(myLevel);
                 myLevel.goalRsCalculated = goalRsCalculated(myLevel);
-                levelsAttempted.push(myLevel);
+                attemptedLevels.push(myLevel);
             }
         }
     }
+}
+
+function getLevelByID(id) {
+    var myTeam;
+    for (var i = 0; i < teams.length; i++) {
+        myTeam = teams[i];
+        for (var j = 0; j < myTeam.levels.length; j++) {
+            myLevel = myTeam.levels[j];
+            if (myLevel.id == id) {
+                return myLevel;
+            }
+        }
+    }
+}
+
+function findFilteredLevels() { //Returns an array of all the levels remaining after complete filtering
+    var filteredLevels = [];
+    for (var i = 0; i < attemptedLevels.length; i++) {
+        myLevel = attemptedLevels[i];
+        if ((RChatFilter(myLevel))) {
+            if ((RCalcFilter(myLevel))) {
+                if ((VChatFilter(myLevel))) {
+                    if ((outcomeFilter(myLevel))) {
+                        if ((levelFilter(myLevel))) {
+                            filteredLevels.push(myLevel);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return filteredLevels;
+}
+
+function getLevelByID(id) {
+    var myTeam;
+    for (var i = 0; i < teams.length; i++) {
+        myTeam = teams[i];
+        for (var j = 0; j < myTeam.levels.length; j++) {
+            myLevel = myTeam.levels[j];
+            if (myLevel.id == id) {
+                return myLevel;
+            }
+        }
+    }
+}
+
+function findSelectedLevel() { // returns the level, if there is one, that has its radio button checked. If no radio button has been checked returns null
+    var levelButtons = document.getElementsByName("levelRadio");
+    if (!levelButtons.length == 0) {
+        var myButton,
+            myLevel;
+        for (var t = 0; t < levelButtons.length; t++) {
+            myButton = levelButtons[t];
+            if (myButton.checked) {
+                myLevel = getLevelByID(levelButtons[t].id);
+                return myLevel;
+            }
+        }
+    } else {
+        return null;
+    }
+
+}
+
+function clearElement(id) {
+    if (document.getElementById(id)) {
+        var element = document.getElementById(id)
+        var parent = element.parentElement;
+        parent.removeChild(element);
+    }
+}
+
+function RChatFilter(level) {
+    var returnBoolean = false;
+    if (($("#RAllChat")[0].checked) && (myLevel.goalRsChatted == "all")) {
+        returnBoolean = true;
+    }
+    if (($("#RSomeChat")[0].checked) && (myLevel.goalRsChatted == "some")) {
+        returnBoolean = true;
+    }
+    if (($("#RNoChat")[0].checked) && (myLevel.goalRsChatted == "none")) {
+        returnBoolean = true;
+    }
+    return returnBoolean;
+}
+
+function RCalcFilter(level) {
+    var returnBoolean = false;
+    if (($("#RAllCalc")[0].checked) && (myLevel.goalRsCalculated == "all")) {
+        returnBoolean = true;
+    }
+    if (($("#RSomeCalc")[0].checked) && (myLevel.goalRsCalculated == "some")) {
+        returnBoolean = true;
+    }
+    if (($("#RNoCalc")[0].checked) && (myLevel.goalRsCalculated == "none")) {
+        returnBoolean = true;
+    }
+    return returnBoolean;
+}
+
+function VChatFilter(level) {
+    var returnBoolean = false;
+    if (($("#VAllChat")[0].checked) && (myLevel.goalVsChatted == "all")) {
+        returnBoolean = true;
+    }
+    if (($("#VSomeChat")[0].checked) && (myLevel.goalVsChatted == "some")) {
+        returnBoolean = true;
+    }
+    if (($("#VNoChat")[0].checked) && (myLevel.goalVsChatted == "none")) {
+        returnBoolean = true;
+    }
+    return returnBoolean;
+}
+
+function outcomeFilter(level) {
+    var returnBoolean = false;
+    if (($("#success")[0].checked) && (myLevel.success)) {
+        returnBoolean = true;
+    }
+    if (($("#failure")[0].checked) && (!myLevel.success)) {
+        returnBoolean = true;
+        return returnBoolean;
+    }
+    return returnBoolean;
+}
+
+function levelFilter(level) {
+    var returnBoolean = false;
+    if (($("#levelA")[0].checked) && (myLevel.label == "A")) {
+        returnBoolean = true;
+    }
+    if (($("#levelB")[0].checked) && (myLevel.label == "B")) {
+        returnBoolean = true;
+    }
+    if (($("#levelC")[0].checked) && (myLevel.label == "C")) {
+        returnBoolean = true;
+    }
+    if (($("#levelD")[0].checked) && (myLevel.label == "D")) {
+        returnBoolean = true;
+    }
+<<<<<<< HEAD
     return levelsAttempted;
 }
+=======
+    return returnBoolean;
+}
+>>>>>>> gh-pages

@@ -1,116 +1,106 @@
-function toggleSelectAll(checkboxName) {
-    var checkboxArray = $("input[name=" + checkboxName + "]");
-    if (checkboxArray[0].checked) {
-        for (var i = 0; i < checkboxArray.length - 1; i++) {
-            checkboxArray[i + 1].checked = true;
-        }
+function setupActionsForm() {
+    var myLevel = findSelectedLevel();
+    if (myLevel) {
+        document.getElementById("checkActions").style.display = "inline";
     } else {
-        for (var j = 0; j < checkboxArray.length - 1; j++) {
-            checkboxArray[j + 1].checked = false;
+        document.getElementById("checkActions").style.display = "none";
+        if (document.getElementById("actionsTable")) {
+            document.getElementById("actionsTable").style.display = "none";
         }
     }
 }
+//         var onchangeStr;
+//         var checkDiv = document.createElement("div");
+//         checkDiv.id = "checkDiv";
+//         document.body.appendChild(checkDiv);
+//         var checkForm = document.createElement("form");
+//         checkForm.id = "checkForm";
+//         checkForm.style.margin = "5px";
+//         checkDiv.appendChild(checkForm);
+//         var checkPara = document.createElement("p");
+//         checkPara.id = "checkPara";
+//         checkPara.innerHTML = "";
+//         checkForm.appendChild(checkPara);
+//         var checkTable = document.createElement("table");
+//         checkTable.id = "checkTable";
+//         checkTable.style.margin = "5px";
+//         checkForm.appendChild(checkTable);
+//         var headerRow = document.createElement("tr");
+//         headerRow.style.backgroundColor = "#DDFFDD";
+//         var headerCell1 = document.createElement("th");
+//         //       var headerCell2 = document.createElement("th");
+//         var actionLabels = ["activity-settings", "message", "calculation", "resistorChange", "attach-probe", "detach-probe",
+//             "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group", "opened-zoom", "closed-zoom"
+//         ];
 
-function setupForm(levels) { // receives checked levels from function showLevels.
-    var myTeam;
-    var myLevel;
-    var acts = [];
-    if (levels.length == 0) {
-        return;
-    }
-    var checkDiv = document.createElement("div");
-    checkDiv.id = "checkDiv";
-    document.body.appendChild(checkDiv);
-    var checkForm = document.createElement("form");
-    checkForm.id = "checkForm";
-    checkForm.style.margin = "5px";
-    checkDiv.appendChild(checkForm);
-    var checkPara = document.createElement("p");
-    checkPara.id = "checkPara";
-    checkPara.innerHTML = "";
-    checkForm.appendChild(checkPara);
-    var checkTable = document.createElement("table");
-    checkTable.style.margin = "5px";
-    checkForm.appendChild(checkTable);
-    var headerRow = document.createElement("tr");
-    headerRow.style.backgroundColor = "#DDFFDD";
-    var headerCell1 = document.createElement("th");
-    var headerCell2 = document.createElement("th");
+//         headerCell1.innerHTML = "Actions";
+//         //      headerCell2.innerHTML = "Variable Refs";
 
-    headerCell1.innerHTML = "Actions";
-    headerCell2.innerHTML = "Variable Refs";
+//         var dataRow = document.createElement("tr");
+//         var actData = document.createElement("td");
+//         var varRefData = document.createElement("td");
 
-    var dataRow = document.createElement("tr");
-    var actionData = document.createElement("td");
-    var varRefData = document.createElement("td");
+//         actData.innerHTML = "";
+//         varRefData.innerHTML = "";
 
-    actionData.innerHTML = "";
-    varRefData.innerHTML = "";
+//         checkTable.appendChild(headerRow);
+//         headerRow.appendChild(headerCell1);
+//         //       headerRow.appendChild(headerCell2);
 
-    checkTable.appendChild(headerRow);
-    headerRow.appendChild(headerCell1);
-    headerRow.appendChild(headerCell2);
+//         checkTable.appendChild(dataRow);
+//         dataRow.appendChild(actData);
+//         dataRow.appendChild(varRefData);
 
-    checkTable.appendChild(dataRow);
-    dataRow.appendChild(actionData);
-    dataRow.appendChild(varRefData);
+//         // Add action checkboxes to checkTable
+//         onchangeStr = "toggleSelectAll('action');reportResults()";
+//         labelStr = '<b> All actions</b><br>';
+//         actData.innerHTML = '<input type="checkbox" id="all-actions" name="action" onchange=' + onchangeStr + '></input>' + labelStr;
+//         onchangeStr = "reportResults()";
+//         for (var k = 0; k < actionLabels.length; k++) {
+//             idStr = "action-" + actionLabels[k];
+//             actData.innerHTML += '<input type="checkbox" name = "action" id=' + idStr + " onchange=" + onchangeStr + "></input>" + actionLabels[k] + "<br>";
+//         }
+// Add variable Refs
+// onChangeStr = "toggleSelectAll('varRef')";
+// labelStr = '<b>All var refs</b><br>';
+// varRefData.innerHTML = '<input + type="checkbox" name="varRef" id = "all=varRefs" onchange=' + onChangeStr + '></input><b> All var refs</b><br>';
+// for (var kk = 0; kk < vrLabelsArray.length; kk++) {
+//     IDStr = 'id=varRef-' + vrLabelsArray[kk] + " name=varRef>";
+//     labelStr = vrLabelsArray[kk] + "<br>";
+//     varRefData.innerHTML += "<input type=checkbox name=varRef " + IDStr + labelStr;
+// }
+// // Add team and level to checkPara
+// for (var i = 0, myLevel; myLevel = levels[i]; i++) {
+//     checkPara.innerHTML += "Team " + myLevel.team.name + "(" + myLevel.team.classId + "), level " + myLevel.label + "<br>"
+// }
+//     }
+// }
 
-    // Add actions
-    IDStr = 'id="all-actions" name="action" ';
-    onChangeStr = "onchange = \"toggleSelectAll('action')\"";
-    labelStr = '<b>All actions</b><br>';
-    actionData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    var actionLabels = ["activity-settings", "message", "calculation", "resistorChange", "attach-probe", "detach-probe",
-        "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group", "opened-zoom", "closed-zoom"
-    ];
-    for (var k = 0; k < actionLabels.length; k++) {
-        IDStr = 'id=action-' + actionLabels[k] + " name=action>";
-        labelStr = actionLabels[k] + "<br>";
-        actionData.innerHTML += "<input " + typeStr + IDStr + labelStr;
-    }
-    // Add variable Refs
-    IDStr = 'id="all-varRefs" name="varRef" ';
-    onChangeStr = "onchange = \"toggleSelectAll('varRef')\"";
-    labelStr = '<b>All refs</b><br>';
-    varRefData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    for (var kk = 0; kk < vrLabelsArray.length; kk++) {
-        IDStr = 'id=varRef-' + vrLabelsArray[kk] + " name=varRef>";
-        labelStr = vrLabelsArray[kk] + "<br>";
-        varRefData.innerHTML += "<input + " + typeStr + IDStr + labelStr;
-    }
-    // Add team and level to checkPara
-    for (var i = 0, myLevel; myLevel = levels[i]; i++) {
-        checkPara.innerHTML += "Team " + myLevel.team.name + "(" + myLevel.team.classId + "), level " + myLevel.label +"<br>"
-    }
-    console.log ("setupForm completed.")
-}
 
-function clearReport() {
-    if (document.getElementById("reportDiv")) {
-        var reptDiv = document.getElementById("reportDiv")
-        while (reptDiv.firstChild) {
-            reptDiv.removeChild(reptDiv.firstChild);
-        }
-    }
-}
 
-function setUpActionsReport(filteredTeams) { //Sets up a table with three columns into which the actions can be inserted with a different column for each actor
-    if (document.getElementById("reportDiv")) { //If reportDiv exists
-        var reportDiv = document.getElementById("reportDiv"); //clear it
-        while (reportDiv.firstChild) {
-            reportDiv.removeChild(reportDiv.firstChild);
-        }
-    } else { //otherwise create one
-        var reportDiv = document.createElement("div");
-        reportDiv.id = "reportDiv";
-        document.body.appendChild(reportDiv);
-    }
-    var actionTable = document.createElement("table");
-    actionTable.id = "actionTable";
-    reportDiv.appendChild(actionTable);
-}
+// function setUpActionsTable() {
+//     clearElement("reportDiv"); //Clear the table and set up a new one so that we don't get two.
+//     var reportDiv = document.createElement("div");
+//     var actionsTable = document.createElement("table");
+//     var headerRow = document.createElement("tr");
+//     var header = document.createElement("th");
+//     document.body.appendChild(reportDiv);
+//     reportDiv.appendChild(actionsTable);
+//     actionsTable.appendChild(headerRow);
+//     headerRow.appendChild(header);
+//     reportDiv.id = "reportDiv";
+//     actionsTable.id = "actionsTable";
+//     actionsTable.style.float = "left";
+//     headerRow.id = ("headerRow");
+//     header.id = ("header");
+//     header.setAttribute("colspan", 4);
+//     document.body.appendChild(reportDiv);
+//     reportDiv.appendChild(actionsTable);
+//     actionsTable.appendChild(headerRow);
+// }
 
-var rowIndex = counter();
+
+var rowIndex = counter(); ///Gl0bal variable
 
 function addLevelRow(team, level) {
     var headerRow = document.createElement("tr");
@@ -123,8 +113,8 @@ function addLevelRow(team, level) {
     teamCell.setAttribute("colspan", 3);
     headerRow.appendChild(timeCell);
     headerRow.appendChild(teamCell);
-    actionTable = reportDiv.firstChild;
-    actionTable.appendChild(headerRow);
+    actionsTable = document.getElementById("actionsTable");
+    actionsTable.appendChild(headerRow);
     rowIndex.reset();
 }
 
@@ -155,6 +145,15 @@ function hideData() {
 }
 
 function addActionRow(act, content) {
+
+    var reportDiv = document.getElementById("reportDiv");
+    var actionsTable = document.getElementById("actionsTable");
+    if (!actionsTable) {
+        actionsTable = document.createElement("table");
+        actionsTable.id = "actionsTable";
+        actionsTable.style.float = "left";
+        reportDiv.appendChild(actionsTable);
+    }
     var actionRow = document.createElement("tr");
     actionRow.id = 'row-' + rowIndex.count();
     var actionCell0 = document.createElement("td");
@@ -166,7 +165,7 @@ function addActionRow(act, content) {
     actionCell2.width = "32%";
     actionCell3.width = "32%";
     var bd = parseInt(act.board);
-    actionTable.appendChild(actionRow);
+    actionsTable.appendChild(actionRow);
     actionCell0.innerHTML = act.eMinSecs;
     if (isNaN(act.R[0])) {
         console.log("R[0] doesn't exist");
@@ -179,6 +178,24 @@ function addActionRow(act, content) {
     })
 
     switch (act.type) {
+        case "joined-group":
+            actionCell0.style.backgroundColor = "#EAEEBB";
+            break;
+        case "activity-settings":
+            actionCell0.style.backgroundColor = "#E5FFCC";
+            break;
+        case "attach-probe":
+            actionCell0.style.backgroundColor = "#FFE5CC";
+            break;
+        case "detach-probe":
+            actionCell0.style.backgroundColor = "#FFE5CC";
+            break;
+        case "connect-lead":
+            actionCell0.style.backgroundColor = "#CCFFE5";
+            break;
+        case "disconnect-lead":
+            actionCell0.style.backgroundColor = "#CCFFE5";
+            break;
         case "message":
             actionCell0.style.backgroundColor = "#F9D593";
             break;
@@ -200,9 +217,14 @@ function addActionRow(act, content) {
         case "closed-zoom":
             actionCell0.style.backgroundColor = "#D9D6FF";
             break;
+        case "submitClicked":
+            actionCell0.style.backgroundColor = "#DDDDFF";
+            break;
+        case "submitER":
+            actionCell0.style.backgroundColor = "#CCCCFF";
+            break;
     }
     actionRow.appendChild(actionCell0);
-
     var cellIndex = bd;
 
     switch (bd) {
@@ -231,4 +253,5 @@ function addActionRow(act, content) {
             actionRow.appendChild(actionCell3);
             break;
     }
+}
 }

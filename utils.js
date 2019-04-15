@@ -429,11 +429,11 @@ function findVars(act, numStr) {
     return returnArray;
 }
 
-function makeTeams(rowObjs) { //parse the row objects array looking for and populating teams
+function makeTeams(rowObjs, thisTeacher) { //parse the row objects array looking for and populating teams
     for (i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
         if (ro["event"] == "model values") {
-            addTeam(ro);
+            addTeam(ro, thisTeacher);
         }
     }
     return teams;
@@ -442,7 +442,7 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
 //We invoke this function when the event is "model values"
 //we construct a new team from ro and add it to teams array.
 //If we already have a team with that name, we use it.
-function addTeam(ro) {
+function addTeam(ro, thisTeacher) {
     var userID = ro["username"].slice(0, ro["username"].indexOf("@")); // user id precedes @
     var memberObject = getMemberObject(userID);
     var teamName = ro.parameters["groupname"];
@@ -453,6 +453,7 @@ function addTeam(ro) {
         myTeam.levels = [];
         myTeam.name = ro.parameters["groupname"];
         myTeam.classId = classId;
+        myTeam.teacher = thisTeacher;
         if (memberObject) {
             myTeam.class = memberObject["class"];
             myTeam.teacher = memberObject["teacher"];
@@ -1116,18 +1117,18 @@ function findFilteredLevels() { //Returns an array of all the levels remaining a
     return filteredLevels;
 }
 
-function getLevelByID(id) {
-    var myTeam;
-    for (var i = 0; i < teams.length; i++) {
-        myTeam = teams[i];
-        for (var j = 0; j < myTeam.levels.length; j++) {
-            myLevel = myTeam.levels[j];
-            if (myLevel.id == id) {
-                return myLevel;
-            }
-        }
-    }
-}
+// function getLevelByID(id) {
+//     var myTeam;
+//     for (var i = 0; i < teams.length; i++) {
+//         myTeam = teams[i];
+//         for (var j = 0; j < myTeam.levels.length; j++) {
+//             myLevel = myTeam.levels[j];
+//             if (myLevel.id == id) {
+//                 return myLevel;
+//             }
+//         }
+//     }
+// }
 
 function findSelectedLevel() { // returns the level, if there is one, that has its radio button checked. If no radio button has been checked returns null
     var levelButtons = document.getElementsByName("levelRadio");

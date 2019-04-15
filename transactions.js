@@ -1,3 +1,36 @@
+function filterCynthia() {
+    var returnStr = "",
+        time,
+        p = document.getElementById("varRefs");
+    var filteredLevels = [];
+    for (var i = 0, myTeam; myTeam = teams[i]; i++) {
+        for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
+            if (myLevel.label == "D") {
+                for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+                    if (myAction.type == "resistorChange") {
+                        time = myAction.pTime;
+                        if ((myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same
+                            returnStr += "Team " + myTeam.name + " on level D.<br>";
+                            if (myAction.R[1] != myLevel.R0) { //but ≠ R0
+                                returnStr += time + ": All Rs = " + myAction.R[1] + " ohms but not equal to R0 (which is " + myLevel.R0 + " ohms).<br>";
+                            } else {
+                                returnStr += time + ": All Rs = R0.<br>";
+                            }
+                        }
+                    } else if (myAction.RSubmitValue) {
+                        if (myAction.RSubmitValue == myLevel.R0) {
+                            returnStr += time + ": Submitted correct value for R0<br>";
+                        } else {
+                            returnStr += time + ": Submitted wrong value for R0!<br>";
+                        }
+                    }
+                }
+                p.innerHTML = returnStr;
+            }
+        }
+    }
+}
+
 function findGuessAndCheck(teams) {
     var tOldE,
         tOldE,
@@ -119,4 +152,3 @@ function findGuessAndCheck(teams) {
         }
     }
 }
-

@@ -18,7 +18,9 @@
     <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button><br>
 
     <span>
-        <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Filter levels</button>
+        <button type="button" id="reportButton" style="display:none;width:100px" onclick="summaryReport()">Filter levels</button>
+        <button type="button" id="filterCynthia" style="display:none;width:200px" onclick="filterCynthia()">Look for "Cynthia
+            strategy" for finding E</button>
     </span>
 
     <div id="filter" style="margin-top: 30px">
@@ -117,11 +119,13 @@
             </tr>
         </table>
     </div>
-    </div>
+
+
+
     <p id="data"></p>
-    <p id="levelsPara" style="float:left;display:inline;width:20%"></p>
+    <p id="levelsPara" style="float:left;display:inline;width:30%"></p>
     <p id="chatsPara" style="float:left;display:inline;width:25%"></p>
-    <p id="varRefs" style="float:left;display:inline;width:20%"></p>
+    <p id="varRefs" style="float:left;display:inline;width:50%"></p>
     <div id="checkDiv">
         <form id="checkForm">
             <table id="checkActions" style="margin:5px; display:none">
@@ -196,6 +200,8 @@
         function openFiles(evt) {
             var files = evt.target.files; // FileList object
             for (var i = 0, f; f = files[i]; i++) {
+                var teacher = f.name.match(/(activity-8132-class-[\d]+-)([^.]+)/)[2];
+                teachers.push(teacher);
                 var reader = new FileReader();
                 //closure to capture the file information
                 reader.onerror = function (err) {

@@ -201,7 +201,7 @@ function actionsReport(filteredLevels) { //generates a radio button for each lev
 function countChats(filteredLevels) {
     var acts = [],
         chatP = document.getElementById("chatsPara"),
-        noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and"],
+        noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and", "i", "im", "my", "it", "so", "ok"],
         str = "",
         strFound,
         strArray = [],
@@ -212,7 +212,7 @@ function countChats(filteredLevels) {
         strMsg = "",
         noIncludeStrs = 0,
         strFound = false;
-    chatP.style.display = "inline";
+    //chatP.style.display = "inline";
     chatP.innerHTML = "";
     if (filteredLevels.length == 1) {
         strMsg = "<br>Most frequent strings for this level:<br>"
@@ -260,14 +260,14 @@ function countChats(filteredLevels) {
         sca = strCountArray.sort(function (a, b) {
             return b.count - a.count
         });
-        limit = Math.min(20, sca.length);
+        limit = Math.min(10, sca.length);
         weightedStrs = 0;
         for (var kk = 0; kk < limit; kk++) {
             weightedStrs += sca[kk].count;
             chatP.innerHTML += ((kk + 1) + ". " + sca[kk].string + " : " + sca[kk].count + "<br>");
         }
     }
- //   countGoalRVarRefs(filteredLevels);
+    //   countGoalRVarRefs(filteredLevels);
     setupActionsForm();
 }
 

@@ -37,15 +37,17 @@ function parseJSON(data) {
     for (var i = 0; i < data.length; i++) {
         count = i / (data.length - 1);
         rowObjs = JSON.parse(data[i]);
+        var thisTeacher = teachers[i];
         classIds.push(rowObjs[0]["class_id"]);
-        teams = makeTeams(rowObjs); // identify teams and members, actions taken by them
+        teams = makeTeams(rowObjs, thisTeacher); // identify teams and members, actions taken by them
         analyze(rowObjs); // adding actions to the arrays
         // analysisBar.value = count;
         // analysisBar.style.display = "block";
 
-        console.log("parse-file: analysis complete on " + rowObjs[0].id + "count = " + count + ".");
+        console.log("parse-file: analysis complete on " + rowObjs[0].id + ", count = " + count + ".");
     }
     //   document.getElementById("analysisProgress").style.display = "none";
 
     document.getElementById("reportButton").style.display = "inline";
+    document.getElementById("filterCynthia").style.display = "inline";
 }

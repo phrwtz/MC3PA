@@ -2,20 +2,6 @@
 var filterTableAlreadyCreated = false;
 var rowIndex = counter(); ///Gl0bal variable
 
-function setupActionsForm() {
-    var myLevel = findSelectedLevel();
-    if (myLevel) {
-        document.getElementById("checkActions").style.display = "inline";
-        if ((myLevel.CynthiaStrategyDetected) || (myLevel.allRsEqualR0)) {
-            displayCynthiaStrategy(myLevel);
-        } else document.getElementById("strategies").style.display = "none";
-    } else {
-        document.getElementById("checkActions").style.display = "none";
-        if (document.getElementById("actionsTable")) {
-            document.getElementById("actionsTable").style.display = "none";
-        }
-    }
-}
 
 function createFilterTable() //Sets up the teacher, level, outcome, goal voltage chats, goal resistance calcs, and goal resistance chats entries without populating the span fields. (Done dynamically because the teachers field is not determined until the data has been loaded.)
 {

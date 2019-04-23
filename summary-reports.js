@@ -130,7 +130,7 @@ function updateRChats(rCalcLevels) {
     var allGoalsChatted = 0,
         someGoalsChatted = 0,
         noGoalsChatted = 0;
-        rChatLevels = []; //rChatLevels is a global variable
+    rChatLevels = []; //rChatLevels is a global variable
     if (rCalcLevels.length > 0) {
         for (var i = 0, myLevel; myLevel = rCalcLevels[i]; i++) {
             if (((document.getElementById("RAllCalc").checked) && (myLevel.goalRsCalculated == "all")) || ((document.getElementById("RSomeCalc").checked) && (myLevel.goalRsCalculated == "some")) || ((document.getElementById("RNoCalc").checked) && (myLevel.goalRsCalculated == "none"))) {
@@ -162,6 +162,9 @@ function updateRChats(rCalcLevels) {
 function actionsReport(rChatLevels) { //generates a radio button for each level in rChatLevels
     var f = document.getElementById("levelsPara");
     var c = document.getElementById("chatsPara");
+    var s = document.getElementById("strategies");
+    var a = document.getElementById("actionsTable");
+    var t = document.getElementById("checkActions");
     var boxes = document.getElementsByName("rchat");
     var boxChecked = false;
     var levelColor = "black";
@@ -174,6 +177,9 @@ function actionsReport(rChatLevels) { //generates a radio button for each level 
         if (rChatLevels.length == 0) {
             f.innerHTML = "<br>There are no levels to look at.<br>";
             c.innerHTML = "";
+            s.style.display = "none";
+            a.style.display = "none";
+            t.style.display = "none";
             return;
         }
         if (rChatLevels.length == 1) {
@@ -195,81 +201,106 @@ function actionsReport(rChatLevels) { //generates a radio button for each level 
             f.innerHTML += ("<font color=" + levelColor + "> Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=setupActionsForm();reportResults()></input>' + "<br>");
         }
         countChats(rChatLevels);
+    } else {//Level selected; display chats and actions
+        s.style.display = "inline";
+        a.style.display = "inline";
+        t.style.display = "inline";
     }
+    reportResults();
 }
 
 function countChats(rChatLevels) {
-    var acts = [],
-        chatP = document.getElementById("chatsPara"),
-        noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and", "i", "im", "my", "it", "so", "ok"],
-        str = "",
-        strFound,
-        strArray = [],
-        strCountArray = [],
-        sca = [],
-        weightedstrs, //sum of unique strings times their frequency
-        limit,
-        strMsg = "",
-        noIncludeStrs = 0,
-        strFound = false;
-    //chatP.style.display = "inline";
-    chatP.innerHTML = "";
-    if (rChatLevels.length == 1) {
-        strMsg = "<br>Most frequent strings for this level:<br>"
-    }
-    if (rChatLevels.length > 1) {
-        strMsg = "<br>Most frequent strings for these " + levels.length + " levels:<br>";
-    }
-    if (rChatLevels.length > 0) {
-        for (var r = 0, myLevel; myLevel = rChatLevels[r]; r++) {
-            chatP.innerHTML = strMsg;
-            acts = myLevel.actions;
-            for (var i = 0, myAct; myAct = acts[i]; i++) {
-                if (myAct.type == "message") {
-                    str += myAct.msg + " ";
-                }
-            }
+    if (rChatLevels.length != 0) {
+        var acts = [],
+            chatP = document.getElementById("chatsPara"),
+            noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and", "i", "im", "my", "it", "so", "ok"],
+            str = "",
+            strFound,
+            strArray = [],
+            strCountArray = [],
+            sca = [],
+            weightedstrs, //sum of unique strings times their frequency
+            limit,
+            strMsg = "",
+            noIncludeStrs = 0,
+            strFound = false;
+        //chatP.style.display = "inline";
+        chatP.innerHTML = "";
+        if (rChatLevels.length == 1) {
+            strMsg = "<br>Most frequent strings for this level:<br>"
         }
-        str2 = str.toLowerCase();
-        strArray = str2.split(" ");
-        for (var j = 0; j < strArray.length; j++) {
-            myStr = strArray[j];
-            if (strCountArray.length == 0) {
-                myStrCount = new StrCount;
-                myStrCount.string = myStr;
-                myStrCount.count = 1;
-                strCountArray.push(myStrCount);
-            } else if (noInclude.includes(myStr)) {
-                noIncludeStrs++;
-            } else {
-                strFound = false;
-                for (var k = 0; k < strCountArray.length; k++) {
-                    if (strCountArray[k].string == myStr) {
-                        strCountArray[k].count++;
-                        strFound = true;
+        if (rChatLevels.length > 1) {
+            strMsg = "<br>Most frequent strings for these " + rChatLevels.length + " levels:<br>";
+        }
+        if (rChatLevels.length > 0) {
+            for (var r = 0, myLevel; myLevel = rChatLevels[r]; r++) {
+                chatP.innerHTML = strMsg;
+                acts = myLevel.actions;
+                for (var i = 0, myAct; myAct = acts[i]; i++) {
+                    if (myAct.type == "message") {
+                        str += myAct.msg + " ";
                     }
                 }
-                if (!strFound) {
+            }
+            str2 = str.toLowerCase();
+            strArray = str2.split(" ");
+            for (var j = 0; j < strArray.length; j++) {
+                myStr = strArray[j];
+                if (strCountArray.length == 0) {
                     myStrCount = new StrCount;
                     myStrCount.string = myStr;
                     myStrCount.count = 1;
                     strCountArray.push(myStrCount);
+                } else if (noInclude.includes(myStr)) {
+                    noIncludeStrs++;
+                } else {
+                    strFound = false;
+                    for (var k = 0; k < strCountArray.length; k++) {
+                        if (strCountArray[k].string == myStr) {
+                            strCountArray[k].count++;
+                            strFound = true;
+                        }
+                    }
+                    if (!strFound) {
+                        myStrCount = new StrCount;
+                        myStrCount.string = myStr;
+                        myStrCount.count = 1;
+                        strCountArray.push(myStrCount);
+                    }
                 }
             }
+            sca = strCountArray.sort(function (a, b) {
+                return b.count - a.count
+            });
+            limit = Math.min(10, sca.length);
+            weightedStrs = 0;
+            for (var kk = 0; kk < limit; kk++) {
+                weightedStrs += sca[kk].count;
+                chatP.innerHTML += ((kk + 1) + ". " + sca[kk].string + " : " + sca[kk].count + "<br>");
+            }
         }
-        sca = strCountArray.sort(function (a, b) {
-            return b.count - a.count
-        });
-        limit = Math.min(10, sca.length);
-        weightedStrs = 0;
-        for (var kk = 0; kk < limit; kk++) {
-            weightedStrs += sca[kk].count;
-            chatP.innerHTML += ((kk + 1) + ". " + sca[kk].string + " : " + sca[kk].count + "<br>");
-        }
+        setupActionsForm();
     }
-    setupActionsForm();
 }
 
+function setupActionsForm() {
+    var a = document.getElementById("checkActions");
+    var myLevel = findSelectedLevel();
+    if (myLevel) {
+        if (a) {
+            a.style.display = "inline";
+        }
+        if ((myLevel.CynthiaStrategyDetected) || (myLevel.allRsEqualR0)) {
+            displayCynthiaStrategy(myLevel);
+            document.getElementById("strategies").style.display = "inline";
+        } else document.getElementById("strategies").style.display = "none";
+    } else {
+        if (a) {
+            a.style.display = "none";
+        }
+        document.getElementById("strategies").style.display = "none";
+    }
+}
 
 function StrCount(string, count) {
     this.string = string;

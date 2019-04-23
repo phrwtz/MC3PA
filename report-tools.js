@@ -22,13 +22,14 @@ function reportResults() {
         var actionsTable = document.createElement("table");
         actionsTable.id = "actionsTable";
         actionsTable.style.float = "left";
+        actionsTable.style.display = "block";
         document.getElementById("reportDiv").appendChild(actionsTable);
         var headerRow = document.createElement("tr");
         headerRow.id = "headerRow";
         actionsTable.appendChild(headerRow);
         var header = document.createElement("th");
         header.setAttribute("colspan", 4);
-        header.style.backgroundColor = "#DDFFDD";
+        header.style.backgroundColor = "palegreen";
         headerRow.appendChild(header);
         var team = myLevel.team;
         header.innerHTML = "Team " + team.name + " (class ID " + team.classId + "), level " + myLevel.label;
@@ -185,7 +186,6 @@ function reportResults() {
         document.getElementById("submitV#").innerHTML = submitVCount;
         document.getElementById("submitER#").innerHTML = submitERCount;
         document.getElementById("joinedGroup#").innerHTML = joinedGroupCount;
-        //  reportVarRefs(acts);
     } else {
         document.getElementById("actionsTable").style.display = "none";
     }

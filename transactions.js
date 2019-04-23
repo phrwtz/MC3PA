@@ -15,28 +15,28 @@ function checkCynthiaStrategy() { //Checks all levels for evidence of "Cynthia s
                     if (myAction.type == "resistorChange") {
                         if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
                             myLevel.allRsEqualR0 = true;
-                            //                      p.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
+                            //                      s.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
                         }
                     }
                     if (myLevel.allRsEqualR0) {
                         if (myAction.ESubmitValue == myLevel.E) {
                             eSubmittedAfterRsEqual = true;
-                            //                    p.innerHTML += "At " + time + " they submitted the correct value for E<br>";
+                            //                    s.innerHTML += "At " + time + " they submitted the correct value for E<br>";
                         }
                         if (myAction.R0SubmitValue == myLevel.R0) {
                             r0SubmittedAfterRsEqual = true;
-                            p.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
+                            s.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
                         }
                         if (myAction.type == "message") {
                             msgNumberMatch = myAction.msg.match(/[\d]+/);
                             if (msgNumberMatch) {
                                 if (myLevel.E.toString() == msgNumberMatch[0]) {
                                     myLevel.chattedEAfterAllRsEqual = true;
-                                    //                           p.innerHTML += "Someone chatted the E value at " + time + "<br>";
+                                    //                           s.innerHTML += "Someone chatted the E value at " + time + "<br>";
                                 }
                                 if (myLevel.R0.toString() == msgNumberMatch[0]) {
                                     myLevel.chattedRoAfterAllRsEqual = true;
-                                    //                       p.innerHTML += "Someone chatted the R0 value at " + time + "<br>";
+                                    //                       s.innerHTML += "Someone chatted the R0 value at " + time + "<br>";
                                 }
                             }
                         }
@@ -45,10 +45,10 @@ function checkCynthiaStrategy() { //Checks all levels for evidence of "Cynthia s
             }
             if ((myLevel.label == "C") && (eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual)) {
                 myLevel.CynthiaStrategyDetected = true;
-                //           p.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+                //           s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
             } else if ((myLevel.label == "D") && eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual && r0SubmittedAfterRsEqual && myLevel.chattedR0AfterAllRsEqual) {
                 myLevel.CynthiaStrategyDetected = true;
-                //         p.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+                //         s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
             }
         }
     }
@@ -61,35 +61,35 @@ function displayCynthiaStrategy(myLevel) {
         myAction,
         eSubmittedAfterRsEqual = false,
         r0SubmittedAfterRsEqual = false,
-        p = document.getElementById("strategies");
-    p.style.display = "block";
-    p.innerHTML = "";
+        s = document.getElementById("strategies");
+    s.style.display = "inline";
+    s.innerHTML = "";
     for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
         time = myAction.eMinSecs;
         if (myAction.type == "resistorChange") {
             if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
-                p.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
+                s.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
             }
         }
         if (myLevel.allRsEqualR0) {
             if (myAction.ESubmitValue == myLevel.E) {
                 eSubmittedAfterRsEqual = true;
-                p.innerHTML += "At " + time + " they submitted the correct value for E<br>";
+                s.innerHTML += "At " + time + " they submitted the correct value for E<br>";
             }
             if (myAction.R0SubmitValue == myLevel.R0) {
                 r0SubmittedAfterRsEqual = true;
-                p.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
+                s.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
             }
             if (myAction.type == "message") {
                 msgNumberMatch = myAction.msg.match(/[\d]+/);
                 if (msgNumberMatch) {
                     if (myLevel.E.toString() == msgNumberMatch[0]) {
                         myLevel.chattedEAfterAllRsEqual = true;
-                        p.innerHTML += myAction.actor.name + " chatted the E value at " + time + "<br>";
+                        s.innerHTML += myAction.actor.name + " chatted the E value at " + time + "<br>";
                     }
                     if (myLevel.R0.toString() == msgNumberMatch[0]) {
                         myLevel.chattedRoAfterAllRsEqual = true;
-                        p.innerHTML += myAction.actor.name + " chatted the R0 value at " + time + "<br>";
+                        s.innerHTML += myAction.actor.name + " chatted the R0 value at " + time + "<br>";
                     }
                 }
             }
@@ -97,10 +97,10 @@ function displayCynthiaStrategy(myLevel) {
     }
     if ((myLevel.label == "C") && (eSubmittedAfterRsEqual) && (myLevel.chattedEAfterAllRsEqual)) {
         myLevel.CynthiaStrategyDetected = true;
-        p.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+        s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
     } else if (((myLevel.label == "D") && (eSubmittedAfterRsEqual) && (myLevel.chattedEAfterAllRsEqual) && (r0SubmittedAfterRsEqual) && (myLevel.chattedR0AfterAllRsEqual))) {
         myLevel.CynthiaStrategyDetected = true;
-        p.innerHTML += ("<b><font color=red> Team " + myTeam.name +
+        s.innerHTML += ("<b><font color=red> Team " + myTeam.name +
             ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
     }
 }

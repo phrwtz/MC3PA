@@ -48,7 +48,6 @@ function parseJSON(data) {
     }
     populateTeacherLevelArrays();
     document.getElementById("reportButton").style.display = "inline";
-    document.getElementById("filterCynthia").style.display = "inline";
 }
 
 function populateTeacherLevelArrays() { //Eliminates levels that were not attempted and adds information to the levels before adding then to the teachers.

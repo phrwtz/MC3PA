@@ -1,204 +1,204 @@
+filteredLevels = []
+
 function summaryReport() {
     var filterTable = document.getElementById("filterTable"),
         levels;
     filterTable.style.display = "block";
-    addGoalsToLevels();
+    assignLevelsToTeachers(); //Also eliminates levels that are not attempted and adds properties like goals chatted and calculated.
     updateLevels();
 }
 
-function updateLevels() {
-    var filterTable = $("#filterTable"),
-        label,
+function updateLevels() { //Fills in numbers of levels for each teacher checked
+    var label,
+        myTeacher,
+        teacherCheckBoxes, //All the checkboxes with teachers' names, whether or not checked
         numberTutorialLevels = 0,
         numberALevels = 0,
         numberBLevels = 0,
         numberCLevels = 0,
         numberDLevels = 0,
-        filteredLevels = [];
-    for (var i = 0; i < attemptedLevels.length; i++) {
-        myLevel = attemptedLevels[i];
-        label = myLevel.label;
-        if ($("#level" + label)[0].checked) {
-            filteredLevels.push(myLevel);
-        }
-        if (label == "A") {
-            numberALevels++;
-        } else if (label == "B") {
-            numberBLevels++;
-        } else if (label == "C") {
-            numberCLevels++;
-        } else if (label == "D") {
-            numberDLevels++;
+        teacherLevels = []; //All the levels for teachers that are checked
+    teacherCheckBoxes = document.getElementsByName("teacher");
+    for (var i = 1; i < teacherCheckBoxes.length; i++) { //Start at 1 because we don't want to include the "all/none" box.
+        myTeacherCheckBox = teacherCheckBoxes[i];
+        if (myTeacherCheckBox.checked) {
+            myTeacher = teachers[myTeacherCheckBox.id.match(/[\d]+/)];
+            for (var j = 0, myLevel; myLevel = myTeacher.levels[j]; j++) {
+                teacherLevels.push(myLevel);
+                label = myLevel.label;
+                if (label == "A") {
+                    numberALevels++;
+                } else if (label == "B") {
+                    numberBLevels++;
+                } else if (label == "C") {
+                    numberCLevels++;
+                } else if (label == "D") {
+                    numberDLevels++;
+                }
+            }
         }
     }
-    document.getElementById("levels#").innerHTML = filteredLevels.length;
+    document.getElementById("levels#").innerHTML = teacherLevels.length;
     document.getElementById("A#").innerHTML = numberALevels;
     document.getElementById("B#").innerHTML = numberBLevels
     document.getElementById("C#").innerHTML = numberCLevels;
     document.getElementById("D#").innerHTML = numberDLevels;
-    updateOutcomes(filteredLevels);
+    updateOutcomes(teacherLevels);
 }
 
-
-function updateOutcomes(levels) {
+function updateOutcomes(teacherLevels) { //Fills in number of successes and failures for each level label checked
     var levelsSuccess = 0,
         levelsFailure = 0,
-        filteredLevels = []; //So we can run filters without changing the length of the array we're scanning
-    if (levels.length > 0) {
-        for (var i = 0, myLevel; myLevel = levels[i]; i++) {
+        labelLevels = []; //Will be all the levels whose label is checked
+    for (var j = 0, myLevel; myLevel = teacherLevels[j]; j++) {
+        if (document.getElementById("level" + myLevel.label).checked) {
+            labelLevels.push(myLevel);
             if (myLevel.success) {
                 levelsSuccess++;
-                if ($("#success")[0].checked) {
-                    filteredLevels.push(myLevel);
-                }
             } else {
                 levelsFailure++
-                if ($("#failure")[0].checked) {
-                    filteredLevels.push(myLevel);
-                }
             }
         }
     }
-    document.getElementById("outcomes#").innerHTML = filteredLevels.length;
-    document.getElementById("Success#").innerHTML = levelsSuccess;
-    document.getElementById("Failure#").innerHTML = levelsFailure;
-    updateVChats(filteredLevels);
+    document.getElementById("outcomes#").innerHTML = labelLevels.length;
+    document.getElementById("success#").innerHTML = levelsSuccess;
+    document.getElementById("failure#").innerHTML = levelsFailure;
+    updateVChats(labelLevels);
 }
 
-function updateVChats(levels) {
+function updateVChats(labelLevels) { //Fills in number of voltage chat  properties (all chatted, some chatted, none chatted) for each level label checked
     var allGoalsChatted = 0,
         someGoalsChatted = 0,
         noGoalsChatted = 0,
-        filteredLevels = []; //So we can run filters without changing the length of the array
-    if (levels.length > 0) {
-        for (var i = 0, myLevel; myLevel = levels[i]; i++) {
-            switch (myLevel.goalVsChatted) {
-                case "all":
-                    allGoalsChatted++
-                    if (($("#VAllChat")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
-                case "some":
-                    someGoalsChatted++
-                    if (($("#VSomeChat")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
-                case "none":
-                    noGoalsChatted++
-                    if (($("#VNoChat")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
+        vChatLevels = [];
+    if (labelLevels.length > 0) {
+        for (var i = 0, myLevel; myLevel = labelLevels[i]; i++) {
+            if (((document.getElementById("success").checked) && (myLevel.success)) || ((document.getElementById("failure").checked) && (!myLevel.success))) {
+                vChatLevels.push(myLevel);
+                switch (myLevel.goalVsChatted) {
+                    case "all":
+                        allGoalsChatted++;
+                        break;
+                    case "some":
+                        someGoalsChatted++;
+                        break;
+                    case "none":
+                        noGoalsChatted++
+                        break;
+                }
             }
         }
     }
-    document.getElementById("vchats#").innerHTML = filteredLevels.length;
+    document.getElementById("vchats#").innerHTML = vChatLevels.length;
     document.getElementById("VAllChatted#").innerHTML = allGoalsChatted;
     document.getElementById("VSomeChatted#").innerHTML = someGoalsChatted;
     document.getElementById("VNotChatted#").innerHTML = noGoalsChatted;
-    updateRCalcs(filteredLevels);
+    updateRCalcs(vChatLevels);
 }
 
-function updateRCalcs(levels) {
+function updateRCalcs(vChatLevels) { //Fills in number of resistance calculated  properties (all calculated, some calculated, none calculated) for each level whose voltage chat property is checked
     var allGoalsCalculated = 0,
         someGoalsCalculated = 0,
         noGoalsCalculated = 0,
-        filteredLevels = []; //So we can run filters without changing the length of the array
-    if (levels.length > 0) {
-        for (var i = 0, myLevel; myLevel = levels[i]; i++) {
-            switch (myLevel.goalRsCalculated) {
-                case "all":
-                    allGoalsCalculated++;
-                    if (($("#RAllCalc")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
-                case "some":
-                    someGoalsCalculated++;
-                    if (($("#RSomeCalc")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
-                case "none":
-                    noGoalsCalculated++;
-                    if (($("#RNoCalc")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
+        rCalcLevels = [];
+    if (vChatLevels.length > 0) {
+        for (var i = 0, myLevel; myLevel = vChatLevels[i]; i++) {
+            if (((document.getElementById("VAllChat").checked) && (myLevel.goalVsChatted == "all")) || ((document.getElementById("VSomeChat").checked) && (myLevel.goalVsChatted == "some")) || ((document.getElementById("VNoChat").checked) && (myLevel.goalVsChatted == "none"))) {
+                rCalcLevels.push(myLevel);
+                switch (myLevel.goalRsCalculated) {
+                    case "all":
+                        allGoalsCalculated++;
+                        break;
+                    case "some":
+                        someGoalsCalculated++;
+                        break;
+                    case "none":
+                        noGoalsCalculated++
+                        break;
+                }
             }
         }
     }
-    document.getElementById("rcalcs#").innerHTML = filteredLevels.length;
+    document.getElementById("rcalcs#").innerHTML = rCalcLevels.length;
     document.getElementById("RAllCalculated#").innerHTML = allGoalsCalculated;
     document.getElementById("RSomeCalculated#").innerHTML = someGoalsCalculated;
     document.getElementById("RNotCalculated#").innerHTML = noGoalsCalculated;
-    updateRChats(filteredLevels);
+    updateRChats(rCalcLevels);
 }
 
-function updateRChats(levels) {
+function updateRChats(rCalcLevels) {
     var allGoalsChatted = 0,
         someGoalsChatted = 0,
-        noGoalsChatted = 0,
-        filteredLevels = []; //So we can run filters without changing the length of the array;
-    if (levels.length > 0) {
-        for (var i = 0, myLevel; myLevel = levels[i]; i++) {
-            switch (myLevel.goalRsChatted) {
-                case "all":
-                    allGoalsChatted++;
-                    if (($("#RAllChat")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
-                case "some":
-                    someGoalsChatted++;
-                    if (($("#RSomeChat")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
-                case "none":
-                    noGoalsChatted++;
-                    if (($("#RNoChat")[0].checked)) {
-                        filteredLevels.push(myLevel);
-                    }
-                    break;
+        noGoalsChatted = 0;
+        rChatLevels = []; //rChatLevels is a global variable
+    if (rCalcLevels.length > 0) {
+        for (var i = 0, myLevel; myLevel = rCalcLevels[i]; i++) {
+            if (((document.getElementById("RAllCalc").checked) && (myLevel.goalRsCalculated == "all")) || ((document.getElementById("RSomeCalc").checked) && (myLevel.goalRsCalculated == "some")) || ((document.getElementById("RNoCalc").checked) && (myLevel.goalRsCalculated == "none"))) {
+                rChatLevels.push(myLevel);
+                switch (myLevel.goalRsChatted) {
+                    case "all":
+                        allGoalsChatted++;
+                        if (($("#RAllChat")[0].checked)) {}
+                        break;
+                    case "some":
+                        someGoalsChatted++;
+                        if (($("#RSomeChat")[0].checked)) {}
+                        break;
+                    case "none":
+                        noGoalsChatted++;
+                        if (($("#RNoChat")[0].checked)) {}
+                        break;
+                }
             }
         }
     }
-    document.getElementById("rchats#").innerHTML = levels.length;
+    document.getElementById("rchats#").innerHTML = rChatLevels.length;
     document.getElementById("RAllChatted#").innerHTML = allGoalsChatted;
     document.getElementById("RSomeChatted#").innerHTML = someGoalsChatted;
     document.getElementById("RNotChatted#").innerHTML = noGoalsChatted;
-    actionsReport(filteredLevels);
+    actionsReport(rChatLevels);
 }
 
-function actionsReport(filteredLevels) { //generates a radio button for each level in filteredLevels
+function actionsReport(rChatLevels) { //generates a radio button for each level in rChatLevels
     var f = document.getElementById("levelsPara");
     var c = document.getElementById("chatsPara");
-    var selectedLevel = findSelectedLevel();
-    var myLevel;
-    if (filteredLevels.length == 0) {
-        f.innerHTML = "<br>There are no levels to look at.<br>";
-        c.innerHTML = "";
-        return;
+    var boxes = document.getElementsByName("rchat");
+    var boxChecked = false;
+    var levelColor = "black";
+    for (var g = 0; g < boxes.length; g++) {
+        if (boxes[g].checked) {
+            boxChecked = true;
+        }
     }
-    if (filteredLevels.length == 1) {
-        f.innerHTML = "<br>This is the level to look at:<br>";
-        c.innerHTML = "";
-    } else {
-        f.innerHTML = "<br>These are the " + filteredLevels.length + " levels to look at:<br>";
-        c.innerHTML = "";
+    if (boxChecked) {
+        if (rChatLevels.length == 0) {
+            f.innerHTML = "<br>There are no levels to look at.<br>";
+            c.innerHTML = "";
+            return;
+        }
+        if (rChatLevels.length == 1) {
+            f.innerHTML = "<br>This is the level to look at:<br>";
+            c.innerHTML = "";
+        } else {
+            f.innerHTML = "<br>These are the " + rChatLevels.length + " levels to look at:<br>";
+            c.innerHTML = "";
+        }
+        for (var i = 0; i < rChatLevels.length; i++) {
+            myLevel = rChatLevels[i];
+            if (myLevel.CynthiaStrategyDetected) {
+                levelColor = "red";
+            } else if (myLevel.allRsEqualR0) {
+                levelColor = "blue";
+            } else {
+                levelColor = "black";
+            }
+            f.innerHTML += ("<font color=" + levelColor + "> Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=setupActionsForm();reportResults()></input>' + "<br>");
+        }
+        countChats(rChatLevels);
     }
-    for (var i = 0; i < filteredLevels.length; i++) {
-        var checkTable = document.getElementById("checkTable");
-        myLevel = filteredLevels[i];
-        f.innerHTML += ("Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '<input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=setupActionsForm();reportResults()></input>' + "<br>")
-    }
-    countChats(filteredLevels);
 }
 
-function countChats(filteredLevels) {
+function countChats(rChatLevels) {
     var acts = [],
         chatP = document.getElementById("chatsPara"),
         noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and", "i", "im", "my", "it", "so", "ok"],
@@ -214,14 +214,14 @@ function countChats(filteredLevels) {
         strFound = false;
     //chatP.style.display = "inline";
     chatP.innerHTML = "";
-    if (filteredLevels.length == 1) {
+    if (rChatLevels.length == 1) {
         strMsg = "<br>Most frequent strings for this level:<br>"
     }
-    if (filteredLevels.length > 1) {
-        strMsg = "<br>Most frequent strings for these " + filteredLevels.length + " levels:<br>";
+    if (rChatLevels.length > 1) {
+        strMsg = "<br>Most frequent strings for these " + levels.length + " levels:<br>";
     }
-    if (filteredLevels.length > 0) {
-        for (var r = 0, myLevel; myLevel = filteredLevels[r]; r++) {
+    if (rChatLevels.length > 0) {
+        for (var r = 0, myLevel; myLevel = rChatLevels[r]; r++) {
             chatP.innerHTML = strMsg;
             acts = myLevel.actions;
             for (var i = 0, myAct; myAct = acts[i]; i++) {
@@ -267,7 +267,6 @@ function countChats(filteredLevels) {
             chatP.innerHTML += ((kk + 1) + ". " + sca[kk].string + " : " + sca[kk].count + "<br>");
         }
     }
-    //   countGoalRVarRefs(filteredLevels);
     setupActionsForm();
 }
 

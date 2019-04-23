@@ -1,9 +1,11 @@
 //global variables
+var teacher = function () {};
 var team = function () {};
 var level = function () {};
 var member = function () {};
-var action = function () { };
+var action = function () {};
 var chatsList = ["voltage", "current"]; //Array of strings to search for in chats
+var rChatLevels = []; //Final selected levels array
 var rows = [];
 var teams = [];
 var attemptedLevels = [];
@@ -36,18 +38,33 @@ function parseJSON(data) {
     // loading.style.display = "block";
     for (var i = 0; i < data.length; i++) {
         count = i / (data.length - 1);
-        rowObjs = JSON.parse(data[i]);
+        rowObjs = JSON.parse(data[data.length - (i + 1)]);
         var thisTeacher = teachers[i];
         classIds.push(rowObjs[0]["class_id"]);
         teams = makeTeams(rowObjs, thisTeacher); // identify teams and members, actions taken by them
         analyze(rowObjs); // adding actions to the arrays
-        // analysisBar.value = count;
-        // analysisBar.style.display = "block";
-
+        checkCynthiaStrategy();
         console.log("parse-file: analysis complete on " + rowObjs[0].id + ", count = " + count + ".");
     }
-    //   document.getElementById("analysisProgress").style.display = "none";
-
+    populateTeacherLevelArrays();
     document.getElementById("reportButton").style.display = "inline";
     document.getElementById("filterCynthia").style.display = "inline";
+}
+
+function populateTeacherLevelArrays() { //Eliminates levels that were not attempted and adds information to the levels before adding then to the teachers.
+    for (var i = 0, myTeacher; myTeacher = teachers[i]; i++) {
+        for (var j = 0, myTeam; myTeam = myTeacher.teams[j]; j++) {
+            for (var k = 0, myLevel; myLevel = myTeam.levels[k]; k++) {
+                if (myLevel.attempted) {
+                    myLevel.success = setSuccessFlag(myLevel);
+                    myLevel.goalVsChatted = goalVsChatted(myLevel);
+                    myLevel.goalRsChatted = goalRsChatted(myLevel);
+                    myLevel.goalVsCalculated = goalVsCalculated(myLevel);
+                    myLevel.goalRsCalculated = goalRsCalculated(myLevel);
+                    myTeacher.levels.push(myLevel);
+                }
+            }
+        }
+    }
+    console.log("Teacher levels populated.");
 }

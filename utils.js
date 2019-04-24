@@ -429,11 +429,11 @@ function findVars(act, numStr) {
     return returnArray;
 }
 
-function makeTeams(rowObjs) { //parse the row objects array looking for and populating teams
+function makeTeams(rowObjs, myTeacher) { //parse the row objects array looking for and populating teams
     for (i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
         if (ro["event"] == "model values") {
-            addTeam(ro);
+            addTeam(ro, myTeacher);
         }
     }
     return teams;
@@ -441,18 +441,27 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
 
 //We invoke this function when the event is "model values"
 //we construct a new team from ro and add it to teams array.
-//If we already have a team with that name, we use it.
+//If we already have a team with that name, classID, and teacher name we use it.
 function addTeam(ro) {
     var userID = ro["username"].slice(0, ro["username"].indexOf("@")); // user id precedes @
     var memberObject = getMemberObject(userID);
     var teamName = ro.parameters["groupname"];
-    var classId = ro["class_id"]
-    var myTeam = inTeams(teamName, classId, teams)
+    var classId = ro["class_id"];
+    var myTeacher = getTeacherById(classId);
+    var myTeam = inTeams(teamName, classId, myTeacher.name)
+    if (!myTeacher) {
+        console.log("No teacher found with class ID " + classId);
+    }
     if (!myTeam) { //If this is a new team, initialize variables
         myTeam = new team;
         myTeam.levels = [];
         myTeam.name = ro.parameters["groupname"];
         myTeam.classId = classId;
+        myTeam.teacher = myTeacher;
+        if (myTeam.classId != myTeacher.classId) {
+            console.log("wrong teacher~");
+        }
+        myTeacher.teams.push(myTeam);
         if (memberObject) {
             myTeam.class = memberObject["class"];
             myTeam.teacher = memberObject["teacher"];
@@ -483,6 +492,7 @@ function addLevel(myTeam, ro) {
         myLevel.number = levelNumber;
         myLevel.label = getAlphabeticLabel(levelNumber);
         myLevel.team = myTeam;
+        myLevel.teacher = myTeam.teacher;
         myLevel.attempted = false;
         myLevel.successVTime = false;
         myLevel.success = false;
@@ -494,6 +504,10 @@ function addLevel(myTeam, ro) {
         myLevel.successRTime = -1;
         myLevel.endVUtime = null;
         myLevel.attainedVs = false;
+        myLevel.allRsEqualR0 = false;
+        myLevel.chattedEAfterAllRsEqual = false;
+        myLevel.chattedR0AfterAllRsEqual = false;
+        myLevel.CynthiaStrategyDetected = false;
         myLevel.attainedVsTime = 0;
         myLevel.movedAwayFromV = false;
         myLevel.movedAwayFromVTime = 0;
@@ -504,6 +518,9 @@ function addLevel(myTeam, ro) {
         //variable is globally known, known to the actor, known to some other
         //team member, or unknown.
         initializeVarRefs(myLevel); //Set all the arrays empty
+        if (checkLevelIdForDuplication(myLevel)) {
+            console.log("Level id duplicated!")
+        }
         myTeam.levels.push(myLevel);
     }
     addMember(myLevel, ro) //add member, if new. Otherwise, do nothing.
@@ -519,7 +536,7 @@ function addMember(myLevel, ro) {
         myMember.name = ro.parameters["username"];
         myMember.board = ro.parameters["board"];
         myMember.startTime = ro["time"]; //Log in time for this member
-        myMember.colIndex = myLevel.members.length // will be 0, 1, or 2
+        myMember.colIndex = myLevel.members.length // will be 0, 1, or 2. Used to decide which column to use for this members actions.
         var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
         myMember.color = colorArray[myMember.colIndex];
         myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
@@ -530,17 +547,17 @@ function addMember(myLevel, ro) {
             myLevel.attempted = true;
         }
         myLevel.members.push(myMember);
+ //       console.log("At " + ro["time"] + " new member " + myMember.name + " added to level " + myLevel.label + " of team " + myLevel.team.name + " of teacher " + myTeam.teacher.name + ". That makes " + myLevel.members.length + " so far.");
 
         // Start time for level is when the third member is added
         // Attempted is true when the third member is added, not before
-
     }
 }
 
-//if a team with the name teamName exists in the teams array, return it. Otherwise return null
-function inTeams(teamName, classId, teams) {
+//if a team with the right name, classID, and teacher name exists in the teams array, return it. Otherwise return null
+function inTeams(teamName, classId, teacherName) {
     for (var j = 0; j < teams.length; j++) {
-        if ((teams[j].name == teamName) && (teams[j].classId == classId)) {
+        if ((teams[j].name == teamName) && (teams[j].classId == classId) && (teams[j].teacher.name == teacherName)) {
             return teams[j];
         }
     }
@@ -1067,7 +1084,7 @@ function goalRsCalculated(myLevel) {
     }
 }
 
-function addGoalsToLevels() { //Adds success flag and Vgoals and Rgoals properties
+function assignLevelsToTeachers() { //Adds success flag and Vgoals and Rgoals properties
     for (var i = 0; i < teams.length; i++) {
         myTeam = teams[i];
         for (var j = 0; j < myTeam.levels.length; j++) {
@@ -1082,38 +1099,6 @@ function addGoalsToLevels() { //Adds success flag and Vgoals and Rgoals properti
             }
         }
     }
-}
-
-function getLevelByID(id) {
-    var myTeam;
-    for (var i = 0; i < teams.length; i++) {
-        myTeam = teams[i];
-        for (var j = 0; j < myTeam.levels.length; j++) {
-            myLevel = myTeam.levels[j];
-            if (myLevel.id == id) {
-                return myLevel;
-            }
-        }
-    }
-}
-
-function findFilteredLevels() { //Returns an array of all the levels remaining after complete filtering
-    var filteredLevels = [];
-    for (var i = 0; i < attemptedLevels.length; i++) {
-        myLevel = attemptedLevels[i];
-        if ((RChatFilter(myLevel))) {
-            if ((RCalcFilter(myLevel))) {
-                if ((VChatFilter(myLevel))) {
-                    if ((outcomeFilter(myLevel))) {
-                        if ((levelFilter(myLevel))) {
-                            filteredLevels.push(myLevel);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return filteredLevels;
 }
 
 function getLevelByID(id) {
@@ -1224,4 +1209,22 @@ function levelFilter(level) {
         returnBoolean = true;
     }
     return returnBoolean;
+}
+
+function checkLevelIdForDuplication(myLevel) {
+    var levelIdsSoFar = [];
+    myId = myLevel.id;
+    myTeam = myLevel.team;
+    for (var i = 0; i < myTeam.levels.length; i++) {
+        levelIdsSoFar.push(myTeam.levels[i].id);
+    }
+    return (levelIdsSoFar.includes(myId));
+}
+function getTeacherById(classId) {
+    for (var i = 0; i < teachers.length; i++) {
+        if (teachers[i].classId == classId) {
+            return teachers[i];
+        }
+    }
+    return null;
 }

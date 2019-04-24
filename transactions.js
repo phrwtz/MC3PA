@@ -1,3 +1,110 @@
+function checkCynthiaStrategy() { //Checks all levels for evidence of "Cynthia strategy"/ Adds true for allRsEqualR0, chattedEAfterAllRsEqual, and chattedR0AfterAllRsEqual to levels where appropriate.
+    var returnStr = "",
+        time,
+        myTeacher,
+        eSubmittedAfterRsEqual = false,
+        r0SubmittedAfterRsEqual = false;
+    for (var i = 0, myTeam; myTeam = teams[i]; i++) {
+        for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
+            if ((myLevel.label == "C") || (myLevel.label == "D")) {
+                eSubmitted = false;
+                eChatted = false;
+                for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+                    time = myAction.eMinSecs;
+                    myTeacher = myLevel.team.teacher.name;
+                    if (myAction.type == "resistorChange") {
+                        if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
+                            myLevel.allRsEqualR0 = true;
+                            //                      s.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
+                        }
+                    }
+                    if (myLevel.allRsEqualR0) {
+                        if (myAction.ESubmitValue == myLevel.E) {
+                            eSubmittedAfterRsEqual = true;
+                            //                    s.innerHTML += "At " + time + " they submitted the correct value for E<br>";
+                        }
+                        if (myAction.R0SubmitValue == myLevel.R0) {
+                            r0SubmittedAfterRsEqual = true;
+                            s.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
+                        }
+                        if (myAction.type == "message") {
+                            msgNumberMatch = myAction.msg.match(/[\d]+/);
+                            if (msgNumberMatch) {
+                                if (myLevel.E.toString() == msgNumberMatch[0]) {
+                                    myLevel.chattedEAfterAllRsEqual = true;
+                                    //                           s.innerHTML += "Someone chatted the E value at " + time + "<br>";
+                                }
+                                if (myLevel.R0.toString() == msgNumberMatch[0]) {
+                                    myLevel.chattedRoAfterAllRsEqual = true;
+                                    //                       s.innerHTML += "Someone chatted the R0 value at " + time + "<br>";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if ((myLevel.label == "C") && (eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual)) {
+                myLevel.CynthiaStrategyDetected = true;
+                //           s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+            } else if ((myLevel.label == "D") && eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual && r0SubmittedAfterRsEqual && myLevel.chattedR0AfterAllRsEqual) {
+                myLevel.CynthiaStrategyDetected = true;
+                //         s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+            }
+        }
+    }
+}
+
+function displayCynthiaStrategy(myLevel) {
+    var time,
+        myTeacher = myLevel.team.teacher.name,
+        myTeam = myLevel.team,
+        myAction,
+        eSubmittedAfterRsEqual = false,
+        r0SubmittedAfterRsEqual = false,
+        s = document.getElementById("strategies");
+    s.style.display = "inline";
+    s.innerHTML = "";
+    for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+        time = myAction.eMinSecs;
+        if (myAction.type == "resistorChange") {
+            if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
+                s.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
+            }
+        }
+        if (myLevel.allRsEqualR0) {
+            if (myAction.ESubmitValue == myLevel.E) {
+                eSubmittedAfterRsEqual = true;
+                s.innerHTML += "At " + time + " they submitted the correct value for E<br>";
+            }
+            if (myAction.R0SubmitValue == myLevel.R0) {
+                r0SubmittedAfterRsEqual = true;
+                s.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
+            }
+            if (myAction.type == "message") {
+                msgNumberMatch = myAction.msg.match(/[\d]+/);
+                if (msgNumberMatch) {
+                    if (myLevel.E.toString() == msgNumberMatch[0]) {
+                        myLevel.chattedEAfterAllRsEqual = true;
+                        s.innerHTML += myAction.actor.name + " chatted the E value at " + time + "<br>";
+                    }
+                    if (myLevel.R0.toString() == msgNumberMatch[0]) {
+                        myLevel.chattedRoAfterAllRsEqual = true;
+                        s.innerHTML += myAction.actor.name + " chatted the R0 value at " + time + "<br>";
+                    }
+                }
+            }
+        }
+    }
+    if ((myLevel.label == "C") && (eSubmittedAfterRsEqual) && (myLevel.chattedEAfterAllRsEqual)) {
+        myLevel.CynthiaStrategyDetected = true;
+        s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+    } else if (((myLevel.label == "D") && (eSubmittedAfterRsEqual) && (myLevel.chattedEAfterAllRsEqual) && (r0SubmittedAfterRsEqual) && (myLevel.chattedR0AfterAllRsEqual))) {
+        myLevel.CynthiaStrategyDetected = true;
+        s.innerHTML += ("<b><font color=red> Team " + myTeam.name +
+            ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+    }
+}
+
 function findGuessAndCheck(teams) {
     var tOldE,
         tOldE,
@@ -7,14 +114,18 @@ function findGuessAndCheck(teams) {
         countR,
         board,
         interval = 30,
-        ERSubmitsForMember = [[], [], []],
+        ERSubmitsForMember = [
+            [],
+            [],
+            []
+        ],
         guessAndCheckE = [],
         guessAndCheckR = [],
         guessAndCheckEMsg = [],
         guessAndCheckRMsg = [],
         gAndCMsgE,
         gAndCMsgR;
-    
+
     document.getElementById("data").innerHTML = ""; //Clear data
     for (var i = 0; i < teams.length; i++) {
         myTeam = teams[i];
@@ -23,7 +134,11 @@ function findGuessAndCheck(teams) {
             for (var j = 0; j < myTeam.levels.length; j++) {
                 myLevel = myTeam.levels[j];
                 if ($("#level-" + myLevel.label)[0].checked) {
-                    ERSubmitsForMember = [[], [], []];
+                    ERSubmitsForMember = [
+                        [],
+                        [],
+                        []
+                    ];
                     guessAndCheckE = ["none", "none", "none"]; //initialize to no guess and check strategy
                     guessAndCheckR = ["none", "none", "none"];
                     for (var k = 0; k < myLevel.actions.length; k++) { ///run over all the actions for this team and level
@@ -40,7 +155,7 @@ function findGuessAndCheck(teams) {
                         for (var jj = 0; jj < ERSubmitsForMember[ii].length; jj++) { //look at this member's ER submits
                             thisERSubmit = ERSubmitsForMember[ii][jj];
                             if (!thisERSubmit.successE) { //if the value for E is incorrect
-                                if (countE === 0) {//if there are no prior incorrect E submits in the array
+                                if (countE === 0) { //if there are no prior incorrect E submits in the array
                                     tOldE = thisERSubmit.eTime;
                                     tNewE = tOldE;
                                     countE++;
@@ -62,7 +177,7 @@ function findGuessAndCheck(teams) {
                             }
                             //Look for guess and check for R0
                             if (!thisERSubmit.successR) { //if the value for R is incorrect
-                                if (countR === 0) {//if there are no prior incorrect R submits in the array
+                                if (countR === 0) { //if there are no prior incorrect R submits in the array
                                     tOldR = thisERSubmit.eTime;
                                     tNewR = tOldR;
                                     countR++;
@@ -108,15 +223,14 @@ function findGuessAndCheck(teams) {
                                 break;
                         }
                     }
-                    if ((myLevel.label == "C") || (myLevel.label == "D")) {  
+                    if ((myLevel.label == "C") || (myLevel.label == "D")) {
                         document.getElementById("data").innerHTML += "<br>" + "Team " + myTeam.name + "(" + myTeam.classId + "}, level " + myLevel.label + ", " + guessAndCheckEMsg[0] + ", " + guessAndCheckEMsg[1] + ", " + guessAndCheckEMsg[2];
                     }
                     if (myLevel.label == "D") {
-                            document.getElementById("data").innerHTML += "<br>" + "Team " + myTeam.name + "(" + myTeam.classId + "}, level " + myLevel.label + ", " + guessAndCheckRMsg[0] + ", " + guessAndCheckRMsg[1] + ", " + guessAndCheckRMsg[2];
-                        }
+                        document.getElementById("data").innerHTML += "<br>" + "Team " + myTeam.name + "(" + myTeam.classId + "}, level " + myLevel.label + ", " + guessAndCheckRMsg[0] + ", " + guessAndCheckRMsg[1] + ", " + guessAndCheckRMsg[2];
+                    }
                 }
             }
         }
     }
 }
-

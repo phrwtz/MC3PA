@@ -1,106 +1,83 @@
-function setupActionsForm() {
-    var myLevel = findSelectedLevel();
-    if (myLevel) {
-        document.getElementById("checkActions").style.display = "inline";
-    } else {
-        document.getElementById("checkActions").style.display = "none";
-        if (document.getElementById("actionsTable")) {
-            document.getElementById("actionsTable").style.display = "none";
+//Global variables
+var filterTableAlreadyCreated = false;
+var rowIndex = counter(); ///Gl0bal variable
+
+function createFilterTable() //Sets up the teacher, level, outcome, goal voltage chats, goal resistance calcs, and goal resistance chats entries without populating the span fields. (Done dynamically because the teachers field is not determined until the data has been loaded.)
+{
+    var filterTable = document.getElementById("filterTable");
+    var totalLevels = 0;
+    if (!filterTableAlreadyCreated) {
+        filterTableAlreadyCreated = true;
+        filterTable.style.display = "block";
+        for (var i = 0;
+            ((i < teachers.length) || (i < 4)); i++) {
+            addFilterRow(i, filterTable);
+        }
+        for (var j = 0; j < teachers.length; j++) {
+            totalLevels += teachers[j].levels.length;
+        }
+        document.getElementById("teachers#").innerHTML = totalLevels;
+
+        function addFilterRow(i, table) {
+            var filterRow = document.createElement("tr");
+            var teacherCell = document.createElement("td");
+            var levelCell = document.createElement("td");
+            var outcomeCell = document.createElement("td");
+            var gVChatsCell = document.createElement("td");
+            var gRCalcsCell = document.createElement("td");
+            var gRChatsCell = document.createElement("td");
+            var teacherId;
+            if (teachers[i]) {
+                teacherId = teachers[i].id;
+                teacherCell.innerHTML = teachers[i].name + "(" + teachers[i].levels.length + ")" +
+                    "<input type=\"checkbox\" name=\"teacher\" id=" + teacherId + " onchange=\"updateLevels()\"></input>";
+            }
+            if (i == 0) {
+                levelCell.innerHTML = "A(" + '<span id="A#"></span>' + ")" +
+                    '<input type="checkbox" name="level" id="levelA" onchange="updateLevels()"></input>';
+                outcomeCell.innerHTML = "Success(" + '<span id="success#"></span>' + ")" +
+                    '<input type="checkbox" name="outcome" id="success" onchange="updateLevels()"></input>';
+                gVChatsCell.innerHTML = "All chatted(" + '<span id="VAllChatted#"></span>' + ")" +
+                    '<input type="checkbox" name="vchat" id="VAllChat" onchange="updateLevels()"></input>';
+                gRCalcsCell.innerHTML = "All Calculated(" + '<span id="RAllCalculated#"></span>' + ")" +
+                    '<input type="checkbox" name="rcalc" id="RAllCalc" onchange="updateLevels()"></input>';
+                gRChatsCell.innerHTML = "All Chatted(" + '<span id="RAllChatted#"></span>' + ")" +
+                    '<input type="checkbox" name="rchat" id="RAllChat" onchange="updateLevels()"></input>';
+            } else if (i == 1) {
+                levelCell.innerHTML = "B(" + '<span id="B#"></span>' + ")" +
+                    '<input type="checkbox" name="level" id="levelB" onchange="updateLevels()"></input>';
+                outcomeCell.innerHTML = "Failure(" + '<span id="failure#"></span>' + ")" +
+                    '<input type="checkbox" name="outcome" id="failure" onchange="updateLevels()"></input>';
+                gVChatsCell.innerHTML = "Some chatted(" + '<span id="VSomeChatted#"></span>' + ")" +
+                    '<input type="checkbox" name="vchat" id="VSomeChat" onchange="updateLevels()"></input>';
+                gRCalcsCell.innerHTML = "Some Calculated(" + '<span id="RSomeCalculated#"></span>' + ")" +
+                    '<input type="checkbox" name="rcalc" id="RSomeCalc" onchange="updateLevels()"></input>';
+                gRChatsCell.innerHTML = "Some Chatted(" + '<span id="RSomeChatted#"></span>' + ")" +
+                    '<input type="checkbox" name="rchat" id="RSomeChat" onchange="updateLevels()"></input>';
+            } else if (i == 2) {
+                levelCell.innerHTML = "C(" + '<span id="C#"></span>' + ")" +
+                    '<input type="checkbox" name="level" id="levelC" onchange="updateLevels()"></input>';
+                outcomeCell.innerHTML = "";
+                gVChatsCell.innerHTML = "None chatted(" + '<span id="VNotChatted#"></span>' + ")" +
+                    '<input type="checkbox" name="vchat" id="VNoChat" onchange="updateLevels()"></input>';
+                gRCalcsCell.innerHTML = "None Calculated(" + '<span id="RNotCalculated#"></span>' + ")" +
+                    '<input type="checkbox" name="rcalc" id="RNoCalc" onchange="updateLevels()"></input>';
+                gRChatsCell.innerHTML = "None Chatted(" + '<span id="RNotChatted#"></span>' + ")" +
+                    '<input type="checkbox" name="rchat" id="RNoChat" onchange="updateLevels()"></input>';
+            } else if (i == 3) {
+                levelCell.innerHTML = "D(" + '<span id="D#"></span>' + ")" +
+                    '<input type="checkbox" name="level" id="levelD" onchange="updateLevels()"></input>';
+            }
+            filterRow.appendChild(teacherCell);
+            filterRow.appendChild(levelCell);
+            filterRow.appendChild(outcomeCell);
+            filterRow.appendChild(gVChatsCell);
+            filterRow.appendChild(gRCalcsCell);
+            filterRow.appendChild(gRChatsCell);
+            table.appendChild(filterRow);
         }
     }
 }
-//         var onchangeStr;
-//         var checkDiv = document.createElement("div");
-//         checkDiv.id = "checkDiv";
-//         document.body.appendChild(checkDiv);
-//         var checkForm = document.createElement("form");
-//         checkForm.id = "checkForm";
-//         checkForm.style.margin = "5px";
-//         checkDiv.appendChild(checkForm);
-//         var checkPara = document.createElement("p");
-//         checkPara.id = "checkPara";
-//         checkPara.innerHTML = "";
-//         checkForm.appendChild(checkPara);
-//         var checkTable = document.createElement("table");
-//         checkTable.id = "checkTable";
-//         checkTable.style.margin = "5px";
-//         checkForm.appendChild(checkTable);
-//         var headerRow = document.createElement("tr");
-//         headerRow.style.backgroundColor = "#DDFFDD";
-//         var headerCell1 = document.createElement("th");
-//         //       var headerCell2 = document.createElement("th");
-//         var actionLabels = ["activity-settings", "message", "calculation", "resistorChange", "attach-probe", "detach-probe",
-//             "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group", "opened-zoom", "closed-zoom"
-//         ];
-
-//         headerCell1.innerHTML = "Actions";
-//         //      headerCell2.innerHTML = "Variable Refs";
-
-//         var dataRow = document.createElement("tr");
-//         var actData = document.createElement("td");
-//         var varRefData = document.createElement("td");
-
-//         actData.innerHTML = "";
-//         varRefData.innerHTML = "";
-
-//         checkTable.appendChild(headerRow);
-//         headerRow.appendChild(headerCell1);
-//         //       headerRow.appendChild(headerCell2);
-
-//         checkTable.appendChild(dataRow);
-//         dataRow.appendChild(actData);
-//         dataRow.appendChild(varRefData);
-
-//         // Add action checkboxes to checkTable
-//         onchangeStr = "toggleSelectAll('action');reportResults()";
-//         labelStr = '<b> All actions</b><br>';
-//         actData.innerHTML = '<input type="checkbox" id="all-actions" name="action" onchange=' + onchangeStr + '></input>' + labelStr;
-//         onchangeStr = "reportResults()";
-//         for (var k = 0; k < actionLabels.length; k++) {
-//             idStr = "action-" + actionLabels[k];
-//             actData.innerHTML += '<input type="checkbox" name = "action" id=' + idStr + " onchange=" + onchangeStr + "></input>" + actionLabels[k] + "<br>";
-//         }
-// Add variable Refs
-// onChangeStr = "toggleSelectAll('varRef')";
-// labelStr = '<b>All var refs</b><br>';
-// varRefData.innerHTML = '<input + type="checkbox" name="varRef" id = "all=varRefs" onchange=' + onChangeStr + '></input><b> All var refs</b><br>';
-// for (var kk = 0; kk < vrLabelsArray.length; kk++) {
-//     IDStr = 'id=varRef-' + vrLabelsArray[kk] + " name=varRef>";
-//     labelStr = vrLabelsArray[kk] + "<br>";
-//     varRefData.innerHTML += "<input type=checkbox name=varRef " + IDStr + labelStr;
-// }
-// // Add team and level to checkPara
-// for (var i = 0, myLevel; myLevel = levels[i]; i++) {
-//     checkPara.innerHTML += "Team " + myLevel.team.name + "(" + myLevel.team.classId + "), level " + myLevel.label + "<br>"
-// }
-//     }
-// }
-
-
-
-// function setUpActionsTable() {
-//     clearElement("reportDiv"); //Clear the table and set up a new one so that we don't get two.
-//     var reportDiv = document.createElement("div");
-//     var actionsTable = document.createElement("table");
-//     var headerRow = document.createElement("tr");
-//     var header = document.createElement("th");
-//     document.body.appendChild(reportDiv);
-//     reportDiv.appendChild(actionsTable);
-//     actionsTable.appendChild(headerRow);
-//     headerRow.appendChild(header);
-//     reportDiv.id = "reportDiv";
-//     actionsTable.id = "actionsTable";
-//     actionsTable.style.float = "left";
-//     headerRow.id = ("headerRow");
-//     header.id = ("header");
-//     header.setAttribute("colspan", 4);
-//     document.body.appendChild(reportDiv);
-//     reportDiv.appendChild(actionsTable);
-//     actionsTable.appendChild(headerRow);
-// }
-
-
-var rowIndex = counter(); ///Gl0bal variable
 
 function addLevelRow(team, level) {
     var headerRow = document.createElement("tr");
@@ -125,7 +102,7 @@ function counter(checkboxName) {
             return n++;
         },
         reset: function () {
-            return n = 1
+            return 1;
         }
     };
 }
@@ -172,10 +149,10 @@ function addActionRow(act, content) {
     }
     actionCell0.addEventListener("mousedown", function () {
         showData(act);
-    })
+    });
     actionCell0.addEventListener("mouseup", function () {
         hideData();
-    })
+    });
 
     switch (act.type) {
         case "joined-group":
@@ -191,10 +168,10 @@ function addActionRow(act, content) {
             actionCell0.style.backgroundColor = "#FFE5CC";
             break;
         case "connect-lead":
-            actionCell0.style.backgroundColor = "#CCFFE5";
+            actionCell0.style.backgroundColor = "#CC99E5";
             break;
         case "disconnect-lead":
-            actionCell0.style.backgroundColor = "#CCFFE5";
+            actionCell0.style.backgroundColor = "#FFCCE5";
             break;
         case "message":
             actionCell0.style.backgroundColor = "#F9D593";

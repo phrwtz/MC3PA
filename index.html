@@ -10,27 +10,27 @@
 
 <body>
     <h1>Analyze MC3PA Data</h1>
-    <!--
-    Chats to search for:<input type="file" id="chats" name="chats[]" onchange="openChats(event)"></input><br><br>
--->
     Team data:<input type="file" id="files" name="files[]" multiple onchange="openFiles(event)"></input><br><br>
 
     <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button><br>
 
     <span>
-        <button type="button" id="reportButton" style="display:none" onclick="summaryReport()">Filter levels</button>
+        <button type="button" id="reportButton" style="display:none;width:100px" onclick="createFilterTable()">Filter levels</button>
     </span>
 
     <div id="filter" style="margin-top: 30px">
         <table id="filterTable" style="display:none">
             <tr style=background-color:palegreen>
-                <th>Level</td>
-                <th>Outcome</td>
-                <th>Goal Voltage Chats</td>
-                <th>Goal Resistance Calcs</td>
-                <th>Goal Resistance Chats</td>
+                <th>Teacher</th>
+                <th>Level</th>
+                <th>Outcome</th>
+                <th>Goal Voltage Chats</th>
+                <th>Goal Resistance Calcs</th>
+                <th>Goal Resistance Chats</th>
             </tr>
             <tr style=background-color:lightblue>
+                <td>all/none(<span id="teachers#"></span>)<input type="checkbox" id="teachers" name="teacher" onChange="toggleSelectAll('teacher'); updateLevels()"></input>
+                </td>
                 <td>all/none(<span id="levels#"></span>)<input type="checkbox" id="levels" name="level" onChange="toggleSelectAll('level'); updateLevels()"></input>
                 </td>
                 <td>all/none(<span id="outcomes#"></span>)
@@ -44,88 +44,17 @@
                 <td>all/none(<span id="rchats#"></span>)<input type="checkbox" id="rchats" name="rchat" onChange="toggleSelectAll('rchat');updateLevels()"></input>
                 </td>
             </tr>
-            <tr>
-                <td>
-                    A(<span id="A#"></span>)
-                    <input type="checkbox" name="level" id="levelA" onchange="updateLevels()">
-                    </input>
-                </td>
-
-                <td>Success(<span id="Success#"></span>)
-                    <input type="checkbox" name="outcome" id="success" onchange="updateLevels()">
-                </td>
-                <td>All chatted(<span id="VAllChatted#"></span>)
-                    <input type="checkbox" name="vchat" id="VAllChat" onchange="updateLevels()">
-                    </input>
-                </td>
-                <td>All calculated(<span id="RAllCalculated#"></span>)
-                    <input type="checkbox" name="rcalc" id="RAllCalc" onchange="updateLevels()">
-                    </input>
-                </td>
-                <td>
-                    All chatted(<span id="RAllChatted#"></span>)
-                    <input type="checkbox" name="rchat" id="RAllChat" onchange="updateLevels()">
-                    </input>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    B(<span id="B#"></span>)
-                    <input type="checkbox" name="level" id="levelB" onchange="updateLevels()"></input>
-                </td>
-                <td>Failure(<span id="Failure#"></span>)
-                    <input type="checkbox" name="outcome" id="failure" onchange="updateLevels()">
-                    </input>
-                </td>
-                <td>
-                    Some chatted(<span id="VSomeChatted#"></span>)
-                    <input type="checkbox" name="vchat" id="VSomeChat" onchange="updateLevels()">
-                    </input>
-                </td>
-                <td>Some calculated(<span id="RSomeCalculated#"></span>)
-                    <input type="checkbox" name="rcalc" id="RSomeCalc" onchange="updateLevels()">
-                    </input>
-                </td>
-                <td>Some chatted(<span id="RSomeChatted#"></span>)
-                    <input type="checkbox" name="rchat" id="RSomeChat" onchange="updateLevels()">
-                    </input>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    C(<span id="C#"></span>)
-                    <input type="checkbox" name="level" id="levelC" onchange="updateLevels()"></input>
-                </td>
-                <td></td>
-                <td>None chatted(<span id="VNotChatted#"></span>)
-                    <input type="checkbox" name="vchat" id="VNoChat" onchange="updateLevels()">
-                    </input>
-                </td>
-                <td>None calculated(<span id="RNotCalculated#"></span>)
-                    <input type="checkbox" name="rcalc" id="RNoCalc" onchange="updateLevels()">
-                    </input>
-                </td>
-                <td>None chatted(<span id="RNotChatted#"></span>)
-                    <input type="checkbox" name="rchat" id="RNoChat" onchange="updateLevels()">
-                    </input>
-                </td>
-            <tr>
-                <td>
-                    D(<span id="D#"></span>)
-                    <input type="checkbox" name="level" id="levelD" onchange="updateLevels()"></input>
-                </td>
-            </tr>
         </table>
     </div>
-    </div>
+
     <p id="data"></p>
-    <p id="levelsPara" style="float:left;display:inline;width:20%"></p>
-    <p id="chatsPara" style="float:left;display:inline;width:25%"></p>
-    <p id="varRefs" style="float:left;display:inline;width:20%"></p>
-    <div id="checkDiv">
+    <p id="levelsPara" style="float:left;display:inline;width:300px"></p>
+    <p id="chatsPara" style="float:left;display:inline;width:360"></p>
+    <p id="strategies" style="float:left;display:inline;width:600px;margin:20px"></p>
+    <div id="checkDiv"; style="margin-left:30px;margin-top:15px">
         <form id="checkForm">
-            <table id="checkActions" style="margin:5px; display:none">
-                <tr id="actionsHeaderRow" style="background-color:#DDFFDD">
+            <table id="checkActions" style="margin:20px; display:none;float:left">
+                <tr style="background-color:palegreen">
                     <th>
                         <b>Actions</b>
                     </th>
@@ -179,7 +108,6 @@
 
                         <input type="checkbox" id="action-closed-zoom" name="action" onchange="reportResults()"></input>
                         close zoom(<span id="closedZoom#"></span>)<br>
-
                     </td>
                 </tr>
             </table>
@@ -196,6 +124,15 @@
         function openFiles(evt) {
             var files = evt.target.files; // FileList object
             for (var i = 0, f; f = files[i]; i++) {
+                var t = new teacher;
+                var teacherName = f.name.match(/(activity-8132-class-[\d]+-)([^.]+)/)[2];
+                var classId = f.name.match(/(activity-8132-class-)([\d]+)/)[2];
+                t.name = teacherName;
+                t.id = "teacher" + i;
+                t.classId = classId;
+                t.teams = [];
+                t.levels = [];
+                teachers.push(t);
                 var reader = new FileReader();
                 //closure to capture the file information
                 reader.onerror = function (err) {

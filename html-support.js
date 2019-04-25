@@ -91,8 +91,7 @@ function addLevelRow(team, level) {
     teamCell.setAttribute("colspan", 3);
     headerRow.appendChild(timeCell);
     headerRow.appendChild(teamCell);
-    actionsTable = document.getElementById("actionsTable");
-    actionsTable.appendChild(headerRow);
+    document.getElementById("actionsTable").appendChild(headerRow);
     rowIndex.reset();
 }
 
@@ -124,14 +123,7 @@ function hideData() {
 
 function addActionRow(act, content) {
 
-    var reportDiv = document.getElementById("reportDiv");
     var actionsTable = document.getElementById("actionsTable");
-    if (!actionsTable) {
-        actionsTable = document.createElement("table");
-        actionsTable.id = "actionsTable";
-        actionsTable.style.float = "left";
-        reportDiv.appendChild(actionsTable);
-    }
     var actionRow = document.createElement("tr");
     actionRow.id = 'row-' + rowIndex.count();
     var actionCell0 = document.createElement("td");

@@ -90,8 +90,7 @@ function addLevelRow(team, level) {
     teamCell.setAttribute("colspan", 3);
     headerRow.appendChild(timeCell);
     headerRow.appendChild(teamCell);
-    actionsTable = document.getElementById("actionsTable");
-    actionsTable.appendChild(headerRow);
+    document.getElementById("actionsTable").appendChild(headerRow);
     rowIndex.reset();
 }
 
@@ -122,15 +121,7 @@ function hideData() {
 }
 
 function addActionRow(act, content) {
-
-    var reportDiv = document.getElementById("reportDiv");
-    var actionsTable = document.getElementById("actionsTable");
-    if (!actionsTable) {
-        actionsTable = document.createElement("table");
-        actionsTable.id = "actionsTable";
-        actionsTable.style.float = "left";
-        reportDiv.appendChild(actionsTable);
-    }
+    var actionsBody = document.getElementById("actionsTableBody");
     var actionRow = document.createElement("tr");
     actionRow.id = 'row-' + rowIndex.count();
     var actionCell0 = document.createElement("td");
@@ -142,7 +133,7 @@ function addActionRow(act, content) {
     actionCell2.width = "32%";
     actionCell3.width = "32%";
     var bd = parseInt(act.board);
-    actionsTable.appendChild(actionRow);
+    actionsBody.appendChild(actionRow);
     actionCell0.innerHTML = act.eMinSecs;
     if (isNaN(act.R[0])) {
         console.log("R[0] doesn't exist");

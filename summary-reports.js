@@ -133,22 +133,25 @@ function updateRChats(rCalcLevels) {
     rChatLevels = []; //rChatLevels is a global variable
     if (rCalcLevels.length > 0) {
         for (var i = 0, myLevel; myLevel = rCalcLevels[i]; i++) {
-            if (((document.getElementById("RAllCalc").checked) && (myLevel.goalRsCalculated == "all")) || ((document.getElementById("RSomeCalc").checked) && (myLevel.goalRsCalculated == "some")) || ((document.getElementById("RNoCalc").checked) && (myLevel.goalRsCalculated == "none"))) {
-                rChatLevels.push(myLevel);
-                switch (myLevel.goalRsChatted) {
-                    case "all":
-                        allGoalsChatted++;
-                        if (($("#RAllChat")[0].checked)) {}
-                        break;
-                    case "some":
-                        someGoalsChatted++;
-                        if (($("#RSomeChat")[0].checked)) {}
-                        break;
-                    case "none":
-                        noGoalsChatted++;
-                        if (($("#RNoChat")[0].checked)) {}
-                        break;
-                }
+            switch (myLevel.goalRsChatted) {
+                case "all":
+                    allGoalsChatted++;
+                    if (($("#RAllChat")[0].checked)) {
+                        rChatLevels.push(myLevel)
+                    }
+                    break;
+                case "some":
+                    someGoalsChatted++;
+                    if (($("#RSomeChat")[0].checked)) {
+                        rChatLevels.push(myLevel)
+                    }
+                    break;
+                case "none":
+                    noGoalsChatted++;
+                    if (($("#RNoChat")[0].checked)) {
+                        rChatLevels.push(myLevel)
+                    }
+                    break;
             }
         }
     }
@@ -175,7 +178,7 @@ function actionsReport(rChatLevels) { //generates a radio button for each level 
     }
     if (boxChecked) {
         if (rChatLevels.length == 0) {
-            f.innerHTML = "<br>There are no levels to look at.<br>";
+            f.innerHTML = "<br><b>There are no levels to look at.</b><br>";
             c.innerHTML = "";
             s.style.display = "none";
             a.style.display = "none";
@@ -183,10 +186,10 @@ function actionsReport(rChatLevels) { //generates a radio button for each level 
             return;
         }
         if (rChatLevels.length == 1) {
-            f.innerHTML = "<br>This is the level to look at:<br>";
+            f.innerHTML = "<br><b>This is the level to look at:</b><br>";
             c.innerHTML = "";
         } else {
-            f.innerHTML = "<br>These are the " + rChatLevels.length + " levels to look at:<br>";
+            f.innerHTML = "<br><b>These are the " + rChatLevels.length + " levels to look at</b><br>";
             c.innerHTML = "";
         }
         for (var i = 0; i < rChatLevels.length; i++) {
@@ -201,12 +204,12 @@ function actionsReport(rChatLevels) { //generates a radio button for each level 
             f.innerHTML += ("<font color=" + levelColor + "> Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=setupActionsForm();reportResults()></input>' + "<br>");
         }
         countChats(rChatLevels);
-    } else {//Level selected; display chats and actions
-        s.style.display = "inline";
-        a.style.display = "inline";
-        t.style.display = "inline";
+        reportResults();
+    } else {
+        f.innerHTML = "";
+        s.innerHTML = "";
+        c.innerHTML = "";
     }
-    reportResults();
 }
 
 function countChats(rChatLevels) {
@@ -227,10 +230,10 @@ function countChats(rChatLevels) {
         //chatP.style.display = "inline";
         chatP.innerHTML = "";
         if (rChatLevels.length == 1) {
-            strMsg = "<br>Most frequent strings for this level:<br>"
+            strMsg = "<br><b>Most frequent strings for this level:<b><br>"
         }
         if (rChatLevels.length > 1) {
-            strMsg = "<br>Most frequent strings for these " + rChatLevels.length + " levels:<br>";
+            strMsg = "<br><b>Most frequent strings for these " + rChatLevels.length + " levels:</b><br>";
         }
         if (rChatLevels.length > 0) {
             for (var r = 0, myLevel; myLevel = rChatLevels[r]; r++) {

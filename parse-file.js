@@ -43,7 +43,7 @@ function parseJSON(data) {
         classIds.push(rowObjs[0]["class_id"]);
         teams = makeTeams(rowObjs, thisTeacher); // identify teams and members, actions taken by them
         analyze(rowObjs); // adding actions to the arrays
-        checkCynthiaStrategy();
+        checkStrategy();
         console.log("parse-file: analysis complete on " + rowObjs[0].id + ", count = " + count + ".");
     }
     populateTeacherLevelArrays();

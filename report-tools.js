@@ -1,6 +1,8 @@
 function reportResults() {
-    clearElement("actionsTable");
     var myLevel = findSelectedLevel();
+    var actionBoxes = document.getElementsByName("action");
+    var actionsBody = document.getElementById("actionsTableBody");
+    var actionsChecked = false;
     var messageCount = 0,
         activitySettingsCount = 0,
         messageCount = 0,
@@ -17,24 +19,40 @@ function reportResults() {
         joinedGroupCount = 0,
         openedZoomCount = 0,
         closedZoomCount = 0,
-        allActionsCount = 0;
+        allActionsCount = 0,
+        header = document.getElementById("header"),
+        team,
+        checkActions = document.getElementById("checkActions"),
+        actionsTable = document.getElementById("actionsTable");
     if (myLevel) {
-        var actionsTable = document.createElement("table");
-        actionsTable.id = "actionsTable";
-        actionsTable.style.float = "left";
-        actionsTable.style.display = "block";
-        document.getElementById("reportDiv").appendChild(actionsTable);
-        var headerRow = document.createElement("tr");
-        headerRow.id = "headerRow";
-        actionsTable.appendChild(headerRow);
-        var header = document.createElement("th");
-        header.setAttribute("colspan", 4);
-        header.style.backgroundColor = "palegreen";
-        headerRow.appendChild(header);
-        var team = myLevel.team;
+        team = myLevel.team;
+        checkActions.style.display = "inline";
+        //Need to remove actionsBody if it exists, if not create a new one – either way, clear the actions part of actionsTable so we can start over.
+        var actionsBody = document.getElementById("actionsTableBody");
+        if (!actionsBody) {
+            var actionsBody = document.createElement("tbody");
+            actionsBody.id = "actionsTableBody";
+            actionsTable.appendChild(actionsBody);
+        } else {
+            actionsTable.removeChild(actionsBody);
+            actionsBody = document.createElement("tbody");
+            actionsBody.id = "actionsTableBody";
+            actionsTable.appendChild(actionsBody)
+        }
+        //Now sart running through the checked boxes, if any, to determine which actions to display in actionsTable.
+        for (var h = 0; h < actionBoxes.length; h++) {
+            if (actionBoxes[h].checked) {
+                actionsChecked = true;
+            }
+        }
+        if (actionsChecked) {
+            actionsTable.style.display = "inline";
+        } else {
+            actionsTable.style.display = "none";
+        }
         header.innerHTML = "Team " + team.name + " (class ID " + team.classId + "), level " + myLevel.label;
         sortActionsByUTime(myLevel.actions);
-        //Run through the actions publishing each in a separate row if it has been selected on the form
+        // Run through the actions publishing each in a separate row if it has been selected on the form
         for (var i = 0; i < myLevel.actions.length; i++) {
             var act = myLevel.actions[i],
                 bd = act.board + 1,
@@ -186,8 +204,11 @@ function reportResults() {
         document.getElementById("submitV#").innerHTML = submitVCount;
         document.getElementById("submitER#").innerHTML = submitERCount;
         document.getElementById("joinedGroup#").innerHTML = joinedGroupCount;
+        document.getElementById("openedZoom#").innerHTML = openedZoomCount;
+        document.getElementById("closedZoom#").innerHTML = closedZoomCount;
     } else {
-        document.getElementById("actionsTable").style.display = "none";
+        checkActions.style.display = "none";
+        actionsTable.style.display = "none";
     }
 }
 
@@ -522,120 +543,7 @@ function reportMessageScores(teams, type) {
     console.log(Msg);
 }
 
-function teacherReport(teams) {
-    var tableDiv = document.createElement("div");
-    tableDiv.id = "tableDiv";
-    document.body.appendChild(tableDiv);
 
-    for (var i = 0; i < teams.length; i++) {
-        var myTeam = teams[i];
-        if ($("#report-" + myTeam.teacher.replace(" ", ""))[0].checked) {
-            var memberNames = [];
-            var firstLevel = myTeam.levels[0]; // level A, from which we get the member names
-            for (k = 0; k < 3; k++) {
-                memberNames[k] = firstLevel.members[k].name;
-            }
-
-
-            var table = document.createElement("table");
-            table.className = "tableTeacher";
-            tableDiv.appendChild(table);
-            var titleRow = document.createElement("tr"); // row 1: table title
-            table.appendChild(titleRow);
-            var titleCell = document.createElement("th");
-            titleCell.setAttribute("colspan", 5);
-            titleRow.appendChild(titleCell);
-            var headerRow = document.createElement("tr"); // row 2: column headings
-            table.appendChild(headerRow);
-            var headerCells = [];
-            for (var ii = 0; ii < 5; ii++) {
-                headerCells[ii] = document.createElement("th");
-                headerRow.appendChild(headerCells[ii]);
-            }
-            headerCells[0].innerHTML = "Team";
-            headerCells[1].innerHTML = "Level A";
-            headerCells[2].innerHTML = "Level B";
-            headerCells[3].innerHTML = "Level C";
-            headerCells[4].innerHTML = "Level D";
-
-            var dataRows = []; //table rows that will contain a team name and level data
-            var dataCells = []; //table cells that contain the team name and level data
-
-
-            myDate = myTeam.levels[0].startPTime;
-            levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-            titleCell.innerHTML = "Results by team and level: " + myTeam.teacher + ", " + myTeam.class + ", " + levelDate;
-            dataRows[i] = document.createElement("tr"); // row i+2: team, levels a, b, c, d
-            table.appendChild(dataRows[i]);
-            dataCells[i] = [];
-            dataCells[i][0] = document.createElement("td");
-            dataCells[i][0].innerHTML = "<b>" + myTeam.name + "</b><br>&nbsp;" +
-                memberNames[0] + "<br>&nbsp;" + memberNames[1] + "<br>&nbsp;" +
-                memberNames[2];
-            dataRows[i].appendChild(dataCells[i][0]);
-            for (var j = 1; j < 5; j++) {
-                dataCells[i][j] = document.createElement("td");
-                dataCells[i][j].innerHTML = "Not attempted.";
-                dataRows[i].appendChild(dataCells[i][j]);
-            }
-
-            for (var j = 0; j < myTeam.levels.length; j++) {
-                myLevel = myTeam.levels[j];
-                if (myLevel.attempted) {
-                    myLevel.endUTime = computeEndUTime(myLevel);
-                    var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
-                    myTeam.totalTime += levelTime;
-                    var levelMinutes = Math.round(levelTime / 60);
-                    var levelSeconds = levelTime % 60;
-                    var levelMsg = (myLevel.success ?
-                        "<br><font color=green>Goal voltages attained.</font>" :
-                        "<br><font color=red>Goal voltages not attained.</font>");
-                    var levelEMsg = (myLevel.successE ?
-                        "<br><font color=green>E correctly reported.</font>" :
-                        "<br><font color=red>E not reported correctly.</font>");
-                    var levelRMsg = (myLevel.successR ?
-                        "<br><font color=green>R0 correctly reported.</font>" :
-                        "<br><font color=red>R0 not reported correctly.</font>");
-                    var successMsg = computeSuccessMessage(myLevel);
-                    var cellContents = "Time (mm:ss): " + levelMinutes + ":" + ("0" + levelSeconds).slice(-2);
-                    var sTime = new Date(myLevel.startUTime * 1000);
-                    var eTime = new Date(myLevel.endUTime * 1000);
-                    cellContents += "<br><small>Start: " + sTime.getHours() + ":" + (sTime.getMinutes() < 10 ? '0' : '') + sTime.getMinutes();
-                    cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes() < 10 ? '0' : '') + eTime.getMinutes() + "ET </small>";
-                    cellContents += levelMsg;
-                    cellContents += successMsg;
-                } else {
-                    cellContents = "Not attempted."
-                }
-                dataCells[i][j + 1].innerHTML = cellContents;
-            }
-            maxLevel = "None";
-            for (var j = 0; j < myTeam.levels.length; j++) {
-                myLevel = myTeam.levels[j];
-                if (myLevel.label == "A" && myLevel.success) {
-                    maxLevel = "A";
-                }
-                if (myLevel.label == "B" && myLevel.success) {
-                    maxLevel = "B";
-                }
-                if (myLevel.label == "C" && myLevel.success && myLevel.successE) {
-                    maxLevel = "C";
-                }
-                if (myLevel.label == "D" && myLevel.success && myLevel.successE && myLevel.successR) {
-                    maxLevel = "D";
-                }
-            }
-            myDate = myLevel.startPTime
-            if (myDate) {
-                levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-            }
-            // Teacher / Date / Team / Level / Time / Action / Actor / Total Msg Score / Number Msgs / Avg Msg Score
-            newRow = [myTeam.teacher, levelDate, myTeam.name, maxLevel, Math.round(myTeam.totalTime / 6) / 10, "MaxLevel"];
-            csvSummaryArray.push(newRow);
-
-        }
-    }
-}
 
 
 function makeSummaryArray(teams) {

@@ -1,54 +1,63 @@
-function checkCynthiaStrategy() { //Checks all levels for evidence of "Cynthia strategy"/ Adds true for allRsEqualR0, chattedEAfterAllRsEqual, and chattedR0AfterAllRsEqual to levels where appropriate.
-    var returnStr = "",
-        time,
-        myTeacher,
-        eSubmittedAfterRsEqual = false,
-        r0SubmittedAfterRsEqual = false;
+function checkStrategy() { //Checks all levels for evidence of "Cynthia strategy"/ Adds true for allRsEqualR0, chattedEAfterAllRsEqual, and chattedR0AfterAllRsEqual to levels where appropriate. Also looks for measurement of E by breaking circuit and measuring directly.
     for (var i = 0, myTeam; myTeam = teams[i]; i++) {
         for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
-            if ((myLevel.label == "C") || (myLevel.label == "D")) {
-                eSubmitted = false;
-                eChatted = false;
-                for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
-                    time = myAction.eMinSecs;
-                    myTeacher = myLevel.team.teacher.name;
-                    if (myAction.type == "resistorChange") {
-                        if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
-                            myLevel.allRsEqualR0 = true;
-                            //                      s.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
-                        }
-                    }
-                    if (myLevel.allRsEqualR0) {
-                        if (myAction.ESubmitValue == myLevel.E) {
-                            eSubmittedAfterRsEqual = true;
-                            //                    s.innerHTML += "At " + time + " they submitted the correct value for E<br>";
-                        }
-                        if (myAction.R0SubmitValue == myLevel.R0) {
-                            r0SubmittedAfterRsEqual = true;
-                            s.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
-                        }
-                        if (myAction.type == "message") {
-                            msgNumberMatch = myAction.msg.match(/[\d]+/);
-                            if (msgNumberMatch) {
-                                if (myLevel.E.toString() == msgNumberMatch[0]) {
-                                    myLevel.chattedEAfterAllRsEqual = true;
-                                    //                           s.innerHTML += "Someone chatted the E value at " + time + "<br>";
+            checkCynthiaStrategy(myLevel);
+            checkBreakCircuitStrategy(myLevel);
+        }
+
+        function checkCynthiaStrategy(myLevel) {
+            var returnStr = "",
+                time,
+                myTeacher,
+                eSubmittedAfterRsEqual = false,
+                r0SubmittedAfterRsEqual = false;
+            for (var i = 0, myTeam; myTeam = teams[i]; i++) {
+                for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
+                    if ((myLevel.label == "C") || (myLevel.label == "D")) {
+                        eSubmitted = false;
+                        eChatted = false;
+                        for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+                            time = myAction.eMinSecs;
+                            myTeacher = myLevel.team.teacher.name;
+                            if (myAction.type == "resistorChange") {
+                                if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
+                                    myLevel.allRsEqualR0 = true;
+                                    //                      s.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
                                 }
-                                if (myLevel.R0.toString() == msgNumberMatch[0]) {
-                                    myLevel.chattedRoAfterAllRsEqual = true;
-                                    //                       s.innerHTML += "Someone chatted the R0 value at " + time + "<br>";
+                            }
+                            if (myLevel.allRsEqualR0) {
+                                if (myAction.ESubmitValue == myLevel.E) {
+                                    eSubmittedAfterRsEqual = true;
+                                    //                    s.innerHTML += "At " + time + " they submitted the correct value for E<br>";
+                                }
+                                if (myAction.R0SubmitValue == myLevel.R0) {
+                                    r0SubmittedAfterRsEqual = true;
+                                    s.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
+                                }
+                                if (myAction.type == "message") {
+                                    msgNumberMatch = myAction.msg.match(/[\d]+/);
+                                    if (msgNumberMatch) {
+                                        if (myLevel.E.toString() == msgNumberMatch[0]) {
+                                            myLevel.chattedEAfterAllRsEqual = true;
+                                            //                           s.innerHTML += "Someone chatted the E value at " + time + "<br>";
+                                        }
+                                        if (myLevel.R0.toString() == msgNumberMatch[0]) {
+                                            myLevel.chattedRoAfterAllRsEqual = true;
+                                            //                       s.innerHTML += "Someone chatted the R0 value at " + time + "<br>";
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                    if ((myLevel.label == "C") && (eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual)) {
+                        myLevel.CynthiaStrategyDetected = true;
+                        //           s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+                    } else if ((myLevel.label == "D") && eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual && r0SubmittedAfterRsEqual && myLevel.chattedR0AfterAllRsEqual) {
+                        myLevel.CynthiaStrategyDetected = true;
+                        //         s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+                    }
                 }
-            }
-            if ((myLevel.label == "C") && (eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual)) {
-                myLevel.CynthiaStrategyDetected = true;
-                //           s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
-            } else if ((myLevel.label == "D") && eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual && r0SubmittedAfterRsEqual && myLevel.chattedR0AfterAllRsEqual) {
-                myLevel.CynthiaStrategyDetected = true;
-                //         s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
             }
         }
     }
@@ -105,9 +114,45 @@ function displayCynthiaStrategy(myLevel) {
     }
 }
 
+function checkBreakCircuitStrategy(myLevel) {
+    var s = document.getElementById("strategies"),
+        leadDisconnected,
+        circuitState = "Two leads connected",
+        lastLeadDisconnectedTime = 0;
+    s.style.display = "inline";
+    s.innerHTML = "";
+    if ((myLevel.label == "C") || (myLevel.label == "D")) {
+        for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+            time = myAction.eMinSecs;
+            if (myAction.type == "disconnect-lead") {
+                if (circuitState == "Two leads connected") {
+                    circuitState = "One lead connected";
+                    lastLeadDisconnectedTime = myAction.utime;
+                } else {
+                    circuitState = "No leads connected";
+                    lastLeadDisconnectedTime = 0;
+                }
+            }
+            if (myAction.type == "connect-lead") {
+                if (circuitState == "One lead connected") {
+                    circuitState = "Two leads connected";
+                    lastLeadDisconnectedTime = 0;
+                } else {
+                    circuitState = "No leads disconnected";
+                    circuitState = "One lead connected";
+                    lastLeadDisconnectedTime = myAction.utime;;
+                }
+            }
+            if (((myAction.type == "measurement") && (circuitState = "One lead connected") && (myAction.time - lastLeadDisconnectedTime) < 5)) {
+                console.log("Measurement after circuitbreak");
+            }
+        }
+    }
+}
+
 function findGuessAndCheck(teams) {
     var tOldE,
-        tOldE,
+        tOldR,
         tNewE,
         tNewR,
         countE,

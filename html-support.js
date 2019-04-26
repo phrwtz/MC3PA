@@ -122,8 +122,7 @@ function hideData() {
 }
 
 function addActionRow(act, content) {
-
-    var actionsTable = document.getElementById("actionsTable");
+    var actionsBody = document.getElementById("actionsTableBody");
     var actionRow = document.createElement("tr");
     actionRow.id = 'row-' + rowIndex.count();
     var actionCell0 = document.createElement("td");
@@ -135,7 +134,7 @@ function addActionRow(act, content) {
     actionCell2.width = "32%";
     actionCell3.width = "32%";
     var bd = parseInt(act.board);
-    actionsTable.appendChild(actionRow);
+    actionsBody.appendChild(actionRow);
     actionCell0.innerHTML = act.eMinSecs;
     if (isNaN(act.R[0])) {
         console.log("R[0] doesn't exist");

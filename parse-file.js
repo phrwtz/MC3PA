@@ -5,7 +5,7 @@ var level = function () {};
 var member = function () {};
 var action = function () {};
 var chatsList = ["voltage", "current"]; //Array of strings to search for in chats
-var rChatLevels = []; //Final selected levels array
+var selectedLevels = []; //Final selected levels array
 var rows = [];
 var teams = [];
 var attemptedLevels = [];
@@ -27,6 +27,7 @@ var csvSummaryArray = [
     ["Teacher", "Date", "Team", "Level", "Time", "Summary Type", "Actor", "Total Msg Score", "Number Msgs", "Avg Msg Score"]
 ] // col headings for Summary File Downloads as csv files
 var csvFilename;
+var strategy; //Strategy to be highlighted
 
 //This function takes a JSON file and turns it into row objects
 function parseJSON(data) {
@@ -43,10 +44,11 @@ function parseJSON(data) {
         classIds.push(rowObjs[0]["class_id"]);
         teams = makeTeams(rowObjs, thisTeacher); // identify teams and members, actions taken by them
         analyze(rowObjs); // adding actions to the arrays
-        checkStrategy();
         console.log("parse-file: analysis complete on " + rowObjs[0].id + ", count = " + count + ".");
     }
     populateTeacherLevelArrays();
+    checkCynthiaStrategy();
+    checkGuessAndCheck();
     document.getElementById("reportButton").style.display = "inline";
 }
 

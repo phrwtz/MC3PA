@@ -130,7 +130,7 @@ function updateRChats(rCalcLevels) {
     var allGoalsChatted = 0,
         someGoalsChatted = 0,
         noGoalsChatted = 0;
-    rChatLevels = []; //rChatLevels is a global variable
+    rChatLevels = [];
     if (rCalcLevels.length > 0) {
         for (var i = 0, myLevel; myLevel = rCalcLevels[i]; i++) {
             switch (myLevel.goalRsChatted) {
@@ -159,41 +159,44 @@ function updateRChats(rCalcLevels) {
     document.getElementById("RAllChatted#").innerHTML = allGoalsChatted;
     document.getElementById("RSomeChatted#").innerHTML = someGoalsChatted;
     document.getElementById("RNotChatted#").innerHTML = noGoalsChatted;
-    actionsReport(rChatLevels);
+    selectedLevels = rChatLevels; //selectedLevels is a global
+    actionsReport();
 }
 
-function actionsReport(rChatLevels) { //generates a radio button for each level in rChatLevels
+function actionsReport() { //generates a radio button for each final selected level. Colors it according to strategy
+    var levelColor = "black";
     var f = document.getElementById("levelsPara");
     var c = document.getElementById("chatsPara");
     var s = document.getElementById("strategies");
     var a = document.getElementById("actionsTable");
     var t = document.getElementById("checkActions");
-    var boxes = document.getElementsByName("rchat");
-    var boxChecked = false;
-    var levelColor = "black";
-    for (var g = 0; g < boxes.length; g++) {
-        if (boxes[g].checked) {
-            boxChecked = true;
-        }
+    var sb = document.getElementById("strategySpan");
+    if (selectedLevels.length == 0) {
+        f.innerHTML = "<br><b>There are no levels to look at.</b><br>";
+        c.style.display = "none";
+        s.style.display = "none";
+        a.style.display = "none";
+        t.style.display = "none";
+        sb.style.display = "none";
+        return;
+    } else {
+        c.style.display = "inline";
+        s.style.display = "inline";
+        a.style.display = "inline";
+        t.style.display = "inline";
+        sb.style.display = "inline";
+
     }
-    if (boxChecked) {
-        if (rChatLevels.length == 0) {
-            f.innerHTML = "<br><b>There are no levels to look at.</b><br>";
-            c.innerHTML = "";
-            s.style.display = "none";
-            a.style.display = "none";
-            t.style.display = "none";
-            return;
-        }
-        if (rChatLevels.length == 1) {
-            f.innerHTML = "<br><b>This is the level to look at:</b><br>";
-            c.innerHTML = "";
-        } else {
-            f.innerHTML = "<br><b>These are the " + rChatLevels.length + " levels to look at</b><br>";
-            c.innerHTML = "";
-        }
-        for (var i = 0; i < rChatLevels.length; i++) {
-            myLevel = rChatLevels[i];
+    if (selectedLevels.length == 1) {
+        f.innerHTML = "<br><b>This is the level to look at:</b><br>";
+        c.innerHTML = "";
+    } else {
+        f.innerHTML = "<br><b>These are the " + selectedLevels.length + " levels to look at:</b><br>";
+        c.innerHTML = "";
+    }
+    for (var i = 0; i < selectedLevels.length; i++) {
+        myLevel = selectedLevels[i];
+        if (strategy == "Cynthia") {
             if (myLevel.CynthiaStrategyDetected) {
                 levelColor = "red";
             } else if (myLevel.allRsEqualR0) {
@@ -201,19 +204,33 @@ function actionsReport(rChatLevels) { //generates a radio button for each level 
             } else {
                 levelColor = "black";
             }
-            f.innerHTML += ("<font color=" + levelColor + "> Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=setupActionsForm();reportResults()></input>' + "<br>");
         }
-        countChats(rChatLevels);
-        reportResults();
-    } else {
-        f.innerHTML = "";
-        s.innerHTML = "";
-        c.innerHTML = "";
-    }
+        if (strategy == "GuessAndCheckForE") {
+            if (myLevel.EGuessAndCheckSuccess) {
+                levelColor = "red";
+            } else if (myLevel.EGuessAndCheckFailure) {
+                levelColor = "blue";
+            } else {
+                levelColor = "black";
+            }
+        }
+        if (strategy == "GuessAndCheckForR") {
+            if (myLevel.RGuessAndCheckSuccess) {
+                levelColor = "red";
+            } else if (myLevel.RGuessAndCheckFailure) {
+                levelColor = "blue";
+            } else {
+                levelColor = "black";
+            }
+        }
+        f.innerHTML += ("<font color=" + levelColor + "> Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=setupActionsForm();reportResults()></input>' + "<br>");
+    } //Next level
+    countChats();
+    reportResults();
 }
 
-function countChats(rChatLevels) {
-    if (rChatLevels.length != 0) {
+function countChats() {
+    if (selectedLevels.length != 0) {
         var acts = [],
             chatP = document.getElementById("chatsPara"),
             noInclude = ["the", "a", "an", "of", "is", "at", "to", "is", "in", "and", "i", "im", "my", "it", "so", "ok"],
@@ -229,14 +246,14 @@ function countChats(rChatLevels) {
             strFound = false;
         //chatP.style.display = "inline";
         chatP.innerHTML = "";
-        if (rChatLevels.length == 1) {
+        if (selectedLevels.length == 1) {
             strMsg = "<br><b>Most frequent strings for this level:<b><br>"
         }
-        if (rChatLevels.length > 1) {
-            strMsg = "<br><b>Most frequent strings for these " + rChatLevels.length + " levels:</b><br>";
+        if (selectedLevels.length > 1) {
+            strMsg = "<br><b>Most frequent strings for these " + selectedLevels.length + " levels:</b><br>";
         }
-        if (rChatLevels.length > 0) {
-            for (var r = 0, myLevel; myLevel = rChatLevels[r]; r++) {
+        if (selectedLevels.length > 0) {
+            for (var r = 0, myLevel; myLevel = selectedLevels[r]; r++) {
                 chatP.innerHTML = strMsg;
                 acts = myLevel.actions;
                 for (var i = 0, myAct; myAct = acts[i]; i++) {

@@ -15,7 +15,8 @@
     <button type="button" id="analyzeButton" style="display:none" onclick="parseJSON(data)">Analyze</button><br>
 
     <span>
-        <button type="button" id="reportButton" style="display:none;width:100px" onclick="createFilterTable()">Filter levels</button>
+        <button type="button" id="reportButton" style="display:none;width:100px" onclick="createFilterTable()">Filter
+            levels</button>
     </span>
 
     <div id="filter" style="margin-top: 30px">
@@ -29,29 +30,51 @@
                 <th>Goal Resistance Chats</th>
             </tr>
             <tr style=background-color:lightblue>
-                <td>all/none(<span id="teachers#"></span>)<input type="checkbox" id="teachers" name="teacher" onChange="toggleSelectAll('teacher'); updateLevels()"></input>
+                <td>all/none(<span id="teachers#"></span>)<input type="checkbox" id="teachers" name="teacher"
+                        onChange="toggleSelectAll('teacher'); updateLevels()"></input>
                 </td>
-                <td>all/none(<span id="levels#"></span>)<input type="checkbox" id="levels" name="level" onChange="toggleSelectAll('level'); updateLevels()"></input>
+                <td>all/none(<span id="levels#"></span>)<input type="checkbox" id="levels" name="level"
+                        onChange="toggleSelectAll('level'); updateLevels()"></input>
                 </td>
                 <td>all/none(<span id="outcomes#"></span>)
-                    <input type="checkbox" id="outcomes" name="outcome" onChange="toggleSelectAll('outcome'); updateLevels()"></input>
+                    <input type="checkbox" id="outcomes" name="outcome"
+                        onChange="toggleSelectAll('outcome'); updateLevels()"></input>
                 </td>
                 <td>
-                    all/none(<span id="vchats#"></span>)<input type="checkbox" id="vchats" name="vchat" onChange="toggleSelectAll('vchat');updateLevels()"></input>
+                    all/none(<span id="vchats#"></span>)<input type="checkbox" id="vchats" name="vchat"
+                        onChange="toggleSelectAll('vchat');updateLevels()"></input>
                 </td>
-                <td>all/none(<span id="rcalcs#"></span>)<input type="checkbox" id="rcalcs" name="rcalc" onChange="toggleSelectAll('rcalc');updateLevels()"></input>
+                <td>all/none(<span id="rcalcs#"></span>)<input type="checkbox" id="rcalcs" name="rcalc"
+                        onChange="toggleSelectAll('rcalc');updateLevels()"></input>
                 </td>
-                <td>all/none(<span id="rchats#"></span>)<input type="checkbox" id="rchats" name="rchat" onChange="toggleSelectAll('rchat');updateLevels()"></input>
+                <td>all/none(<span id="rchats#"></span>)<input type="checkbox" id="rchats" name="rchat"
+                        onChange="toggleSelectAll('rchat');updateLevels()"></input>
                 </td>
             </tr>
         </table>
     </div>
 
+
+    <span id="strategySpan" style="display:none;margin-top:40px">
+        Cynthia strategy
+        <input type="radio" id="CynthiaRadio" style="display:inline;margin-right:20px" name="strategyRadio"
+            onclick="displayCynthiaStrategy()">
+        </input>
+        Guess and Check for E
+        <input type="radio" id="ERadio" name="strategyRadio"
+            style="display:inline;max-resolution: right 20px;px" onclick="displayGuessAndCheckForE()">
+        </input>
+        Guess and Check for R0
+        <input type="radio" id="R0Radio" name="strategyRadio"
+            style="display:inline;margin-right:20px" onclick="displayGuessAndCheckForR()">
+        </input>
+    </span>
+
     <p id="data"></p>
     <p id="levelsPara" style="float:left;display:inline;width:300px"></p>
     <p id="chatsPara" style="float:left;display:inline;width:360"></p>
     <p id="strategies" style="float:left;display:inline;width:600px;margin:20px"></p>
-    <div id="checkDiv"; style="margin-left:30px;margin-top:15px">
+    <div id="checkDiv" ; style="margin-left:30px;margin-top:15px">
         <form id="checkForm">
             <table id="checkActions" style="margin-left:30px;margin-top:20px;display:none;float:left">
                 <tr style="background-color:palegreen">
@@ -61,19 +84,23 @@
                 </tr>
                 <tr id="actionsRow">
                     <td id="actionsCell">
-                        <input type="checkbox" id="all-actions" name="action" onchange="toggleSelectAll('action');reportResults()"></input>
+                        <input type="checkbox" id="all-actions" name="action"
+                            onchange="toggleSelectAll('action');reportResults()"></input>
                         All actions(<span id="allActions#"></span>)<br>
 
-                        <input type="checkbox" id="action-activity-settings" name="action" onchange="reportResults()"></input>
+                        <input type="checkbox" id="action-activity-settings" name="action"
+                            onchange="reportResults()"></input>
                         activity settings(<span id="activitySettings#"></span>)<br>
 
-                        <input type="checkbox" id="action-joined-group" name="action" onchange="reportResults()"></input>
+                        <input type="checkbox" id="action-joined-group" name="action"
+                            onchange="reportResults()"></input>
                         join group(<span id="joinedGroup#"></span>)<br>
 
                         <input type="checkbox" id="action-message" name="action" onchange="reportResults()"></input>
                         message(<span id="message#"></span>)<br>
 
-                        <input type="checkbox" id="action-resistorChange" name="action" onchange="reportResults()"></input>
+                        <input type="checkbox" id="action-resistorChange" name="action"
+                            onchange="reportResults()"></input>
                         resistor change(<span id="resistorChange#"></span>)<br>
 
                         <input type="checkbox" id="action-calculation" name="action" onchange="reportResults()"></input>
@@ -82,19 +109,24 @@
                         <input type="checkbox" id="action-measurement" name="action" onchange="reportResults()"></input>
                         measurement(<span id="measurement#"></span>)<br>
 
-                        <input type="checkbox" id="action-attach-probe" name="action" onchange="reportResults()"></input>
+                        <input type="checkbox" id="action-attach-probe" name="action"
+                            onchange="reportResults()"></input>
                         attach probe(<span id="attachProbe#"></span>)<br>
 
-                        <input type="checkbox" id="action-detach-probe" name="action" onchange="reportResults()"></input>
+                        <input type="checkbox" id="action-detach-probe" name="action"
+                            onchange="reportResults()"></input>
                         detach probe(<span id="detachProbe#"></span>)<br>
 
-                        <input type="checkbox" id="action-connect-lead" name="action" onchange="reportResults()"></input>
+                        <input type="checkbox" id="action-connect-lead" name="action"
+                            onchange="reportResults()"></input>
                         connect lead(<span id="connectLead#"></span>)<br>
 
-                        <input type="checkbox" id="action-disconnect-lead" name="action" onchange="reportResults()"></input>
+                        <input type="checkbox" id="action-disconnect-lead" name="action"
+                            onchange="reportResults()"></input>
                         disconnect lead(<span id="disconnectLead#"></span>)<br>
 
-                        <input type="checkbox" id="action-move-DMM-dial" name="action" onchange="reportResults()"></input>
+                        <input type="checkbox" id="action-move-DMM-dial" name="action"
+                            onchange="reportResults()"></input>
                         move DMM dial(<span id="moveDMMDial#"></span>)<br>
 
                         <input type="checkbox" id="action-submit-V" name="action" onchange="reportResults()"></input>
@@ -116,11 +148,11 @@
     <br><br>
     <div id="reportDiv">
         <table id="actionsTable" style="margin:20px; display:none;float:left">
-        <tr id ="headerRow">
-            <th id ="header" style="background-color:palegreen"; colspan="4">
-            </th>
-        </tr>
-        <tbody id="actionsTableBody"></tbody>
+            <tr id="headerRow">
+                <th id="header" style="background-color:palegreen" ; colspan="4">
+                </th>
+            </tr>
+            <tbody id="actionsTableBody"></tbody>
         </table>
     </div>
 

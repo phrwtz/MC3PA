@@ -479,11 +479,9 @@ function addLevel(myTeam, ro) {
     var myLevel = inLevels(levelNumber, myTeam.levels)
     if (!myLevel) { //It's a brand new level! Initialize all the necessary variables
         var myLevel = new level;
-
         if (levelNumber == 0) {
             return
         }; //For the moment we're ignoring tutorials
-
         myLevel.firstActionUTime = new Date(ro["time"]).getTime() / 1000;
         addLevelValues(myLevel, ro); //Add all the global variables for this level
         myLevel.id = ID();
@@ -508,6 +506,10 @@ function addLevel(myTeam, ro) {
         myLevel.chattedEAfterAllRsEqual = false;
         myLevel.chattedR0AfterAllRsEqual = false;
         myLevel.CynthiaStrategyDetected = false;
+        myLevel.EGuessAndCheckSuccess = false;
+        myLevel.EGuessAndCheckFailure = false;
+        myLevel.RGuessAndCheckSuccess = false;
+        myLevel.RGuessAndCheckFailure = false;
         myLevel.attainedVsTime = 0;
         myLevel.movedAwayFromV = false;
         myLevel.movedAwayFromVTime = 0;

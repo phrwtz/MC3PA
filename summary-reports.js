@@ -167,24 +167,20 @@ function actionsReport() { //generates a radio button for each final selected le
     var levelColor = "black";
     var f = document.getElementById("levelsPara");
     var c = document.getElementById("chatsPara");
-    var s = document.getElementById("strategies");
     var a = document.getElementById("actionsTable");
     var t = document.getElementById("checkActions");
     var sb = document.getElementById("strategySpan");
     if (selectedLevels.length == 0) {
         f.innerHTML = "<br><b>There are no levels to look at.</b><br>";
         c.style.display = "none";
-        s.style.display = "none";
         a.style.display = "none";
         t.style.display = "none";
         sb.style.display = "none";
         return;
     } else {
         c.style.display = "inline";
-        s.style.display = "inline";
         a.style.display = "inline";
         t.style.display = "inline";
-        sb.style.display = "inline";
 
     }
     if (selectedLevels.length == 1) {
@@ -204,8 +200,7 @@ function actionsReport() { //generates a radio button for each final selected le
             } else {
                 levelColor = "black";
             }
-        }
-        if (strategy == "GuessAndCheckForE") {
+        } else if (strategy == "GuessAndCheckForE") {
             if (myLevel.EGuessAndCheckSuccess) {
                 levelColor = "red";
             } else if (myLevel.EGuessAndCheckFailure) {
@@ -213,8 +208,7 @@ function actionsReport() { //generates a radio button for each final selected le
             } else {
                 levelColor = "black";
             }
-        }
-        if (strategy == "GuessAndCheckForR") {
+        } else if (strategy == "GuessAndCheckForR") {
             if (myLevel.RGuessAndCheckSuccess) {
                 levelColor = "red";
             } else if (myLevel.RGuessAndCheckFailure) {
@@ -223,7 +217,7 @@ function actionsReport() { //generates a radio button for each final selected le
                 levelColor = "black";
             }
         }
-        f.innerHTML += ("<font color=" + levelColor + "> Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=setupActionsForm();reportResults()></input>' + "<br>");
+        f.innerHTML += ("<font color=" + levelColor + "> Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=reportResults()></input>' + "<br>");
     } //Next level
     countChats();
     reportResults();
@@ -299,26 +293,6 @@ function countChats() {
                 chatP.innerHTML += ((kk + 1) + ". " + sca[kk].string + " : " + sca[kk].count + "<br>");
             }
         }
-        setupActionsForm();
-    }
-}
-
-function setupActionsForm() {
-    var a = document.getElementById("checkActions");
-    var myLevel = findSelectedLevel();
-    if (myLevel) {
-        if (a) {
-            a.style.display = "inline";
-        }
-        if ((myLevel.CynthiaStrategyDetected) || (myLevel.allRsEqualR0)) {
-            displayCynthiaStrategy(myLevel);
-            document.getElementById("strategies").style.display = "inline";
-        } else document.getElementById("strategies").style.display = "none";
-    } else {
-        if (a) {
-            a.style.display = "none";
-        }
-        document.getElementById("strategies").style.display = "none";
     }
 }
 

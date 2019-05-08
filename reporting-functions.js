@@ -2,6 +2,7 @@ function reportResistorChange(act) {
     var bd = parseInt(act.board) + 1;
     var resDistStr = "";
     var resJumpStr = "";
+    var resEqualStr = "";
 
     if (act.resDist == 1) {
         resDistStr = act.resDist + " resistance value away from goal."
@@ -19,12 +20,14 @@ function reportResistorChange(act) {
     if (act.resJump < -1) {
         resJumpStr = "<br>Moved " + (0 - act.resJump) + " resistance values lower."
     }
-
+    if ((act.newR[0] == act.newR[1]) && (act.newR[0] == act.newR[2]) && (act.newR[0] == myLevel.R0)) {
+        resEqualStr = "<br><span style=\"color:red\">ALL R'S EQUAL!</span>";
+    }
 
     myLevel = act.level;
     var content = act.actor.styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
         " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
-        " to " + act.newV[bd - 1] + ". (Goal is " + act.goalV[bd - 1] + ")" + act.goalMsg + ". " + resDistStr + resJumpStr;
+        " to " + act.newV[bd - 1] + ". (Goal is " + act.goalV[bd - 1] + ")" + act.goalMsg + ". " + resDistStr + resJumpStr + resEqualStr;
     addActionRow(act, content);
 }
 

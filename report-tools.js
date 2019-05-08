@@ -1,9 +1,8 @@
-function reportResults() {
-    var myLevel = findSelectedLevel();
-    var actionBoxes = document.getElementsByName("action");
-    var actionsBody = document.getElementById("actionsTableBody");
-    var actionsChecked = false;
-    var messageCount = 0,
+function reportResults() { //Sets up the check actions panel if a level is selected (the collection of checkboxes that trigger examining individual actions)
+    var myLevel = findSelectedLevel(),
+        myTeam,
+        actionsChecked = false,
+        messageCount = 0,
         activitySettingsCount = 0,
         messageCount = 0,
         calculationCount = 0,
@@ -20,37 +19,25 @@ function reportResults() {
         openedZoomCount = 0,
         closedZoomCount = 0,
         allActionsCount = 0,
-        header = document.getElementById("header"),
-        team,
+        actionBoxes = document.getElementsByName("action"),
         checkActions = document.getElementById("checkActions"),
-        actionsTable = document.getElementById("actionsTable");
+        actionsHeader = document.getElementById("header"),
+        actionsBody = document.getElementById("actionsTableBody"),
+        actionsTable = document.getElementById("actionsTable"),
+        strategyButtons = document.getElementById("strategySpan");
+    (selectedLevels.length > 0 ? strategyButtons.style.display = "block" : strategyButtons.style.display = "none");
     if (myLevel) {
-        team = myLevel.team;
+        myTeam = myLevel.team;
         checkActions.style.display = "inline";
-        //Need to remove actionsBody if it exists, if not create a new one – either way, clear the actions part of actionsTable so we can start over.
-        var actionsBody = document.getElementById("actionsTableBody");
-        if (!actionsBody) {
-            var actionsBody = document.createElement("tbody");
-            actionsBody.id = "actionsTableBody";
-            actionsTable.appendChild(actionsBody);
-        } else {
+        //Need to remove actionsBody if it exists, and create a new one in order to clear the actions part of actionsTable so we can start over.
+        if (actionsBody) {
             actionsTable.removeChild(actionsBody);
-            actionsBody = document.createElement("tbody");
-            actionsBody.id = "actionsTableBody";
-            actionsTable.appendChild(actionsBody)
         }
-        //Now sart running through the checked boxes, if any, to determine which actions to display in actionsTable.
-        for (var h = 0; h < actionBoxes.length; h++) {
-            if (actionBoxes[h].checked) {
-                actionsChecked = true;
-            }
-        }
-        if (actionsChecked) {
-            actionsTable.style.display = "inline";
-        } else {
-            actionsTable.style.display = "none";
-        }
-        header.innerHTML = "Team " + team.name + " (class ID " + team.classId + "), level " + myLevel.label;
+        actionsBody = document.createElement("tbody");
+        actionsBody.id = "actionsTableBody";
+        actionsTable.appendChild(actionsBody);
+        //Now start running through the boxes to count the actions and to determine which actions, if any, to display in actionsTable.
+        header.innerHTML = "Team " + myTeam.name + " (class ID " + myTeam.classId + "), level " + myLevel.label;
         sortActionsByUTime(myLevel.actions);
         // Run through the actions publishing each in a separate row if it has been selected on the form
         for (var i = 0; i < myLevel.actions.length; i++) {
@@ -206,9 +193,21 @@ function reportResults() {
         document.getElementById("joinedGroup#").innerHTML = joinedGroupCount;
         document.getElementById("openedZoom#").innerHTML = openedZoomCount;
         document.getElementById("closedZoom#").innerHTML = closedZoomCount;
-    } else {
-        checkActions.style.display = "none";
+        //Now check to see whether any action boxes have been checked
+        actionsChecked = false;
+        for (var hh = 0; hh < actionBoxes.length; hh++) {
+            if (actionBoxes[hh].checked) {
+                actionsChecked = true;
+            }
+        }
+        if (actionsChecked) {
+            actionsTable.style.display = "inline";
+        } else { //If no action is checked don't display the actions table
+            actionsTable.style.display = "none";
+        }
+    } else { //If no level is checked...
         actionsTable.style.display = "none";
+        checkActions.style.display = "none"
     }
 }
 

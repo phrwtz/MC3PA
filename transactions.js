@@ -1,16 +1,3 @@
-function initStrategyCheck() { //Checks all levels for evidence of various strategies.    var s = document.getElementById("strategies");
-    var s = document.getElementById("strategies")
-    s.innerHTML = "";
-    s.style.display = "block";
-    for (var i = 0, myTeam; myTeam = teams[i]; i++) {
-        for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
-            //           checkCynthiaStrategy(myLevel);
-            //           checkBreakCircuitStrategy(myLevel);
-            checkGuessAndCheck(myLevel)
-        }
-    }
-}
-
 function checkCynthiaStrategy() { //Checks all C and D levels for evidence of Cynthia strategy. Adds true for the properties allRsEqualR0, chattedEAfterAllRsEqual, and chattedR0AfterAllRsEqual to all C and D levels where appropriate.
     var returnStr = "",
         time,
@@ -76,6 +63,7 @@ function displayGuessAndCheckForE() {
     strategy = "GuessAndCheckForE";
     actionsReport();
 }
+
 function displayGuessAndCheckForR() {
     strategy = "GuessAndCheckForR";
     actionsReport();
@@ -97,18 +85,18 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
         RSubmitValue,
         RSubmitUnit,
         board,
-        interval = 15,
+        interval = 400,
         ERSubmitsForMember = [
             [],
             [],
             []
         ],
-        ESuccessCount = 0, //Count levels that successfully use guess and check to find EW
-        EFailureCount = 0, //Count levels that use guess and check but fail to find E
+        ESuccessCount = 0, //Count levels that successfully use guess-and-check to find E
+        EFailureCount = 0, //Count levels that use guess-and-check but fail to find E
         RSuccessCount = 0,
         RFailureCount = 0,
-        guessAndCheckE = ["none", "none", "none"],
-        guessAndCheckR = ["none", "none", "none"],
+        guessAndCheckE = [],
+        guessAndCheckR = [],
         guessAndCheckEMsg = [],
         guessAndCheckRMsg = [];
 
@@ -116,80 +104,93 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
     for (var i = 0; i < teams.length; i++) {
         myTeam = teams[i];
         for (var j = 0; j < myTeam.levels.length; j++) {
-            myLevel = myTeam.levels[j];
-            for (var k = 0; k < myLevel.actions.length; k++) {
-                myAction = myLevel.actions[k];
-                if (myAction.type === "submitER") {
-                    board = myAction.board
-                    ERSubmitsForMember[board].push(myAction); //Push the action onto the array for this board
-                }
-            }
-            //Look for guess and check for E
-            for (var ii = 0; ii < 3; ii++) { //run over all three boards
-                countE = 0;
-                countR = 0;
-                for (var jj = 0; jj < ERSubmitsForMember[ii].length; jj++) { //look at this member's ER submits
-                    thisERSubmit = ERSubmitsForMember[ii][jj];
-                    E = thisERSubmit.E;
-                    ESubmitValue = parseInt(thisERSubmit.ESubmitValue);
-                    ESubmitUnit = thisERSubmit.ESubmitUnit;
-                    R = thisERSubmit.R0;
-                    RSubmitValue = parseInt(thisERSubmit.RSubmitValue);
-                    RSubmitUnit = thisERSubmit.RSubmitUnit;
-                    if (!((ESubmitValue == E) && (ESubmitUnit = "volts"))) { //If the submitted value for E is incorrect and
-                        if (countE == 0) { //there are no prior incorrect E submits in the array
-                            oldETime = thisERSubmit.eTime;
-                            newETime = oldETime;
-                            countE++;
-                        } else { //if there are already incorrect E submissions in the array
-                            newETime = thisERSubmit.eTime;
-                            if ((newETime - oldETime) < interval) { //if there was a prior incorrect E submit by this member within the time interval
-                                countE++ //increment the count
-                                if (countE > 2) { //if there are more than two consecutive incorrect submits
-                                    guessAndCheckE[ii] = "unsuccessful"; //There is evidence of guess and check strategy being employed (so far unsuccessfully) by this member for E
-                                    EFailureCount++;
-                                    myLevel.EGuessAndCheckFailure = true;
-                                }
-                            } else { // if the next E/R submit action is more than the time interval later than the last one
-                                countE = 0; //zero out the count and keep looking.
-                            }
-                        }
-                    } else { //if we find a correct E submission
-                        if ((countE > 1) && ((newETime - oldETime) < interval)) { //and there two or more incorrect E guesses within the time interval 
-                            guessAndCheckE[ii] = "successful"; //There is evidence of guess and check strategy being employed successfully by this member for E
-                            ESuccessCount++;
-                            myLevel.EGuessAndCheckSuccess = true;
-                        }
+            myLevel = myTeam.levels[j]; //If we're dealing with level C or D
+            if ((myLevel.label == "C") || (myLevel.label == "D")) {
+                //First count all the ER Submit actions for this level
+                ERSubmitsForMember = [
+                    [],
+                    [],
+                    []
+                ];
+   //             sortActionsByUTime(myLevel.actions);
+                for (var k = 0; k < myLevel.actions.length; k++) {
+                    myAction = myLevel.actions[k];
+                    if (myAction.type === "submitER") {
+                        board = myAction.board
+                        ERSubmitsForMember[board].push(myAction); //Push the action onto the array for this board
                     }
-                    //Look for guess and check for R0 if level is D
-                    if (myLevel.label == "D") {
-                        if (!((RSubmitValue == R) && (RSubmitUnit = "ohms"))) { //If the submitted value for R0 is incorrect and
-                            if (countR == 0) { //there are no prior incorrect R0 submits in the array
-                                oldRTime = thisERSubmit.eTime;
-                                newRTime = oldRTime;
-                                countR++;
-                            } else { //if there are already incorrect R0 submissions in the array
-                                newRTime = thisERSubmit.eTime;
-                                if ((newRTime - oldRTime) < interval) { //if there was a prior incorrect R submit by this member within the time interval
-                                    countR++ //increment the count
-                                    if (countR > 2) { //if there are more than two consecutive incorrect submits
-                                        guessAndCheckR[ii] = "unsuccessful"; //There is evidence of guess and check strategy being employed (so far unsuccessfully) by this member for R0
-                                        RFailureCount++;
-                                        myLevel.RGuessAndCheckFailure = true;
+                }
+                //Then look for guess and check for E and R0 for this level
+                guessAndCheckE = ["none", "none", "none"];
+                guessAndCheckR = ["none", "none", "none"];
+                for (var ii = 0; ii < 3; ii++) { //run over all three boards
+                    countE = 0;
+                    countR = 0;
+                    for (var jj = 0; jj < ERSubmitsForMember[ii].length; jj++) { //look at each member's ER submits
+                        thisERSubmit = ERSubmitsForMember[ii][jj];
+                        if (guessAndCheckE[ii] == "none") { //only look further if we haven't yet detected guess and check strategy for E
+                            E = thisERSubmit.E;
+                            ESubmitValue = parseFloat(thisERSubmit.ESubmitValue);
+                            ESubmitUnit = thisERSubmit.ESubmitUnit;
+                            if ((ESubmitValue) && (ESubmitValue != E)) { //If an incorrect value was submitted E and
+                                if (countE == 0) { //there are no prior incorrect E submits in the array
+                                    oldETime = thisERSubmit.eTime;
+                                    newETime = oldETime;
+                                    countE++;
+                                } else { //if there are already incorrect E submissions in the array
+                                    newETime = thisERSubmit.eTime;
+                                    if ((newETime - oldETime) < interval) { //and the interval between this ERSubmit and the most recent one is less than the designate4d time interval
+                                        countE++ //increment the count
+                                        if (countE > 2) { //if there are more than two consecutive incorrect submits then we've identified guess and check strategy for E
+                                            if (myLevel.successE) {
+                                                guessAndCheckE[ii] = "successful";
+                                                ESuccessCount++;
+                                                myLevel.EGuessAndCheckSuccess = true;
+                                            } else {
+                                                guessAndCheckE[ii] = "unsuccessful";
+                                                EFailureCount++;
+                                                myLevel.EGuessAndCheckFailure = true;
+
+                                            }
+                                        }
+                                    } else { // if the most recent E/R submit action is more than the time interval since the last one
+                                        countE = 0; //zero out the count and keep looking.
                                     }
-                                } else { // if the next E/R submit action is more than the time interval later than the last one
-                                    countR = 0; //zero out the count and keep looking.
                                 }
                             }
-                        } else { //if we find a correct R submission
-                            if ((countR > 1) && ((newRTime - oldRTime) < interval)) { //and there two or more incorrect E guesses within the time interval 
-                                guessAndCheckR[ii] = "successful"; //There is evidence of guess and check strategy being employed successfully by this member for R0
-                                RSuccessCount++;
-                                myLevel.RGuessAndCheckSuccess = true;
+                        } //Now look for guess and check for R0 for this level
+                        R = thisERSubmit.R0;
+                        if ((thisERSubmit.RSubmitValue != "<No value submitted>") && (guessAndCheckR[ii] == "none")) { //Don't proceed if no R0 was submitted (e.g., if the level is C) or if we've already detected guess and check for R
+                            RSubmitValue = parseFloat(thisERSubmit.RSubmitValue);
+                            RSubmitUnit = thisERSubmit.RSubmitUnit;
+                            if ((RSubmitValue) && (RSubmitValue != R)) { //If an incorrect value for R0 was submitted and
+                                if (countR == 0) { //there are no prior incorrect R0 submits in the array
+                                    oldRTime = thisERSubmit.eTime;
+                                    newRTime = oldRTime;
+                                    countR++;
+                                } else { //if there are already incorrect R0 submissions in the array
+                                    newRTime = thisERSubmit.eTime;
+                                    if ((newRTime - oldRTime) < interval) { //if there was a prior incorrect R submit by this member within the time interval
+                                        countR++ //increment the count
+                                        if (countR > 2) { //if there are more than two consecutive incorrect submits
+                                            if (myLevel.successR) {
+                                                guessAndCheckR[ii] = "successful";
+                                                RSuccessCount++;
+                                                myLevel.RGuessAndCheckSuccess = true;
+                                            } else {
+                                                guessAndCheckR[ii] = "unsuccessful";
+                                                    RFailureCount++;
+                                                myLevel.RGuessAndCheckFailure = true;
+                                            }
+                                        }
+                                    } else { // if the most recent E/R submit action is more than the time interval since the last one
+                                        countR = 0; //zero out the count and keep looking.
+                                    }
+                                }
                             }
                         }
-                    }
-                }
+                    } //End of G&C for R
+                }//next board
             }
             for (var m = 0; m < 3; m++) {
                 switch (guessAndCheckE[m]) {
@@ -214,53 +215,43 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
                         guessAndCheckRMsg[m] = "<span  style=\"color:red\">board " + (m + 1) + " used guess and check for R0 successfully</span>";
                         break;
                 }
-            } //Next board 
-            // if ((myLevel.label == "C") || (myLevel.label == "D")) {
-            //     s.innerHTML += "<br>" + "Team " + myTeam.name + "(" + myTeam.classId + "}, level " + myLevel.label + ", " + guessAndCheckEMsg[0] + ", " + guessAndCheckEMsg[1] + ", " + guessAndCheckEMsg[2];
-            // }
-            // if (myLevel.label == "D") {
-            //     s.innerHTML += "<br>" + "Team " + myTeam.name + "(" + myTeam.classId + "}, level " + myLevel.label + ", " + guessAndCheckRMsg[0] + ", " + guessAndCheckRMsg[1] + ", " + guessAndCheckRMsg[2];
-            // }
-            // console.log(ESuccessCount + " levels successfully used guess and check to find E.");
-            // console.log(EFailureCount + " levels used guess and check to find E but failed to do so.");
-            // console.log(RSuccessCount + " levels successfully used guess and check to find R0.");
-            // console.log(RFailureCount + " levels used guess and check to find R0 but failed to do so.");
-         }//Next level
-    }//Next team
+            } //Next board
+        } //Next level 
+    } //Next team
 }
 
-    function checkBreakCircuitStrategy(myLevel) { //Looks for measurement of E by breaking circuit and measuring directly.
-        var s = document.getElementById("strategies"),
-            leadDisconnected,
-            circuitState = "Two leads connected",
-            lastLeadDisconnectedTime = 0;
-        s.style.display = "inline";
-        s.innerHTML = "";
-        if ((myLevel.label == "C") || (myLevel.label == "D")) {
-            for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
-                time = myAction.eMinSecs;
-                if (myAction.type == "disconnect-lead") {
-                    if (circuitState == "Two leads connected") {
-                        circuitState = "One lead connected";
-                        lastLeadDisconnectedTime = myAction.utime;
-                    } else {
-                        circuitState = "No leads connected";
-                        lastLeadDisconnectedTime = 0;
-                    }
+function checkBreakCircuitStrategy(myLevel) { //Looks for measurement of E by breaking circuit and measuring directly.
+    var s = document.getElementById("strategies"),
+        leadDisconnected,
+        circuitState = "Two leads connected",
+        lastLeadDisconnectedTime = 0;
+    s.style.display = "inline";
+    s.innerHTML = "";
+    if ((myLevel.label == "C") || (myLevel.label == "D")) {
+        for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+            time = myAction.eMinSecs;
+            if (myAction.type == "disconnect-lead") {
+                if (circuitState == "Two leads connected") {
+                    circuitState = "One lead connected";
+                    lastLeadDisconnectedTime = myAction.utime;
+                } else {
+                    circuitState = "No leads connected";
+                    lastLeadDisconnectedTime = 0;
                 }
-                if (myAction.type == "connect-lead") {
-                    if (circuitState == "One lead connected") {
-                        circuitState = "Two leads connected";
-                        lastLeadDisconnectedTime = 0;
-                    } else {
-                        circuitState = "No leads disconnected";
-                        circuitState = "One lead connected";
-                        lastLeadDisconnectedTime = myAction.utime;;
-                    }
+            }
+            if (myAction.type == "connect-lead") {
+                if (circuitState == "One lead connected") {
+                    circuitState = "Two leads connected";
+                    lastLeadDisconnectedTime = 0;
+                } else {
+                    circuitState = "No leads disconnected";
+                    circuitState = "One lead connected";
+                    lastLeadDisconnectedTime = myAction.utime;;
                 }
-                if (((myAction.type == "measurement") && (circuitState = "One lead connected") && (myAction.time - lastLeadDisconnectedTime) < 5)) {
-                    console.log("Measurement after circuitbreak");
-                }
+            }
+            if (((myAction.type == "measurement") && (circuitState = "One lead connected") && (myAction.time - lastLeadDisconnectedTime) < 5)) {
+                console.log("Measurement after circuitbreak");
             }
         }
     }
+}

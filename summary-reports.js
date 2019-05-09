@@ -129,37 +129,41 @@ function updateRCalcs(vChatLevels) { //Fills in number of resistance calculated 
 function updateRChats(rCalcLevels) {
     var allGoalsChatted = 0,
         someGoalsChatted = 0,
-        noGoalsChatted = 0;
-    rChatLevels = [];
+        noGoalsChatted = 0,
+        rChatLevels = [];
+    selectedLevels = []; //selectedLevels is a global variable
     if (rCalcLevels.length > 0) {
-        for (var i = 0, myLevel; myLevel = rCalcLevels[i]; i++) {
-            switch (myLevel.goalRsChatted) {
-                case "all":
-                    allGoalsChatted++;
-                    if (($("#RAllChat")[0].checked)) {
-                        rChatLevels.push(myLevel)
-                    }
-                    break;
-                case "some":
-                    someGoalsChatted++;
-                    if (($("#RSomeChat")[0].checked)) {
-                        rChatLevels.push(myLevel)
-                    }
-                    break;
-                case "none":
-                    noGoalsChatted++;
-                    if (($("#RNoChat")[0].checked)) {
-                        rChatLevels.push(myLevel)
-                    }
-                    break;
+        for (var i = 0; i < rCalcLevels.length; i++) {
+            myLevel = rCalcLevels[i];
+            if (((document.getElementById("RAllCalc").checked) && (myLevel.goalRsCalculated == "all")) || ((document.getElementById("RSomeCalc").checked) && (myLevel.goalRsCalculated == "some")) || ((document.getElementById("RNoCalc").checked) && (myLevel.goalRsCalculated == "none"))) {
+                rChatLevels.push(myLevel)
+                switch (myLevel.goalRsChatted) {
+                    case "all":
+                        allGoalsChatted++;
+                        if (document.getElementById("RAllChat").checked) {
+                            selectedLevels.push(myLevel);
+                        }
+                        break;
+                    case "some":
+                        someGoalsChatted++;
+                        if (document.getElementById("RSomeChat").checked) {
+                            selectedLevels.push(myLevel);
+                        }
+                        break;
+                    case "none":
+                        noGoalsChatted++;
+                        if (document.getElementById("RNoChat").checked) {
+                            selectedLevels.push(myLevel);
+                        }
+                        break;
+                }
             }
         }
+        document.getElementById("rchats#").innerHTML = rChatLevels.length;
+        document.getElementById("RAllChatted#").innerHTML = allGoalsChatted;
+        document.getElementById("RSomeChatted#").innerHTML = someGoalsChatted;
+        document.getElementById("RNotChatted#").innerHTML = noGoalsChatted;
     }
-    document.getElementById("rchats#").innerHTML = rCalcLevels.length;
-    document.getElementById("RAllChatted#").innerHTML = allGoalsChatted;
-    document.getElementById("RSomeChatted#").innerHTML = someGoalsChatted;
-    document.getElementById("RNotChatted#").innerHTML = noGoalsChatted;
-    selectedLevels = rChatLevels; //selectedLevels is a global
     actionsReport();
 }
 

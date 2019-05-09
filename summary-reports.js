@@ -155,7 +155,7 @@ function updateRChats(rCalcLevels) {
             }
         }
     }
-    document.getElementById("rchats#").innerHTML = rChatLevels.length;
+    document.getElementById("rchats#").innerHTML = rCalcLevels.length;
     document.getElementById("RAllChatted#").innerHTML = allGoalsChatted;
     document.getElementById("RSomeChatted#").innerHTML = someGoalsChatted;
     document.getElementById("RNotChatted#").innerHTML = noGoalsChatted;

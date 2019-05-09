@@ -15,17 +15,14 @@ function checkCynthiaStrategy() { //Checks all C and D levels for evidence of Cy
                     if (myAction.type == "resistorChange") {
                         if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
                             myLevel.allRsEqualR0 = true;
-                            //                      s.innerHTML += "At " + time + " " + myTeacher + "\'s team " + myLevel.team.name + ", level " + myLevel.label + ", had all resistances the same as R0.<br>";
                         }
                     }
                     if (myLevel.allRsEqualR0) {
                         if (myAction.ESubmitValue == myLevel.E) {
                             eSubmittedAfterRsEqual = true;
-                            //                    s.innerHTML += "At " + time + " they submitted the correct value for E<br>";
                         }
                         if (myAction.R0SubmitValue == myLevel.R0) {
                             r0SubmittedAfterRsEqual = true;
-                            s.innerHTML += "At " + time + " they submitted the correct value for R0<br>";
                         }
                         if (myAction.type == "message") {
                             msgNumberMatch = myAction.msg.match(/[\d]+/);

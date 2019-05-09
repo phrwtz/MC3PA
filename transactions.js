@@ -82,7 +82,7 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
         RSubmitValue,
         RSubmitUnit,
         board,
-        interval = 400,
+        interval = 60,
         ERSubmitsForMember = [
             [],
             [],
@@ -129,7 +129,7 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
                             E = thisERSubmit.E;
                             ESubmitValue = parseFloat(thisERSubmit.ESubmitValue);
                             ESubmitUnit = thisERSubmit.ESubmitUnit;
-                            if (Number.isInteger(ESubmitValue) && (ESubmitValue != E)) { //If an incorrect value was submitted E and
+                            if ((ESubmitValue) && (ESubmitValue != E)) { //If an incorrect value was submitted E and
                                 if (countE == 0) { //there are no prior incorrect E submits in the array
                                     oldETime = thisERSubmit.eTime;
                                     newETime = oldETime;
@@ -160,7 +160,7 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
                         if ((thisERSubmit.RSubmitValue != "<No value submitted>") && (guessAndCheckR[ii] == "none")) { //Don't proceed if no R0 was submitted (e.g., if the level is C) or if we've already detected guess and check for R
                             RSubmitValue = parseFloat(thisERSubmit.RSubmitValue);
                             RSubmitUnit = thisERSubmit.RSubmitUnit;
-                            if (Number.isInteger(RSubmitValue) && (RSubmitValue != R)) { //If an incorrect value for R0 was submitted and
+                            if ((RSubmitValue) && (RSubmitValue != R)) { //If an incorrect value for R0 was submitted and
                                 if (countR == 0) { //there are no prior incorrect R0 submits in the array
                                     oldRTime = thisERSubmit.eTime;
                                     newRTime = oldRTime;

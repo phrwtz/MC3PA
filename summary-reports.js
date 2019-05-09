@@ -221,7 +221,7 @@ function actionsReport() { //generates a radio button for each final selected le
                 levelColor = "black";
             }
         }
-        f.innerHTML += ("<font color=" + levelColor + "> Class " + myLevel.team.classId + ", team " + myLevel.team.name + " level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=reportResults()></input>' + "<br>");
+        f.innerHTML += ("<font color=" + levelColor + "> " + myLevel.teacher.name + ", " + myLevel.team.classId + ", " + myLevel.team.name + ", level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=reportResults()></input>' + "<br>");
     } //Next level
     countChats();
     reportResults();

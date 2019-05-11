@@ -506,6 +506,8 @@ function addLevel(myTeam, ro) {
         myLevel.chattedEAfterAllRsEqual = false;
         myLevel.chattedR0AfterAllRsEqual = false;
         myLevel.CynthiaStrategyDetected = false;
+        myLevel.circuitBreakStrategyDetected = false;
+        myLevel.bigRStrategyDetected = false;
         myLevel.EGuessAndCheckSuccess = false;
         myLevel.EGuessAndCheckFailure = false;
         myLevel.RGuessAndCheckSuccess = false;
@@ -1230,3 +1232,6 @@ function getTeacherById(classId) {
     }
     return null;
 }
+function oneBigR(action) { //Returns true if one of the resistors is much higher than the other two (a possible precursor to measuring E)
+    return ((action.R[0] - (action.R[1] + action.R[2]) > 100000) || (action.R[1] - (action.R[0] + action.R[2]) > 100000) || (action.R[2] - (action.R[1] + action.R[0]) > 100000))
+ }

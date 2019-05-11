@@ -169,11 +169,18 @@ function updateRChats(rCalcLevels) {
 
 function actionsReport() { //generates a radio button for each final selected level. Colors it according to strategy
     var levelColor = "black";
+    var strategy = "none";
     var f = document.getElementById("levelsPara");
     var c = document.getElementById("chatsPara");
     var a = document.getElementById("actionsTable");
     var t = document.getElementById("checkActions");
     var sb = document.getElementById("strategySpan");
+    var strategyRadios = document.getElementsByName("strategyRadio");
+    for (var x = 0; x < strategyRadios.length; x++) {
+        if (strategyRadios[x].checked) {
+            strategy = strategyRadios[x].id
+        }
+    }
     if (selectedLevels.length == 0) {
         f.innerHTML = "<br><b>There are no levels to look at.</b><br>";
         c.style.display = "none";
@@ -196,30 +203,48 @@ function actionsReport() { //generates a radio button for each final selected le
     }
     for (var i = 0; i < selectedLevels.length; i++) {
         myLevel = selectedLevels[i];
-        if (strategy == "Cynthia") {
-            if (myLevel.CynthiaStrategyDetected) {
-                levelColor = "red";
-            } else if (myLevel.allRsEqualR0) {
-                levelColor = "blue";
-            } else {
-                levelColor = "black";
-            }
-        } else if (strategy == "GuessAndCheckForE") {
-            if (myLevel.EGuessAndCheckSuccess) {
-                levelColor = "red";
-            } else if (myLevel.EGuessAndCheckFailure) {
-                levelColor = "blue";
-            } else {
-                levelColor = "black";
-            }
-        } else if (strategy == "GuessAndCheckForR") {
-            if (myLevel.RGuessAndCheckSuccess) {
-                levelColor = "red";
-            } else if (myLevel.RGuessAndCheckFailure) {
-                levelColor = "blue";
-            } else {
-                levelColor = "black";
-            }
+        switch (strategy) {
+            case "Cynthia":
+                if (myLevel.CynthiaStrategyDetected) {
+                    levelColor = "red";
+                } else if (myLevel.allRsEqualR0) {
+                    levelColor = "blue";
+                } else {
+                    levelColor = "black";
+                }
+                break;
+            case "GuessAndCheckForE":
+                if (myLevel.EGuessAndCheckSuccess) {
+                    levelColor = "red";
+                } else if (myLevel.EGuessAndCheckFailure) {
+                    levelColor = "blue";
+                } else {
+                    levelColor = "black";
+                }
+                break;
+            case "GuessAndCheckForR":
+                if (myLevel.RGuessAndCheckSuccess) {
+                    levelColor = "red";
+                } else if (myLevel.RGuessAndCheckFailure) {
+                    levelColor = "blue";
+                } else {
+                    levelColor = "black";
+                }
+                break;
+            case "circuitBreak":
+                if (myLevel.circuitBreakStrategyDetected) {
+                    levelColor = "red";
+                } else {
+                    levelColor = "black";
+                }
+                break;
+            case "bigR":
+                if (myLevel.bigRStrategyDetected) {
+                    levelColor = "red";
+                } else {
+                    levelColor = "black";
+                }
+                break;
         }
         f.innerHTML += ("<font color=" + levelColor + "> " + myLevel.teacher.name + ", " + myLevel.team.classId + ", " + myLevel.team.name + ", level " + myLevel.label + '</font><input type="radio" id=' + myLevel.id + ' name="levelRadio" onchange=reportResults()></input>' + "<br>");
     } //Next level

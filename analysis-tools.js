@@ -420,6 +420,7 @@ function addAction(ro, type) {
             myAction.currentFlow = (ro.parameters["currentFlowing"] == "True" ? true : false);
             myAction.board = ro.parameters["board"];
             myAction.msg = ro.parameters["result"].replace(/\s/g, '');
+            myAction.result = parseFloat(myAction.msg);
             myAction.varRefs = getVarRefs(myAction, myAction.msg);
             myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
             keepLevelValues(myAction);

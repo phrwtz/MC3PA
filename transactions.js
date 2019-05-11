@@ -2,6 +2,7 @@ function checkCynthiaStrategy() { //Checks all C and D levels for evidence of Cy
     var returnStr = "",
         time,
         myTeacher,
+        totalCynthias = 0,
         eSubmittedAfterRsEqual = false,
         r0SubmittedAfterRsEqual = false;
     for (var i = 0, myTeam; myTeam = teams[i]; i++) {
@@ -42,33 +43,25 @@ function checkCynthiaStrategy() { //Checks all C and D levels for evidence of Cy
             }
             if ((myLevel.label == "C") && (eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual)) {
                 myLevel.CynthiaStrategyDetected = true;
+                totalCynthias++;
                 //           s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
             } else if ((myLevel.label == "D") && eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual && r0SubmittedAfterRsEqual && myLevel.chattedR0AfterAllRsEqual) {
                 myLevel.CynthiaStrategyDetected = true;
+                totalCynthias++;
                 //         s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
             }
         }
     }
-}
-
-function displayCynthiaStrategy() {
-    strategy = "Cynthia";
-    actionsReport();
-}
-
-function displayGuessAndCheckForE() {
-    strategy = "GuessAndCheckForE";
-    actionsReport();
-}
-
-function displayGuessAndCheckForR() {
-    strategy = "GuessAndCheckForR";
-    actionsReport();
+    console.log(totalCynthias + " Cynthia strategies found.")
 }
 
 function checkGuessAndCheck() { //Looks for guess and check strategy for E and R0 for all C and D levels
     var myLevel,
         myTeam,
+        totalGuessAndCheckSuccessE = 0,
+        totalGuessAndCheckSuccessR = 0,
+        totalGuessAndCheckFailureE = 0,
+        totalGuessAndCheckFailureR = 0,
         oldETime,
         oldRTime,
         newETime,
@@ -109,7 +102,7 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
                     [],
                     []
                 ];
-   //             sortActionsByUTime(myLevel.actions);
+                //             sortActionsByUTime(myLevel.actions);
                 for (var k = 0; k < myLevel.actions.length; k++) {
                     myAction = myLevel.actions[k];
                     if (myAction.type === "submitER") {
@@ -143,10 +136,12 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
                                                 guessAndCheckE[ii] = "successful";
                                                 ESuccessCount++;
                                                 myLevel.EGuessAndCheckSuccess = true;
+                                                totalGuessAndCheckSuccessE++;
                                             } else {
                                                 guessAndCheckE[ii] = "unsuccessful";
                                                 EFailureCount++;
                                                 myLevel.EGuessAndCheckFailure = true;
+                                                totalGuessAndCheckFailureE++;
 
                                             }
                                         }
@@ -174,10 +169,12 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
                                                 guessAndCheckR[ii] = "successful";
                                                 RSuccessCount++;
                                                 myLevel.RGuessAndCheckSuccess = true;
+                                                totalGuessAndCheckSuccessR++;
                                             } else {
                                                 guessAndCheckR[ii] = "unsuccessful";
-                                                    RFailureCount++;
+                                                RFailureCount++;
                                                 myLevel.RGuessAndCheckFailure = true;
+                                                totalGuessAndCheckFailureR++;
                                             }
                                         }
                                     } else { // if the most recent E/R submit action is more than the time interval since the last one
@@ -187,7 +184,7 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
                             }
                         }
                     } //End of G&C for R
-                }//next board
+                } //next board
             }
             for (var m = 0; m < 3; m++) {
                 switch (guessAndCheckE[m]) {
@@ -214,41 +211,61 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
                 }
             } //Next board
         } //Next level 
-    } //Next team
+    }
+    console.log(totalGuessAndCheckSuccessE + " guess and check success for E.");
+    console.log(totalGuessAndCheckFailureE + " guess and check failures for E.");
+    console.log(totalGuessAndCheckSuccessR + " guess and check success for R0.");
+    console.log(totalGuessAndCheckFailureR + " guess and check failures for R0.");
 }
 
-function checkBreakCircuitStrategy(myLevel) { //Looks for measurement of E by breaking circuit and measuring directly.
+function checkBreakCircuitStrategy() { //Looks for measurement of E by breaking circuit and measuring directly. Also checks for "big R strategy" – making one resistor much bigger than the other two so that the voltage across it is close to E
     var s = document.getElementById("strategies"),
+        totalBreakCircuit = 0,
+        totalBigR = 0,
         leadDisconnected,
         circuitState = "Two leads connected",
+        lastTime,
+        tolerance = .05,
         lastLeadDisconnectedTime = 0;
     s.style.display = "inline";
     s.innerHTML = "";
-    if ((myLevel.label == "C") || (myLevel.label == "D")) {
-        for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
-            time = myAction.eMinSecs;
-            if (myAction.type == "disconnect-lead") {
-                if (circuitState == "Two leads connected") {
-                    circuitState = "One lead connected";
-                    lastLeadDisconnectedTime = myAction.utime;
-                } else {
-                    circuitState = "No leads connected";
-                    lastLeadDisconnectedTime = 0;
+    for (var j = 0, myTeam; myTeam = teams[j]; j++) {
+        for (var i = 0, myLevel; myLevel = myTeam.levels[i]; i++) {
+            if ((myLevel.label == "C") || (myLevel.label == "D")) {
+                for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+                    if (myAction.type == "disconnect-lead") {
+                        lastTime = myAction.uTime;
+                        if (circuitState == "Two leads connected") {
+                            circuitState = "One lead connected";
+                        } else {
+                            circuitState = "No leads connected";
+                        }
+                    }
+                    if (myAction.type == "connect-lead") {
+                        lastTime = myAction.uTime;
+                        if (circuitState == "One lead connected") {
+                            circuitState = "Two leads connected";
+                        } else {
+                            circuitState = "One lead connected";
+                        }
+                    }
+                    if ((myAction.type == "measurement") && ((myAction.uTime - lastTime) < 15)) {
+                        if ((myAction.result == myLevel.E) && (circuitState == "One lead connected")) {
+                            if (!myLevel.circuitBreakStrategyDetected) {
+                                console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " made a measurement after circuitbreak. Measurement is " + myAction.result + " E is " + myLevel.E);
+                                myLevel.circuitBreakStrategyDetected = true;
+                                totalBreakCircuit++;
+                            }
+                        } else if (about(myAction.result, myLevel.E, tolerance) && oneBigR(myAction) && !myLevel.bigRStrategyDetected) {
+                            console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " in big R condition. Measurement is " + myAction.result + " E is " + myLevel.E);
+                            myLevel.bigRStrategyDetected = true;
+                            totalBigR++;
+                        }
+                    }
                 }
-            }
-            if (myAction.type == "connect-lead") {
-                if (circuitState == "One lead connected") {
-                    circuitState = "Two leads connected";
-                    lastLeadDisconnectedTime = 0;
-                } else {
-                    circuitState = "No leads disconnected";
-                    circuitState = "One lead connected";
-                    lastLeadDisconnectedTime = myAction.utime;;
-                }
-            }
-            if (((myAction.type == "measurement") && (circuitState = "One lead connected") && (myAction.time - lastLeadDisconnectedTime) < 5)) {
-                console.log("Measurement after circuitbreak");
             }
         }
     }
+    console.log(totalBreakCircuit + " break circuit strategies detected.");
+    console.log(totalBigR + " big R strategies detected.");
 }

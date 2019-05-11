@@ -160,10 +160,10 @@ function addActionRow(act, content) {
             actionCell0.style.backgroundColor = "#FFE5CC";
             break;
         case "connect-lead":
-            actionCell0.style.backgroundColor = "#CC99E5";
+            actionCell0.style.backgroundColor = "#00CC00";
             break;
         case "disconnect-lead":
-            actionCell0.style.backgroundColor = "#FFCCE5";
+            actionCell0.style.backgroundColor = "#33FF33";
             break;
         case "message":
             actionCell0.style.backgroundColor = "#F9D593";

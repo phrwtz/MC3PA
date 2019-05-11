@@ -27,7 +27,6 @@ var csvSummaryArray = [
     ["Teacher", "Date", "Team", "Level", "Time", "Summary Type", "Actor", "Total Msg Score", "Number Msgs", "Avg Msg Score"]
 ] // col headings for Summary File Downloads as csv files
 var csvFilename;
-var strategy; //Strategy to be highlighted
 
 //This function takes a JSON file and turns it into row objects
 function parseJSON(data) {
@@ -49,6 +48,7 @@ function parseJSON(data) {
     populateTeacherLevelArrays();
     checkCynthiaStrategy();
     checkGuessAndCheck();
+    checkBreakCircuitStrategy();
     document.getElementById("reportButton").style.display = "inline";
 }
 

@@ -252,12 +252,12 @@ function checkBreakCircuitStrategy() { //Looks for measurement of E by breaking 
                     if ((myAction.type == "measurement") && ((myAction.uTime - lastTime) < 15)) {
                         if ((myAction.result == myLevel.E) && (circuitState == "One lead connected")) {
                             if (!myLevel.circuitBreakStrategyDetected) {
-                                console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " made a measurement after circuitbreak. Measurement is " + myAction.result + " E is " + myLevel.E);
+              //                  console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " made a measurement after circuitbreak. Measurement is " + myAction.result + " E is " + myLevel.E);
                                 myLevel.circuitBreakStrategyDetected = true;
                                 totalBreakCircuit++;
                             }
                         } else if (about(myAction.result, myLevel.E, tolerance) && oneBigR(myAction) && !myLevel.bigRStrategyDetected) {
-                            console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " in big R condition. Measurement is " + myAction.result + " E is " + myLevel.E);
+                            //          console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " in big R condition. Measurement is " + myAction.result + " E is " + myLevel.E);
                             myLevel.bigRStrategyDetected = true;
                             totalBigR++;
                         }
@@ -285,15 +285,23 @@ function findResistorChangeRuns(myLevel) {
                 }
                 myRun.startR = myAction.oldR[myAction.board];
                 myRun.endR = myAction.newR[myAction.board];
-                myRun.startTime = myAction.eTime;
+                myRun.startTime = myAction.eMinSecs;
                 myRun.changes = 1;
                 myMember.runs.push(myRun);
             } else { //myMember on a run
                 myRun = myMember.runs[myMember.runs.length - 1];
                 myRun.endR = myAction.newR[myAction.board];
-                myRun.endTime = myAction.eTime;
+                myRun.endTime = myAction.eMinSecs;
                 myRun.changes++;
             }
+        }
+    }
+    console.log("goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2]);
+    for (var ii = 0; ii < myLevel.members.length; ii++) {
+        myMember = myLevel.members[ii];
+        for (var jj = 0; jj < myMember.runs.length; jj++) {
+            myRun = myMember.runs[jj];
+            console.log("At elapsed time " + myRun.startTime + ", member " + ii + " of level " + myLevel.label + ", team " + myLevel.team.name + ", class " + myLevel.team.classId + ", had a run from " + myRun.startR + " to " + myRun.endR + " with " + myRun.changes + " changes.");
         }
     }
 }

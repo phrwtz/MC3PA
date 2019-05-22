@@ -4,6 +4,7 @@ var team = function () {};
 var level = function () {};
 var member = function () {};
 var action = function () {};
+var run = function () {}; //Resistor change run
 var chatsList = ["voltage", "current"]; //Array of strings to search for in chats
 var selectedLevels = []; //Final selected levels array
 var rows = [];
@@ -52,11 +53,12 @@ function parseJSON(data) {
     document.getElementById("reportButton").style.display = "inline";
 }
 
-function populateTeacherLevelArrays() { //Eliminates levels that were not attempted and adds information to the levels before adding then to the teachers.
+function populateTeacherLevelArrays() { //Eliminates levels that were not attempted and adds information to the levels before adding them to the teachers.
     for (var i = 0, myTeacher; myTeacher = teachers[i]; i++) {
         for (var j = 0, myTeam; myTeam = myTeacher.teams[j]; j++) {
             for (var k = 0, myLevel; myLevel = myTeam.levels[k]; k++) {
                 if (myLevel.attempted) {
+                    findResistorChangeRuns(myLevel);
                     myLevel.success = setSuccessFlag(myLevel);
                     myLevel.goalVsChatted = goalVsChatted(myLevel);
                     myLevel.goalRsChatted = goalRsChatted(myLevel);
@@ -69,3 +71,4 @@ function populateTeacherLevelArrays() { //Eliminates levels that were not attemp
     }
     console.log("Teacher levels populated.");
 }
+

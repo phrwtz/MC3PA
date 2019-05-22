@@ -535,6 +535,8 @@ function addMember(myLevel, ro) {
     var myMember = inMembers(userID, myLevel.members);
     if (!myMember) { //If this is a new member initialize and push to the members array
         myMember = new member;
+        myMember.runs = []; //Array to hold resistor change runs
+        myMember.onARun = false;
         myMember.team = myLevel.team;
         myMember.id = userID;
         myMember.name = ro.parameters["username"];

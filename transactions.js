@@ -269,3 +269,30 @@ function checkBreakCircuitStrategy() { //Looks for measurement of E by breaking 
     console.log(totalBreakCircuit + " break circuit strategies detected.");
     console.log(totalBigR + " big R strategies detected.");
 }
+
+function findResistorChangeRuns(myLevel) {
+    for (var i = 0, myAction; myAction = myLevel.actions[i]; i++) {
+        if (myAction.type == "resistorChange") {
+            myMember = myAction.actor;
+            if (!myMember.onARun) {
+                var myRun = new run;
+                for (var j = 0; j < myLevel.members.length; j++) {
+                    if (myLevel.members[j].board != myAction.board) {
+                        myLevel.members[j].onARun = false;
+                    } else {
+                        myLevel.members[j].onARun = true;
+                    }
+                }
+                myRun.startR = myAction.R[myAction.board];
+                myRun.startTime = myAction.eTime;
+                myRun.changes = 1;
+                myMember.runs.push(myRun);
+            } else { //myMember on a run
+                myRun = myMember.runs[myMember.runs.length - 1];
+                myRun.endR = myAction.R[myAction.board];
+                myRun.endTime = myAction.eTime;
+                myRun.changes++;
+            }
+        }
+    } console.log("stop");
+}

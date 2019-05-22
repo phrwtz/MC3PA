@@ -283,16 +283,17 @@ function findResistorChangeRuns(myLevel) {
                         myLevel.members[j].onARun = true;
                     }
                 }
-                myRun.startR = myAction.R[myAction.board];
+                myRun.startR = myAction.oldR[myAction.board];
+                myRun.endR = myAction.newR[myAction.board];
                 myRun.startTime = myAction.eTime;
                 myRun.changes = 1;
                 myMember.runs.push(myRun);
             } else { //myMember on a run
                 myRun = myMember.runs[myMember.runs.length - 1];
-                myRun.endR = myAction.R[myAction.board];
+                myRun.endR = myAction.newR[myAction.board];
                 myRun.endTime = myAction.eTime;
                 myRun.changes++;
             }
         }
-    } console.log("stop");
+    }
 }

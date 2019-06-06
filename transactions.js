@@ -1,61 +1,56 @@
-function checkCynthiaStrategy() { //Checks all C and D levels for evidence of Cynthia strategy. Adds true for the properties allRsEqualR0, chattedEAfterAllRsEqual, and chattedR0AfterAllRsEqual to all C and D levels where appropriate.
+function checkCynthiaStrategy(myLevel) { //if myLevel is C or D, checks for evidence of Cynthia strategy. Adds true for the properties allRsEqualR0, chattedEAfterAllRsEqual, and chattedR0AfterAllRsEqual to all C and D levels where appropriate.
     var returnStr = "",
         time,
         myTeacher,
         totalCynthias = 0,
         eSubmittedAfterRsEqual = false,
         r0SubmittedAfterRsEqual = false;
-    for (var i = 0, myTeam; myTeam = teams[i]; i++) {
-        for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
-            if ((myLevel.label == "C") || (myLevel.label == "D")) {
-                eSubmitted = false;
-                eChatted = false;
-                for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
-                    time = myAction.eMinSecs;
-                    myTeacher = myLevel.team.teacher.name;
-                    if (myAction.type == "resistorChange") {
-                        if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
-                            myLevel.allRsEqualR0 = true;
+    if ((myLevel.label == "C") || (myLevel.label == "D")) {
+        eSubmitted = false;
+        eChatted = false;
+        for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+            time = myAction.eMinSecs;
+            myTeacher = myLevel.team.teacher.name;
+            if (myAction.type == "resistorChange") {
+                if ((myAction.R[0] == myLevel.R0) && (myAction.R[0] == myAction.R[1]) && (myAction.R[1] == myAction.R[2])) { //If all variable resistances are the same as R0;
+                    myLevel.allRsEqualR0 = true;
+                }
+            }
+            if (myLevel.allRsEqualR0) {
+                if (myAction.ESubmitValue == myLevel.E) {
+                    eSubmittedAfterRsEqual = true;
+                }
+                if (myAction.R0SubmitValue == myLevel.R0) {
+                    r0SubmittedAfterRsEqual = true;
+                }
+                if (myAction.type == "message") {
+                    msgNumberMatch = myAction.msg.match(/[\d]+/);
+                    if (msgNumberMatch) {
+                        if (myLevel.E.toString() == msgNumberMatch[0]) {
+                            myLevel.chattedEAfterAllRsEqual = true;
+                            //                           s.innerHTML += "Someone chatted the E value at " + time + "<br>";
                         }
-                    }
-                    if (myLevel.allRsEqualR0) {
-                        if (myAction.ESubmitValue == myLevel.E) {
-                            eSubmittedAfterRsEqual = true;
-                        }
-                        if (myAction.R0SubmitValue == myLevel.R0) {
-                            r0SubmittedAfterRsEqual = true;
-                        }
-                        if (myAction.type == "message") {
-                            msgNumberMatch = myAction.msg.match(/[\d]+/);
-                            if (msgNumberMatch) {
-                                if (myLevel.E.toString() == msgNumberMatch[0]) {
-                                    myLevel.chattedEAfterAllRsEqual = true;
-                                    //                           s.innerHTML += "Someone chatted the E value at " + time + "<br>";
-                                }
-                                if (myLevel.R0.toString() == msgNumberMatch[0]) {
-                                    myLevel.chattedRoAfterAllRsEqual = true;
-                                    //                       s.innerHTML += "Someone chatted the R0 value at " + time + "<br>";
-                                }
-                            }
+                        if (myLevel.R0.toString() == msgNumberMatch[0]) {
+                            myLevel.chattedRoAfterAllRsEqual = true;
+                            //                       s.innerHTML += "Someone chatted the R0 value at " + time + "<br>";
                         }
                     }
                 }
             }
-            if ((myLevel.label == "C") && (eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual)) {
-                myLevel.CynthiaStrategyDetected = true;
-                totalCynthias++;
-                //           s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
-            } else if ((myLevel.label == "D") && eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual && r0SubmittedAfterRsEqual && myLevel.chattedR0AfterAllRsEqual) {
-                myLevel.CynthiaStrategyDetected = true;
-                totalCynthias++;
-                //         s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
-            }
         }
     }
-    console.log(totalCynthias + " Cynthia strategies found.")
+    if ((myLevel.label == "C") && (eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual)) {
+        myLevel.CynthiaStrategyDetected = true;
+        totalCynthias++;
+        //           s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+    } else if ((myLevel.label == "D") && eSubmittedAfterRsEqual && myLevel.chattedEAfterAllRsEqual && r0SubmittedAfterRsEqual && myLevel.chattedR0AfterAllRsEqual) {
+        myLevel.CynthiaStrategyDetected = true;
+        totalCynthias++;
+        //         s.innerHTML += ("<b><font color=red> Team " + myTeam.name + ", of class " + myTeam.classId + ", used the Cynthia strategy at level " + myLevel.label + "!</font><b><br>");
+    }
 }
 
-function checkGuessAndCheck() { //Looks for guess and check strategy for E and R0 for all C and D levels
+function checkGuessAndCheck(myLevel) { //Looks for guess and check strategy for E and R0 for all C and D levels
     var myLevel,
         myTeam,
         totalGuessAndCheckSuccessE = 0,
@@ -88,137 +83,126 @@ function checkGuessAndCheck() { //Looks for guess and check strategy for E and R
         guessAndCheckE = [],
         guessAndCheckR = [],
         guessAndCheckEMsg = [],
-        guessAndCheckRMsg = [];
+        guessAndCheckRMsg = [],
+        s = document.getElementById("strategies");
+    if ((myLevel.label == "C") || (myLevel.label == "D")) {
+        //First count all the ER Submit actions for this level
+        ERSubmitsForMember = [
+            [],
+            [],
+            []
+        ];
+        //             sortActionsByUTime(myLevel.actions);
+        for (var k = 0; k < myLevel.actions.length; k++) {
+            myAction = myLevel.actions[k];
+            if (myAction.type === "submitER") {
+                board = myAction.board
+                ERSubmitsForMember[board].push(myAction); //Push the action onto the array for this board
+            }
+        }
+        //Then look for guess and check for E and R0 for this level
+        guessAndCheckE = ["none", "none", "none"];
+        guessAndCheckR = ["none", "none", "none"];
+        for (var ii = 0; ii < 3; ii++) { //run over all three boards
+            countE = 0;
+            countR = 0;
+            for (var jj = 0; jj < ERSubmitsForMember[ii].length; jj++) { //look at each member's ER submits
+                thisERSubmit = ERSubmitsForMember[ii][jj];
+                if (guessAndCheckE[ii] == "none") { //only look further if we haven't yet detected guess and check strategy for E
+                    E = thisERSubmit.E;
+                    ESubmitValue = parseFloat(thisERSubmit.ESubmitValue);
+                    ESubmitUnit = thisERSubmit.ESubmitUnit;
+                    if ((ESubmitValue) && (ESubmitValue != E)) { //If an incorrect value was submitted E and
+                        if (countE == 0) { //there are no prior incorrect E submits in the array
+                            oldETime = thisERSubmit.eTime;
+                            newETime = oldETime;
+                            countE++;
+                        } else { //if there are already incorrect E submissions in the array
+                            newETime = thisERSubmit.eTime;
+                            if ((newETime - oldETime) < interval) { //and the interval between this ERSubmit and the most recent one is less than the designate4d time interval
+                                countE++ //increment the count
+                                if (countE > 2) { //if there are more than two consecutive incorrect submits then we've identified guess and check strategy for E
+                                    if (myLevel.successE) {
+                                        guessAndCheckE[ii] = "successful";
+                                        ESuccessCount++;
+                                        myLevel.EGuessAndCheckSuccess = true;
+                                        totalGuessAndCheckSuccessE++;
+                                    } else {
+                                        guessAndCheckE[ii] = "unsuccessful";
+                                        EFailureCount++;
+                                        myLevel.EGuessAndCheckFailure = true;
+                                        totalGuessAndCheckFailureE++;
 
-    var s = document.getElementById("strategies");
-    for (var i = 0; i < teams.length; i++) {
-        myTeam = teams[i];
-        for (var j = 0; j < myTeam.levels.length; j++) {
-            myLevel = myTeam.levels[j]; //If we're dealing with level C or D
-            if ((myLevel.label == "C") || (myLevel.label == "D")) {
-                //First count all the ER Submit actions for this level
-                ERSubmitsForMember = [
-                    [],
-                    [],
-                    []
-                ];
-                //             sortActionsByUTime(myLevel.actions);
-                for (var k = 0; k < myLevel.actions.length; k++) {
-                    myAction = myLevel.actions[k];
-                    if (myAction.type === "submitER") {
-                        board = myAction.board
-                        ERSubmitsForMember[board].push(myAction); //Push the action onto the array for this board
-                    }
-                }
-                //Then look for guess and check for E and R0 for this level
-                guessAndCheckE = ["none", "none", "none"];
-                guessAndCheckR = ["none", "none", "none"];
-                for (var ii = 0; ii < 3; ii++) { //run over all three boards
-                    countE = 0;
-                    countR = 0;
-                    for (var jj = 0; jj < ERSubmitsForMember[ii].length; jj++) { //look at each member's ER submits
-                        thisERSubmit = ERSubmitsForMember[ii][jj];
-                        if (guessAndCheckE[ii] == "none") { //only look further if we haven't yet detected guess and check strategy for E
-                            E = thisERSubmit.E;
-                            ESubmitValue = parseFloat(thisERSubmit.ESubmitValue);
-                            ESubmitUnit = thisERSubmit.ESubmitUnit;
-                            if ((ESubmitValue) && (ESubmitValue != E)) { //If an incorrect value was submitted E and
-                                if (countE == 0) { //there are no prior incorrect E submits in the array
-                                    oldETime = thisERSubmit.eTime;
-                                    newETime = oldETime;
-                                    countE++;
-                                } else { //if there are already incorrect E submissions in the array
-                                    newETime = thisERSubmit.eTime;
-                                    if ((newETime - oldETime) < interval) { //and the interval between this ERSubmit and the most recent one is less than the designate4d time interval
-                                        countE++ //increment the count
-                                        if (countE > 2) { //if there are more than two consecutive incorrect submits then we've identified guess and check strategy for E
-                                            if (myLevel.successE) {
-                                                guessAndCheckE[ii] = "successful";
-                                                ESuccessCount++;
-                                                myLevel.EGuessAndCheckSuccess = true;
-                                                totalGuessAndCheckSuccessE++;
-                                            } else {
-                                                guessAndCheckE[ii] = "unsuccessful";
-                                                EFailureCount++;
-                                                myLevel.EGuessAndCheckFailure = true;
-                                                totalGuessAndCheckFailureE++;
-
-                                            }
-                                        }
-                                    } else { // if the most recent E/R submit action is more than the time interval since the last one
-                                        countE = 0; //zero out the count and keep looking.
                                     }
                                 }
-                            }
-                        } //Now look for guess and check for R0 for this level
-                        R = thisERSubmit.R0;
-                        if ((thisERSubmit.RSubmitValue != "<No value submitted>") && (guessAndCheckR[ii] == "none")) { //Don't proceed if no R0 was submitted (e.g., if the level is C) or if we've already detected guess and check for R
-                            RSubmitValue = parseFloat(thisERSubmit.RSubmitValue);
-                            RSubmitUnit = thisERSubmit.RSubmitUnit;
-                            if ((RSubmitValue) && (RSubmitValue != R)) { //If an incorrect value for R0 was submitted and
-                                if (countR == 0) { //there are no prior incorrect R0 submits in the array
-                                    oldRTime = thisERSubmit.eTime;
-                                    newRTime = oldRTime;
-                                    countR++;
-                                } else { //if there are already incorrect R0 submissions in the array
-                                    newRTime = thisERSubmit.eTime;
-                                    if ((newRTime - oldRTime) < interval) { //if there was a prior incorrect R submit by this member within the time interval
-                                        countR++ //increment the count
-                                        if (countR > 2) { //if there are more than two consecutive incorrect submits
-                                            if (myLevel.successR) {
-                                                guessAndCheckR[ii] = "successful";
-                                                RSuccessCount++;
-                                                myLevel.RGuessAndCheckSuccess = true;
-                                                totalGuessAndCheckSuccessR++;
-                                            } else {
-                                                guessAndCheckR[ii] = "unsuccessful";
-                                                RFailureCount++;
-                                                myLevel.RGuessAndCheckFailure = true;
-                                                totalGuessAndCheckFailureR++;
-                                            }
-                                        }
-                                    } else { // if the most recent E/R submit action is more than the time interval since the last one
-                                        countR = 0; //zero out the count and keep looking.
-                                    }
-                                }
+                            } else { // if the most recent E/R submit action is more than the time interval since the last one
+                                countE = 0; //zero out the count and keep looking.
                             }
                         }
-                    } //End of G&C for R
-                } //next board
+                    }
+                } //Now look for guess and check for R0 for this level
+                R = thisERSubmit.R0;
+                if ((thisERSubmit.RSubmitValue != "<No value submitted>") && (guessAndCheckR[ii] == "none")) { //Don't proceed if no R0 was submitted (e.g., if the level is C) or if we've already detected guess and check for R
+                    RSubmitValue = parseFloat(thisERSubmit.RSubmitValue);
+                    RSubmitUnit = thisERSubmit.RSubmitUnit;
+                    if ((RSubmitValue) && (RSubmitValue != R)) { //If an incorrect value for R0 was submitted and
+                        if (countR == 0) { //there are no prior incorrect R0 submits in the array
+                            oldRTime = thisERSubmit.eTime;
+                            newRTime = oldRTime;
+                            countR++;
+                        } else { //if there are already incorrect R0 submissions in the array
+                            newRTime = thisERSubmit.eTime;
+                            if ((newRTime - oldRTime) < interval) { //if there was a prior incorrect R submit by this member within the time interval
+                                countR++ //increment the count
+                                if (countR > 2) { //if there are more than two consecutive incorrect submits
+                                    if (myLevel.successR) {
+                                        guessAndCheckR[ii] = "successful";
+                                        RSuccessCount++;
+                                        myLevel.RGuessAndCheckSuccess = true;
+                                        totalGuessAndCheckSuccessR++;
+                                    } else {
+                                        guessAndCheckR[ii] = "unsuccessful";
+                                        RFailureCount++;
+                                        myLevel.RGuessAndCheckFailure = true;
+                                        totalGuessAndCheckFailureR++;
+                                    }
+                                }
+                            } else { // if the most recent E/R submit action is more than the time interval since the last one
+                                countR = 0; //zero out the count and keep looking.
+                            }
+                        }
+                    }
+                }
+            } //End of G&C for R
+        } //next board}
+        for (var m = 0; m < 3; m++) {
+            switch (guessAndCheckE[m]) {
+                case "none":
+                    guessAndCheckEMsg[m] = "board " + (m + 1) + " did not try guess and check for E";
+                    break;
+                case "unsuccessful":
+                    guessAndCheckEMsg[m] = "<span  style=\"color:blue\">board " + (m + 1) + " used guess and check for E unsuccessfully</span>";
+                    break;
+                case "successful":
+                    guessAndCheckEMsg[m] = "<span  style=\"color:red\">board " + (m + 1) + " used guess and check for E successfully</span>";
+                    break;
             }
-            for (var m = 0; m < 3; m++) {
-                switch (guessAndCheckE[m]) {
-                    case "none":
-                        guessAndCheckEMsg[m] = "board " + (m + 1) + " did not try guess and check for E";
-                        break;
-                    case "unsuccessful":
-                        guessAndCheckEMsg[m] = "<span  style=\"color:blue\">board " + (m + 1) + " used guess and check for E unsuccessfully</span>";
-                        break;
-                    case "successful":
-                        guessAndCheckEMsg[m] = "<span  style=\"color:red\">board " + (m + 1) + " used guess and check for E successfully</span>";
-                        break;
-                }
-                switch (guessAndCheckR[m]) {
-                    case "none":
-                        guessAndCheckRMsg[m] = "board " + (m + 1) + " did not try guess and check for R0";
-                        break;
-                    case "unsuccessful":
-                        guessAndCheckRMsg[m] = "<span  style=\"color:blue\">board " + (m + 1) + " used guess and check for R0 unsuccessfully</span>";
-                        break;
-                    case "successful":
-                        guessAndCheckRMsg[m] = "<span  style=\"color:red\">board " + (m + 1) + " used guess and check for R0 successfully</span>";
-                        break;
-                }
-            } //Next board
-        } //Next level 
+            switch (guessAndCheckR[m]) {
+                case "none":
+                    guessAndCheckRMsg[m] = "board " + (m + 1) + " did not try guess and check for R0";
+                    break;
+                case "unsuccessful":
+                    guessAndCheckRMsg[m] = "<span  style=\"color:blue\">board " + (m + 1) + " used guess and check for R0 unsuccessfully</span>";
+                    break;
+                case "successful":
+                    guessAndCheckRMsg[m] = "<span  style=\"color:red\">board " + (m + 1) + " used guess and check for R0 successfully</span>";
+                    break;
+            }
+        }
     }
-    console.log(totalGuessAndCheckSuccessE + " guess and check success for E.");
-    console.log(totalGuessAndCheckFailureE + " guess and check failures for E.");
-    console.log(totalGuessAndCheckSuccessR + " guess and check success for R0.");
-    console.log(totalGuessAndCheckFailureR + " guess and check failures for R0.");
 }
 
-function checkBreakCircuitStrategy() { //Looks for measurement of E by breaking circuit and measuring directly. Also checks for "big R strategy" – making one resistor much bigger than the other two so that the voltage across it is close to E
+function checkBreakCircuitStrategy(myLevel) { //Looks for measurement of E by breaking circuit and measuring directly. Also checks for "big R strategy" – making one resistor much bigger than the other two so that the voltage across it is close to E
     var s = document.getElementById("strategies"),
         totalBreakCircuit = 0,
         totalBigR = 0,
@@ -229,79 +213,217 @@ function checkBreakCircuitStrategy() { //Looks for measurement of E by breaking 
         lastLeadDisconnectedTime = 0;
     s.style.display = "inline";
     s.innerHTML = "";
-    for (var j = 0, myTeam; myTeam = teams[j]; j++) {
-        for (var i = 0, myLevel; myLevel = myTeam.levels[i]; i++) {
-            if ((myLevel.label == "C") || (myLevel.label == "D")) {
-                for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
-                    if (myAction.type == "disconnect-lead") {
-                        lastTime = myAction.uTime;
-                        if (circuitState == "Two leads connected") {
-                            circuitState = "One lead connected";
-                        } else {
-                            circuitState = "No leads connected";
-                        }
+    if ((myLevel.label == "C") || (myLevel.label == "D")) {
+        for (var k = 0, myAction; myAction = myLevel.actions[k]; k++) {
+            if (myAction.type == "disconnect-lead") {
+                lastTime = myAction.uTime;
+                if (circuitState == "Two leads connected") {
+                    circuitState = "One lead connected";
+                } else {
+                    circuitState = "No leads connected";
+                }
+            }
+            if (myAction.type == "connect-lead") {
+                lastTime = myAction.uTime;
+                if (circuitState == "One lead connected") {
+                    circuitState = "Two leads connected";
+                } else {
+                    circuitState = "One lead connected";
+                }
+            }
+            if ((myAction.type == "measurement") && ((myAction.uTime - lastTime) < 15)) {
+                if ((myAction.result == myLevel.E) && (circuitState == "One lead connected")) {
+                    if (!myLevel.circuitBreakStrategyDetected) {
+                        //                  console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " made a measurement after circuitbreak. Measurement is " + myAction.result + " E is " + myLevel.E);
+                        myLevel.circuitBreakStrategyDetected = true;
+                        totalBreakCircuit++;
                     }
-                    if (myAction.type == "connect-lead") {
-                        lastTime = myAction.uTime;
-                        if (circuitState == "One lead connected") {
-                            circuitState = "Two leads connected";
-                        } else {
-                            circuitState = "One lead connected";
-                        }
-                    }
-                    if ((myAction.type == "measurement") && ((myAction.uTime - lastTime) < 15)) {
-                        if ((myAction.result == myLevel.E) && (circuitState == "One lead connected")) {
-                            if (!myLevel.circuitBreakStrategyDetected) {
-              //                  console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " made a measurement after circuitbreak. Measurement is " + myAction.result + " E is " + myLevel.E);
-                                myLevel.circuitBreakStrategyDetected = true;
-                                totalBreakCircuit++;
-                            }
-                        } else if (about(myAction.result, myLevel.E, tolerance) && oneBigR(myAction) && !myLevel.bigRStrategyDetected) {
-                            //          console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " in big R condition. Measurement is " + myAction.result + " E is " + myLevel.E);
-                            myLevel.bigRStrategyDetected = true;
-                            totalBigR++;
-                        }
-                    }
+                } else if (about(myAction.result, myLevel.E, tolerance) && oneBigR(myAction) && !myLevel.bigRStrategyDetected) {
+                    //          console.log("At " + myAction.eMinSecs + " " + myLevel.teacher + ", team " + myTeam.name + ", level " + myLevel.label + " in big R condition. Measurement is " + myAction.result + " E is " + myLevel.E);
+                    myLevel.bigRStrategyDetected = true;
+                    totalBigR++;
                 }
             }
         }
     }
-    console.log(totalBreakCircuit + " break circuit strategies detected.");
-    console.log(totalBigR + " big R strategies detected.");
 }
 
 function findResistorChangeRuns(myLevel) {
+    var E,
+        board,
+        interval = 5, //Resistor change events within interval seconds are counted in the same (possibly interrupted) run
+        runsAvgLength = [], // Array with values for each member
+        runsPctCloser = []; // Array with values for each member
     for (var i = 0, myAction; myAction = myLevel.actions[i]; i++) {
+        setRunStatus(myLevel, myAction, interval); // Checks all runs and terminates them if this action is more than <interval> after their most recent resistor change.
         if (myAction.type == "resistorChange") {
-            myMember = myAction.actor;
+            board = myAction.board; //an integer
+            var myMember = myAction.actor;
             if (!myMember.onARun) {
+                myMember.onARun = true;
                 var myRun = new run;
-                for (var j = 0; j < myLevel.members.length; j++) {
-                    if (myLevel.members[j].board != myAction.board) {
-                        myLevel.members[j].onARun = false;
-                    } else {
-                        myLevel.members[j].onARun = true;
-                    }
-                }
-                myRun.startR = myAction.oldR[myAction.board];
+                myRun.startR = myAction.oldR[board];
+                myRun.startV = myAction.oldV[board];
+                myRun.startDV = Math.abs(myLevel.goalV[board] - myRun.startV);
                 myRun.endR = myAction.newR[myAction.board];
-                myRun.startTime = myAction.eMinSecs;
+                myRun.endV = myAction.newV[myAction.board];
+                myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
+                myRun.startMinSecs = myAction.eMinSecs;
+                myRun.endMinSecs = myAction.eMinSecs;
+                myRun.startTime = myAction.uTime;
+                myRun.endTime = myAction.uTime; //Same as start time for first res change
                 myRun.changes = 1;
                 myMember.runs.push(myRun);
-            } else { //myMember on a run
+            } else { //actor already on a run
                 myRun = myMember.runs[myMember.runs.length - 1];
-                myRun.endR = myAction.newR[myAction.board];
+                myRun.endR = myAction.newR[board];
+                myRun.endV = myAction.newV[board];
+                myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
+                myRun.endResDist = myAction.resDist;
                 myRun.endTime = myAction.eMinSecs;
                 myRun.changes++;
+                (myRun.endDV < myRun.startDV ? myRun.closer = true : myRun.closer = false);
+                myMember.runs.pop(); //Replace the last run in the array with this one.
+                myMember.runs.push(myRun);
             }
+            setInterrupts(myLevel, myMember, myRun);
+
         }
+    } //new action
+    // Compute average length of runs and percent closer for each member and add to total runs, average length, and percent closer to level
+    for (var j = 0, myMember; myMember = myLevel.members[j]; j++) {
+        var resistorChanges = 0;
+        var runsCloser = 0;
+        var numRuns = myMember.runs.length
+        for (k = 0; k < numRuns; k++) {
+            resistorChanges += myMember.runs[k].changes;
+            if (myMember.runs[k].closer) {
+                runsCloser++
+            }
+            myMember.runsAvgLength = resistorChanges / numRuns;
+            myMember.runsCloser = runsCloser;
+            myMember.runsPctCloser = parseInt(1000 * runsCloser / numRuns) / 10;
+        }
+        myLevel.runs += numRuns;
+        myLevel.resistorChanges += resistorChanges;
     }
-    console.log("goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2]);
-    for (var ii = 0; ii < myLevel.members.length; ii++) {
-        myMember = myLevel.members[ii];
-        for (var jj = 0; jj < myMember.runs.length; jj++) {
-            myRun = myMember.runs[jj];
-            console.log("At elapsed time " + myRun.startTime + ", member " + ii + " of level " + myLevel.label + ", team " + myLevel.team.name + ", class " + myLevel.team.classId + ", had a run from " + myRun.startR + " to " + myRun.endR + " with " + myRun.changes + " changes.");
-        }
+    myLevel.runsPctCloser = parseInt(1000 * (myLevel.members[0].runsCloser + myLevel.members[1].runsCloser + myLevel.members[2].runsCloser) / myLevel.runs) / 10;
+}
+
+function addRunsRow(myLevel) {
+    var runsTable = document.getElementById("runsTable");
+    var runsTableBody = document.getElementById("runsBody");
+    var runRow = document.createElement("tr");
+    var teacherCell = document.createElement("td");
+    var classCell = document.createElement("td");
+    var teamCell = document.createElement("td");
+    var levelCell = document.createElement("td");
+    var interruptsCell = document.createElement("td");
+
+    var number1Cell = document.createElement("td");
+    number1Cell.style.borderLeftWidth = "2px";
+    var number2Cell = document.createElement("td");
+    number2Cell.style.borderLeftWidth = "2px";
+    var number3Cell = document.createElement("td");
+    number3Cell.style.borderLeftWidth = "2px";
+    var numberTotCell = document.createElement("td");
+    numberTotCell.style.borderLeftWidth = "2px";
+
+    var avgLength1Cell = document.createElement("td");
+    var avgLength2Cell = document.createElement("td");
+    var avgLength3Cell = document.createElement("td");
+    var avgLengthTotCell = document.createElement("td");
+
+    var pctCloser1Cell = document.createElement("td");
+    var pctCloser2Cell = document.createElement("td");
+    var pctCloser3Cell = document.createElement("td");
+    var pctCloserTotCell = document.createElement("td");
+
+    teacherCell.innerHTML = myLevel.teacher.name;
+    classCell.innerHTML = myLevel.team.classId;
+    teamCell.innerHTML = myLevel.team.name;
+    levelCell.innerHTML = myLevel.label;
+    interruptsCell.innerHTML = myLevel.interrupts.length;
+
+    number1Cell.innerHTML = myLevel.members[0].runs.length;
+    number2Cell.innerHTML = myLevel.members[1].runs.length;
+    number3Cell.innerHTML = myLevel.members[2].runs.length;
+    numberTotCell.innerHTML = myLevel.runs;
+
+    avgLength1Cell.innerHTML = parseInt(100 * myLevel.members[0].runsAvgLength) / 100;
+    avgLength2Cell.innerHTML = parseInt(100 * myLevel.members[0].runsAvgLength) / 100;
+    avgLength3Cell.innerHTML = parseInt(100 * myLevel.members[0].runsAvgLength) / 100;
+    avgLengthTotCell.innerHTML = parseInt(100 * myLevel.resistorChanges / myLevel.runs) / 100;
+
+    pctCloser1Cell.innerHTML = myLevel.members[0].runsPctCloser;
+    pctCloser2Cell.innerHTML = myLevel.members[1].runsPctCloser;
+    pctCloser3Cell.innerHTML = myLevel.members[2].runsPctCloser;
+    pctCloserTotCell.innerHTML = myLevel.runsPctCloser
+
+    runRow.appendChild(teacherCell);
+    runRow.appendChild(classCell);
+    runRow.appendChild(teamCell);
+    runRow.appendChild(levelCell);
+    runRow.appendChild(interruptsCell);
+    runRow.appendChild(number1Cell);
+    runRow.appendChild(avgLength1Cell);
+    runRow.appendChild(pctCloser1Cell);
+    runRow.appendChild(number2Cell);
+    runRow.appendChild(avgLength2Cell);
+    runRow.appendChild(pctCloser2Cell);
+    runRow.appendChild(number3Cell);
+    runRow.appendChild(avgLength3Cell);
+    runRow.appendChild(pctCloser3Cell);
+    runRow.appendChild(numberTotCell);
+    runRow.appendChild(avgLengthTotCell);
+    runRow.appendChild(pctCloserTotCell);
+    runsTableBody.appendChild(runRow);
+    runsTable.style.display = "inline";
+}
+
+
+function toggleShowRuns() {
+    var toggleRunsButton = document.getElementById("toggleRunsButton")
+    var runsSpan = document.getElementById("runsSpan");
+    var runsTable = document.getElementById("runsTable");
+    var runsTableBody = document.getElementById("runsBody");
+    if (runsSpan.innerHTML == "Hide resistor change runs") {
+        runsSpan.innerHTML = "Display resistor change runs";
+    } else {
+        runsSpan.innerHTML = "Hide resistor change runs"
+    }
+    updateRunsTable();
+}
+
+function updateRunsTable() {
+    removeRunsTable();
+    var levelButtons = document.getElementsByName("levelRadio"),
+        runsSpan = document.getElementById("runsSpan"),
+        runsTable = document.getElementById("runsTable"),
+        runsTableBody = document.getElementById("runsBody"),
+        runLevels = [],
+        id;
+    runsTable.style.display = "none"; //To avoid flicker
+    for (var j = 0; j < levelButtons.length; j++) {
+        id = levelButtons[j].id;
+        myLevel = getLevelByID(id);
+        runLevels.push(myLevel);
+    }
+    for (var i = 0, myLevel; myLevel = runLevels[i]; i++) {
+        addRunsRow(myLevel);
+    }
+    if (runsSpan.innerHTML == "Hide resistor change runs") {
+        runsTable.style.display = "block";
+    } else {
+        runsTable.style.display = "none";
+    }
+}
+
+function removeRunsTable() {
+    var runsTableBody = document.getElementById("runsBody");
+    var children = runsTableBody.childNodes;
+    var length = children.length; 
+    for (var i = children.length; i > 0; i--) {
+        runsTableBody.removeChild(children[i - 1]);
     }
 }

@@ -4,7 +4,8 @@ var team = function () {};
 var level = function () {};
 var member = function () {};
 var action = function () {};
-var run = function () {}; //Resistor change run
+var run = function () { }; //Resistor change run
+var interrupt = function () { }; //Event in which one member's resistor change coincides with another's resistor change run.
 var chatsList = ["voltage", "current"]; //Array of strings to search for in chats
 var selectedLevels = []; //Final selected levels array
 var rows = [];
@@ -31,12 +32,6 @@ var csvFilename;
 
 //This function takes a JSON file and turns it into row objects
 function parseJSON(data) {
-    //     var analysisBar = document.getElementById("analysisProgress");
-    //     var count = 0;
-    //     analysisBar.max = 1;
-    //     analysisBar.value;
-    // var loading = document.getElementById("loading");
-    // loading.style.display = "block";
     for (var i = 0; i < data.length; i++) {
         count = i / (data.length - 1);
         rowObjs = JSON.parse(data[data.length - (i + 1)]);
@@ -46,29 +41,38 @@ function parseJSON(data) {
         analyze(rowObjs); // adding actions to the arrays
         console.log("parse-file: analysis complete on " + rowObjs[0].id + ", count = " + count + ".");
     }
-    populateTeacherLevelArrays();
-    checkCynthiaStrategy();
-    checkGuessAndCheck();
-    checkBreakCircuitStrategy();
-    document.getElementById("reportButton").style.display = "inline";
-}
-
-function populateTeacherLevelArrays() { //Eliminates levels that were not attempted and adds information to the levels before adding them to the teachers.
-    for (var i = 0, myTeacher; myTeacher = teachers[i]; i++) {
-        for (var j = 0, myTeam; myTeam = myTeacher.teams[j]; j++) {
-            for (var k = 0, myLevel; myLevel = myTeam.levels[k]; k++) {
-                if (myLevel.attempted) {
-                    findResistorChangeRuns(myLevel);
-                    myLevel.success = setSuccessFlag(myLevel);
-                    myLevel.goalVsChatted = goalVsChatted(myLevel);
-                    myLevel.goalRsChatted = goalRsChatted(myLevel);
-                    myLevel.goalVsCalculated = goalVsCalculated(myLevel);
-                    myLevel.goalRsCalculated = goalRsCalculated(myLevel);
-                    myTeacher.levels.push(myLevel);
-                }
+    for (var i = 0, myTeam; myTeam = teams[i]; i++) {
+        for (var j = 0, myLevel; myLevel = myTeam.levels[j]; j++) {
+            if (checkValidity(myLevel)) {
+                populateTeacherLevelArrays(myLevel);
+                checkCynthiaStrategy(myLevel);
+                checkGuessAndCheck(myLevel);
+                checkBreakCircuitStrategy(myLevel);
+                findResistorChangeRuns(myLevel);
             }
+            document.getElementById("analyzeButton").style.display = "none";
+            document.getElementById("reportButton").style.display = "inline";
         }
     }
-    console.log("Teacher levels populated.");
 }
 
+function populateTeacherLevelArrays(myLevel) {
+    myLevel.success = setSuccessFlag(myLevel);
+    myLevel.goalVsChatted = goalVsChatted(myLevel);
+    myLevel.goalRsChatted = goalRsChatted(myLevel);
+    myLevel.goalVsCalculated = goalVsCalculated(myLevel);
+    myLevel.goalRsCalculated = goalRsCalculated(myLevel);
+    myTeacher = myLevel.team.teacher
+    myTeacher.levels.push(myLevel);
+}
+
+function checkValidity(myLevel) { //Checks for level attempted and contains three members, each with a different board.
+    var returnVal = false;
+    if (myLevel.attempted && myLevel.members.length == 3 &&
+        (myLevel.members[0].board != myLevel.members[1].board) && (myLevel.members[1].board != myLevel.members[2].board) && (myLevel.members[2].board != myLevel.members[0].board)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+    

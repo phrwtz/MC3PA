@@ -250,6 +250,7 @@ function actionsReport() { //generates a radio button for each final selected le
     } //Next level
     countChats();
     reportResults();
+    updateRunsTable();
 }
 
 function countChats() {

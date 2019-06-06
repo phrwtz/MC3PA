@@ -491,6 +491,11 @@ function addLevel(myTeam, ro) {
         myLevel.label = getAlphabeticLabel(levelNumber);
         myLevel.team = myTeam;
         myLevel.teacher = myTeam.teacher;
+        myLevel.runs = 0; //total number of runs (member objects contain the runs themselves)
+        myLevel.interrupts = []; //array of resistor change interrupt events. (These belong to two members, so they are kept in the enclosing level.)
+        myLevel.resistorChanges = 0;
+        myLevel.runsAvgLength = 0;
+        myLevel.runsPctCloser = 0;
         myLevel.attempted = false;
         myLevel.successVTime = false;
         myLevel.success = false;
@@ -553,7 +558,7 @@ function addMember(myLevel, ro) {
             myLevel.attempted = true;
         }
         myLevel.members.push(myMember);
- //       console.log("At " + ro["time"] + " new member " + myMember.name + " added to level " + myLevel.label + " of team " + myLevel.team.name + " of teacher " + myTeam.teacher.name + ". That makes " + myLevel.members.length + " so far.");
+        //       console.log("At " + ro["time"] + " new member " + myMember.name + " added to level " + myLevel.label + " of team " + myLevel.team.name + " of teacher " + myTeam.teacher.name + ". That makes " + myLevel.members.length + " so far.");
 
         // Start time for level is when the third member is added
         // Attempted is true when the third member is added, not before
@@ -1226,6 +1231,7 @@ function checkLevelIdForDuplication(myLevel) {
     }
     return (levelIdsSoFar.includes(myId));
 }
+
 function getTeacherById(classId) {
     for (var i = 0; i < teachers.length; i++) {
         if (teachers[i].classId == classId) {
@@ -1234,6 +1240,42 @@ function getTeacherById(classId) {
     }
     return null;
 }
+
 function oneBigR(action) { //Returns true if one of the resistors is much higher than the other two (a possible precursor to measuring E)
     return ((action.R[0] - (action.R[1] + action.R[2]) > 100000) || (action.R[1] - (action.R[0] + action.R[2]) > 100000) || (action.R[2] - (action.R[1] + action.R[0]) > 100000))
- }
+}
+
+function findOtherMembers(myLevel, myMember) {
+    var otherMembers = [];
+    for (var i = 0; i < myLevel.members.length; i++) {
+        if (myLevel.members[i].id && (myLevel.members[i].id != myMember.id)) { 
+            otherMembers.push(myLevel.members[i]);
+        }
+    }
+    return otherMembers;
+}
+
+function setInterrupts(myLevel, myMember, myRun) {
+    var otherMembers = findOtherMembers(myLevel, myMember);
+    for (var i = 0; i < otherMembers.length; i++) {
+        if (otherMembers[i].onARun) {
+            var newInterrupt = new interrupt;
+            newInterrupt.time = myRun.startTime;
+            newInterrupt.outerRun = otherMembers[i].runs[otherMembers[i].runs.length - 1];
+            newInterrupt.innerRun = myRun;
+            myLevel.interrupts.push(newInterrupt);
+        }
+    }
+}
+
+function setRunStatus(myLevel, myAction, interval) { // Checks all runs and terminates them if this action is more than <interval> after their most recent resistor change.
+    for (var i = 0; i < myLevel.members.length; i++) {
+        var myMember = myLevel.members[i];
+        if (myMember.onARun) {
+            var lastRun = myMember.runs[myMember.runs.length - 1]; 
+            if ((myAction.uTime - lastRun.endTime) > interval) {
+                myMember.onARun = false;
+            }
+        }
+    }
+}

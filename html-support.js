@@ -199,6 +199,9 @@ function addActionRow(act, content) {
     switch (bd) {
         case 0:
             actionCell1.innerHTML = content;
+            if (act.newRun) {
+                actionCell1.style.borderTopWidth="3px";
+            }
             actionCell2.innerHTML = "";
             actionCell3.innerHTML = "";
             actionRow.appendChild(actionCell1);
@@ -208,6 +211,9 @@ function addActionRow(act, content) {
         case 1:
             actionCell1.innerHTML = "";
             actionCell2.innerHTML = content;
+            if (act.newRun) {
+                actionCell2.style.borderTopWidth="3px";
+            }
             actionCell3.innerHTML = "";
             actionRow.appendChild(actionCell1);
             actionRow.appendChild(actionCell2);
@@ -217,6 +223,9 @@ function addActionRow(act, content) {
             actionCell1.innerHTML = "";
             actionCell2.innerHTML = "";
             actionCell3.innerHTML = content;
+            if (act.newRun) {
+                actionCell3.style.borderTopWidth="3px";
+            }
             actionRow.appendChild(actionCell1);
             actionRow.appendChild(actionCell2);
             actionRow.appendChild(actionCell3);

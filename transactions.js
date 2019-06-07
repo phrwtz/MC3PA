@@ -251,7 +251,7 @@ function checkBreakCircuitStrategy(myLevel) { //Looks for measurement of E by br
 function findResistorChangeRuns(myLevel) {
     var E,
         board,
-        interval = 5, //Resistor change events within interval seconds are counted in the same (possibly interrupted) run
+        interval = 20, //Resistor change events within interval seconds are counted in the same (possibly interrupted) run
         runsAvgLength = [], // Array with values for each member
         runsPctCloser = []; // Array with values for each member
     for (var i = 0, myAction; myAction = myLevel.actions[i]; i++) {
@@ -261,6 +261,7 @@ function findResistorChangeRuns(myLevel) {
             var myMember = myAction.actor;
             if (!myMember.onARun) {
                 myMember.onARun = true;
+                myAction.newRun = true;
                 var myRun = new run;
                 myRun.startR = myAction.oldR[board];
                 myRun.startV = myAction.oldV[board];
@@ -268,6 +269,7 @@ function findResistorChangeRuns(myLevel) {
                 myRun.endR = myAction.newR[myAction.board];
                 myRun.endV = myAction.newV[myAction.board];
                 myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
+                (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
                 myRun.startMinSecs = myAction.eMinSecs;
                 myRun.endMinSecs = myAction.eMinSecs;
                 myRun.startTime = myAction.uTime;
@@ -275,14 +277,15 @@ function findResistorChangeRuns(myLevel) {
                 myRun.changes = 1;
                 myMember.runs.push(myRun);
             } else { //actor already on a run
+                myAction.newRun = false;
                 myRun = myMember.runs[myMember.runs.length - 1];
                 myRun.endR = myAction.newR[board];
                 myRun.endV = myAction.newV[board];
                 myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
-                myRun.endResDist = myAction.resDist;
-                myRun.endTime = myAction.eMinSecs;
+                myRun.endResDist = myAction.resDist;myRun.endMinSecs = myAction.eMinSecs;
+                myRun.endTime = myAction.uTime;
                 myRun.changes++;
-                (myRun.endDV < myRun.startDV ? myRun.closer = true : myRun.closer = false);
+                (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
                 myMember.runs.pop(); //Replace the last run in the array with this one.
                 myMember.runs.push(myRun);
             }
@@ -339,25 +342,31 @@ function addRunsRow(myLevel) {
     var pctCloser3Cell = document.createElement("td");
     var pctCloserTotCell = document.createElement("td");
 
+    var membersByBoard = [1, 2, 3]; //Array of members ordered by board so that they correspond to the actions table
+
+    for (var h = 0; h < myLevel.members.length; h++) {
+        membersByBoard[myLevel.members[h].board] = myLevel.members[h];
+    }
+
     teacherCell.innerHTML = myLevel.teacher.name;
     classCell.innerHTML = myLevel.team.classId;
     teamCell.innerHTML = myLevel.team.name;
     levelCell.innerHTML = myLevel.label;
     interruptsCell.innerHTML = myLevel.interrupts.length;
 
-    number1Cell.innerHTML = myLevel.members[0].runs.length;
-    number2Cell.innerHTML = myLevel.members[1].runs.length;
-    number3Cell.innerHTML = myLevel.members[2].runs.length;
+    number1Cell.innerHTML = membersByBoard[0].runs.length;
+    number2Cell.innerHTML = membersByBoard[1].runs.length;
+    number3Cell.innerHTML = membersByBoard[2].runs.length;
     numberTotCell.innerHTML = myLevel.runs;
 
-    avgLength1Cell.innerHTML = parseInt(100 * myLevel.members[0].runsAvgLength) / 100;
-    avgLength2Cell.innerHTML = parseInt(100 * myLevel.members[0].runsAvgLength) / 100;
-    avgLength3Cell.innerHTML = parseInt(100 * myLevel.members[0].runsAvgLength) / 100;
+    avgLength1Cell.innerHTML = parseInt(100 * membersByBoard[0].runsAvgLength) / 100;
+    avgLength2Cell.innerHTML = parseInt(100 * membersByBoard[1].runsAvgLength) / 100;
+    avgLength3Cell.innerHTML = parseInt(100 * membersByBoard[2].runsAvgLength) / 100;
     avgLengthTotCell.innerHTML = parseInt(100 * myLevel.resistorChanges / myLevel.runs) / 100;
 
-    pctCloser1Cell.innerHTML = myLevel.members[0].runsPctCloser;
-    pctCloser2Cell.innerHTML = myLevel.members[1].runsPctCloser;
-    pctCloser3Cell.innerHTML = myLevel.members[2].runsPctCloser;
+    pctCloser1Cell.innerHTML = membersByBoard[0].runsPctCloser;
+    pctCloser2Cell.innerHTML = membersByBoard[1].runsPctCloser;
+    pctCloser3Cell.innerHTML = membersByBoard[2].runsPctCloser;
     pctCloserTotCell.innerHTML = myLevel.runsPctCloser
 
     runRow.appendChild(teacherCell);
@@ -413,7 +422,7 @@ function updateRunsTable() {
         addRunsRow(myLevel);
     }
     if (runsSpan.innerHTML == "Hide resistor change runs") {
-        runsTable.style.display = "block";
+        runsTable.style.display = "inline";
     } else {
         runsTable.style.display = "none";
     }

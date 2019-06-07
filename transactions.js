@@ -251,46 +251,28 @@ function checkBreakCircuitStrategy(myLevel) { //Looks for measurement of E by br
 function findResistorChangeRuns(myLevel) {
     var E,
         board,
-        interval = 20, //Resistor change events within interval seconds are counted in the same (possibly interrupted) run
+        interval = 5, //Resistor change events within interval seconds are counted in the same (possibly interrupted) run
         runsAvgLength = [], // Array with values for each member
         runsPctCloser = []; // Array with values for each member
     for (var i = 0, myAction; myAction = myLevel.actions[i]; i++) {
         setRunStatus(myLevel, myAction, interval); // Checks all runs and terminates them if this action is more than <interval> after their most recent resistor change.
         if (myAction.type == "resistorChange") {
-            board = myAction.board; //an integer
+            board = myAction.board; //this is an integer
             var myMember = myAction.actor;
-            if (!myMember.onARun) {
-                myMember.onARun = true;
-                myAction.newRun = true;
-                var myRun = new run;
-                myRun.startR = myAction.oldR[board];
-                myRun.startV = myAction.oldV[board];
-                myRun.startDV = Math.abs(myLevel.goalV[board] - myRun.startV);
-                myRun.endR = myAction.newR[myAction.board];
-                myRun.endV = myAction.newV[myAction.board];
-                myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
-                (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
-                myRun.startMinSecs = myAction.eMinSecs;
-                myRun.endMinSecs = myAction.eMinSecs;
-                myRun.startTime = myAction.uTime;
-                myRun.endTime = myAction.uTime; //Same as start time for first res change
-                myRun.changes = 1;
-                myMember.runs.push(myRun);
-            } else { //actor already on a run
-                myAction.newRun = false;
-                myRun = myMember.runs[myMember.runs.length - 1];
-                myRun.endR = myAction.newR[board];
-                myRun.endV = myAction.newV[board];
-                myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
-                myRun.endResDist = myAction.resDist;myRun.endMinSecs = myAction.eMinSecs;
-                myRun.endTime = myAction.uTime;
-                myRun.changes++;
-                (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
-                myMember.runs.pop(); //Replace the last run in the array with this one.
-                myMember.runs.push(myRun);
+            if (!myMember.onARun) { //If this is the first action of a new run...
+                var myRun = makeNewRun(myMember, myAction);
+            } else { //actor already on a run. Is this action within <interval> of the last one?
+                var thisTime = myAction.uTime;
+                var lastTime = myMember.runs[myMember.runs.length - 1].endTime;
+                var lastMinSecs = myMember.runs[myMember.runs.length - 1].endMinSecs;
+                if ((thisTime - lastTime) <= interval) {
+                    //If so, this action should be added to that ongoing run
+                    myRun = continueRun(myMember, myAction);
+                } else { //Time has run out, this is a new run
+                    myRun = makeNewRun(myMember, myAction);
+                }
             }
             setInterrupts(myLevel, myMember, myRun);
-
         }
     } //new action
     // Compute average length of runs and percent closer for each member and add to total runs, average length, and percent closer to level
@@ -313,6 +295,48 @@ function findResistorChangeRuns(myLevel) {
     myLevel.runsPctCloser = parseInt(1000 * (myLevel.members[0].runsCloser + myLevel.members[1].runsCloser + myLevel.members[2].runsCloser) / myLevel.runs) / 10;
 }
 
+function makeNewRun(myMember, myAction) {
+    var myRun = new run;
+    var board = myAction.board;
+    myMember.onARun = true;
+    myAction.newRun = true;
+    myAction.endRun = false; //Will be set true if another resistor change action by this member happens after an interval greater than "interval"
+    myRun.startR = myAction.oldR[board];
+    myRun.startV = myAction.oldV[board];
+    myRun.startDV = Math.abs(myLevel.goalV[board] - myRun.startV);
+    myRun.endR = myAction.newR[myAction.board];
+    myRun.endV = myAction.newV[myAction.board];
+    myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
+    (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
+    myRun.startMinSecs = myAction.eMinSecs;
+    myRun.endMinSecs = myAction.eMinSecs;
+    myRun.startTime = myAction.uTime;
+    myRun.endTime = myAction.uTime; //Same as start time for first res change
+    myRun.changes = 1;
+    myMember.runs.push(myRun);
+    if (myMember.runs.length > 1) { //If there is at least one previous run its last action must have its endRun property set to true
+        var lastAction = myMember.runs[myMember.runs.length - 2];
+        lastAction.endRun = true;
+    }
+    return myRun;
+}
+ 
+function continueRun(myMember, myAction) {
+    var board = myAction.board;
+    myAction.newRun = false;
+    myAction.endRun = false;
+    myRun = myMember.runs[myMember.runs.length - 1];
+    myRun.endR = myAction.newR[board];
+    myRun.endV = myAction.newV[board];
+    myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
+    myRun.endResDist = myAction.resDist; myRun.endMinSecs = myAction.eMinSecs;
+    myRun.endTime = myAction.uTime;
+    myRun.changes++;
+    (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
+    myMember.runs.pop(); //Replace the last run in the array with this one.
+    myMember.runs.push(myRun);
+    return myRun;
+}
 function addRunsRow(myLevel) {
     var runsTable = document.getElementById("runsTable");
     var runsTableBody = document.getElementById("runsBody");

@@ -202,6 +202,9 @@ function addActionRow(act, content) {
             if (act.newRun) {
                 actionCell1.style.borderTopWidth="3px";
             }
+            if (act.endRun) {
+                actionCell1.style.borderBottomWidth="3px";
+            }
             actionCell2.innerHTML = "";
             actionCell3.innerHTML = "";
             actionRow.appendChild(actionCell1);
@@ -214,6 +217,9 @@ function addActionRow(act, content) {
             if (act.newRun) {
                 actionCell2.style.borderTopWidth="3px";
             }
+            if (act.endRun) {
+                actionCell2.style.borderBottomWidth="3px";
+            }
             actionCell3.innerHTML = "";
             actionRow.appendChild(actionCell1);
             actionRow.appendChild(actionCell2);
@@ -225,6 +231,9 @@ function addActionRow(act, content) {
             actionCell3.innerHTML = content;
             if (act.newRun) {
                 actionCell3.style.borderTopWidth="3px";
+            }
+            if (act.endRun) {
+                actionCell3.style.borderBottomWidth="3px";
             }
             actionRow.appendChild(actionCell1);
             actionRow.appendChild(actionCell2);

@@ -248,12 +248,11 @@ function checkBreakCircuitStrategy(myLevel) { //Looks for measurement of E by br
     }
 }
 
-function findResistorChangeRuns(myLevel) {
-    var E,
-        board,
-        interval = 5, //Resistor change events within interval seconds are counted in the same (possibly interrupted) run
-        runsAvgLength = [], // Array with values for each member
-        runsPctCloser = []; // Array with values for each member
+function findResistorChangeRuns(myLevel, interval) {
+    var iSlider = document.getElementById("intervalSlider");
+    var iOutput = document.getElementById("intervalBox");
+    iSlider.value = interval;
+    iOutput.innerHTML = interval;
     for (var i = 0, myAction; myAction = myLevel.actions[i]; i++) {
         setRunStatus(myLevel, myAction, interval); // Checks all runs and terminates them if this action is more than <interval> after their most recent resistor change.
         if (myAction.type == "resistorChange") {
@@ -320,7 +319,7 @@ function makeNewRun(myMember, myAction) {
     }
     return myRun;
 }
- 
+
 function continueRun(myMember, myAction) {
     var board = myAction.board;
     myAction.newRun = false;
@@ -329,7 +328,8 @@ function continueRun(myMember, myAction) {
     myRun.endR = myAction.newR[board];
     myRun.endV = myAction.newV[board];
     myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
-    myRun.endResDist = myAction.resDist; myRun.endMinSecs = myAction.eMinSecs;
+    myRun.endResDist = myAction.resDist;
+    myRun.endMinSecs = myAction.eMinSecs;
     myRun.endTime = myAction.uTime;
     myRun.changes++;
     (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
@@ -337,6 +337,7 @@ function continueRun(myMember, myAction) {
     myMember.runs.push(myRun);
     return myRun;
 }
+
 function addRunsRow(myLevel) {
     var runsTable = document.getElementById("runsTable");
     var runsTableBody = document.getElementById("runsBody");
@@ -455,8 +456,36 @@ function updateRunsTable() {
 function removeRunsTable() {
     var runsTableBody = document.getElementById("runsBody");
     var children = runsTableBody.childNodes;
-    var length = children.length; 
+    var length = children.length;
     for (var i = children.length; i > 0; i--) {
         runsTableBody.removeChild(children[i - 1]);
+    }
+}
+
+function setRunInterval() {
+    var iSlider = document.getElementById("intervalSlider");
+    var iOutput = document.getElementById("intervalBox");
+    runInterval = iSlider.value;
+    iOutput.innerHTML = runInterval;
+    for (var i = 0; i < selectedLevels.length; i++) {
+        myLevel = selectedLevels[i];
+        clearRunsInfo(myLevel);
+        findResistorChangeRuns(myLevel, runInterval);
+        updateRunsTable();
+    }
+}
+
+function clearRunsInfo(myLevel) { //Clears all run information from level and members
+    myLevel.runs = 0;
+    myLevel.interrupts = [];
+    myLevel.runsAvgLength = 0;
+    myLevel.runsPctCloser = 0;
+    for (var i = 0; i < myLevel.members.length; i++) {
+        myMember = myLevel.members[i];
+        myMember.runs = [];
+        myMember.runsAvgLength = 0;
+        myMember.runsCloser = 0;
+        myMember.runsPctCloser = 0;
+        myMember.onARun = false;
     }
 }

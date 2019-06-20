@@ -1265,7 +1265,7 @@ function setInterrupts(myLevel, myMember, myRun) {
             newInterrupt.outerRun = otherMembers[i].runs[otherMembers[i].runs.length - 1];
             newInterrupt.innerRun = myRun;
             myLevel.interrupts.push(newInterrupt);
-            console.log("Interrupt detected at " + newInterrupt.eMinSecs + " on level " + myLevel.label + " of team " + myLevel.team.name + ".");
+    //        console.log("Interrupt detected at " + newInterrupt.eMinSecs + " on level " + myLevel.label + " of team " + myLevel.team.name + ".");
         }
     }
 }

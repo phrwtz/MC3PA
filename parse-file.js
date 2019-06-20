@@ -48,7 +48,7 @@ function parseJSON(data) {
                 checkCynthiaStrategy(myLevel);
                 checkGuessAndCheck(myLevel);
                 checkBreakCircuitStrategy(myLevel);
-                findResistorChangeRuns(myLevel);
+                findResistorChangeRuns(myLevel, 5);
             }
             document.getElementById("analyzeButton").style.display = "none";
             document.getElementById("reportButton").style.display = "inline";

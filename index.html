@@ -80,6 +80,10 @@
                 Display resistor change runs
             </span>
         </button>
+       
+        Interval
+        <input type="range" min="1" max="15" value=10 class="slider" id="intervalSlider" oninput=setRunInterval()>
+        <textarea readonly name="interval" id="intervalBox" cols="18" rows="1" style="font-size: 16px"></textarea>
         <br>
         Cynthia strategy
         <input type="radio" id="Cynthia" style="display:inline;margin-right:20px" name="strategyRadio"
@@ -101,7 +105,7 @@
         <input type="radio" id="bigR" name="strategyRadio" style="display:inline;margin-right:20px"
             onclick="actionsReport()">
         </input>
-        <br>
+        <br><br>
         <table id="runsTable" style="margin-top: 30px;display:none">
             <thead id="runsHead">
                 <tr>

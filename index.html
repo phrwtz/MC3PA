@@ -82,7 +82,7 @@
         </button>
        
         Interval
-        <input type="range" min="1" max="15" value=10 class="slider" id="intervalSlider" oninput=setRunInterval()>
+        <input type="range" min="1" max="15" value=10 class="slider" id="intervalSlider" oninput="setRunInterval(); reportResults()";>
         <textarea readonly name="interval" id="intervalBox" cols="18" rows="1" style="font-size: 16px"></textarea>
         <br>
         Cynthia strategy
@@ -337,6 +337,7 @@
     <script src="report-tools.js"></script>
     <script src="reporting-functions.js"></script>
     <script src="summary-reports.js"></script>
+    <script src="interrupts.js"></script>
     <script src="PapaParse-4.1.2/papaparse.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 </body>

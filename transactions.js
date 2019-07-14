@@ -248,15 +248,16 @@ function checkBreakCircuitStrategy(myLevel) { //Looks for measurement of E by br
     }
 }
 
-function findResistorChangeRuns(myLevel, interval) {
+function findResistorChangeRuns(myLevel) {
+    var myRun;
     var iSlider = document.getElementById("intervalSlider");
     var iOutput = document.getElementById("intervalBox");
-    iSlider.value = interval;
+    interval = parseInt(iSlider.value);
     iOutput.innerHTML = interval;
     for (var i = 0, myAction; myAction = myLevel.actions[i]; i++) {
         setRunStatus(myLevel, myAction, interval); // Checks all runs and terminates them if this action is more than <interval> after their most recent resistor change.
         if (myAction.type == "resistorChange") {
-            board = myAction.board; //this is an integer
+            var board = myAction.board; //this is an integer
             var myMember = myAction.actor;
             if (!myMember.onARun) { //If this is the first action of a new run...
                 var myRun = makeNewRun(myMember, myAction);
@@ -271,7 +272,6 @@ function findResistorChangeRuns(myLevel, interval) {
                     myRun = makeNewRun(myMember, myAction);
                 }
             }
-            setInterrupts(myLevel, myMember, myRun);
         }
     } //new action
     // Compute average length of runs and percent closer for each member and add to total runs, average length, and percent closer to level
@@ -295,8 +295,12 @@ function findResistorChangeRuns(myLevel, interval) {
 }
 
 function makeNewRun(myMember, myAction) {
+    var colors = ["#EEAAFF", "#AAFFEE", "#FFEEAA"]; //Toggle between these to separate resistor change runs in action report
     var myRun = new run;
     var board = myAction.board;
+    myRun.backgroundColor = colors[myMember.runs.length % 3];
+    myAction.backgroundColor = colors[myMember.runs.length % 3];
+    myRun.actor = myMember;
     myMember.onARun = true;
     myAction.newRun = true;
     myAction.endRun = false; //Will be set true if another resistor change action by this member happens after an interval greater than "interval"
@@ -322,9 +326,10 @@ function makeNewRun(myMember, myAction) {
 
 function continueRun(myMember, myAction) {
     var board = myAction.board;
+    var myRun = myMember.runs[myMember.runs.length - 1];
     myAction.newRun = false;
     myAction.endRun = false;
-    myRun = myMember.runs[myMember.runs.length - 1];
+    myAction.backgroundColor = myRun.backgroundColor;
     myRun.endR = myAction.newR[board];
     myRun.endV = myAction.newV[board];
     myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
@@ -471,6 +476,7 @@ function setRunInterval() {
         myLevel = selectedLevels[i];
         clearRunsInfo(myLevel);
         findResistorChangeRuns(myLevel, runInterval);
+        findInterrupts(myLevel);
         updateRunsTable();
     }
 }

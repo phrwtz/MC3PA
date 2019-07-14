@@ -1245,36 +1245,11 @@ function oneBigR(action) { //Returns true if one of the resistors is much higher
     return ((action.R[0] - (action.R[1] + action.R[2]) > 100000) || (action.R[1] - (action.R[0] + action.R[2]) > 100000) || (action.R[2] - (action.R[1] + action.R[0]) > 100000))
 }
 
-function findOtherMembers(myLevel, myMember) {
-    var otherMembers = [];
-    for (var i = 0; i < myLevel.members.length; i++) {
-        if (myLevel.members[i].id && (myLevel.members[i].id != myMember.id)) { 
-            otherMembers.push(myLevel.members[i]);
-        }
-    }
-    return otherMembers;
-}
-
-function setInterrupts(myLevel, myMember, myRun) {
-    var otherMembers = findOtherMembers(myLevel, myMember);
-    for (var i = 0; i < otherMembers.length; i++) {
-        if (otherMembers[i].onARun) {
-            var newInterrupt = new interrupt;
-            newInterrupt.time = myRun.startTime;
-            newInterrupt.eMinSecs = myRun.endMinSecs;
-            newInterrupt.outerRun = otherMembers[i].runs[otherMembers[i].runs.length - 1];
-            newInterrupt.innerRun = myRun;
-            myLevel.interrupts.push(newInterrupt);
-    //        console.log("Interrupt detected at " + newInterrupt.eMinSecs + " on level " + myLevel.label + " of team " + myLevel.team.name + ".");
-        }
-    }
-}
-
 function setRunStatus(myLevel, myAction, interval) { // Checks all runs and terminates them if this action is more than <interval> after their most recent resistor change.
     for (var i = 0; i < myLevel.members.length; i++) {
         var myMember = myLevel.members[i];
         if (myMember.onARun) {
-            var lastRun = myMember.runs[myMember.runs.length - 1]; 
+            var lastRun = myMember.runs[myMember.runs.length - 1];
             if ((myAction.uTime - lastRun.endTime) > interval) {
                 myMember.onARun = false;
             }

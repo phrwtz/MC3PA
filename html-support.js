@@ -199,11 +199,8 @@ function addActionRow(act, content) {
     switch (bd) {
         case 0:
             actionCell1.innerHTML = content;
-            if (act.newRun) {
-                actionCell1.style.borderTopWidth="3px";
-            }
-            if (act.endRun) {
-                actionCell1.style.borderBottomWidth="3px";
+            if (act.type == "resistorChange") {
+                actionCell1.style.backgroundColor = act.backgroundColor;
             }
             actionCell2.innerHTML = "";
             actionCell3.innerHTML = "";
@@ -214,11 +211,8 @@ function addActionRow(act, content) {
         case 1:
             actionCell1.innerHTML = "";
             actionCell2.innerHTML = content;
-            if (act.newRun) {
-                actionCell2.style.borderTopWidth="3px";
-            }
-            if (act.endRun) {
-                actionCell2.style.borderBottomWidth="3px";
+            if (act.type == "resistorChange") {
+                actionCell2.style.backgroundColor = act.backgroundColor;
             }
             actionCell3.innerHTML = "";
             actionRow.appendChild(actionCell1);
@@ -229,15 +223,21 @@ function addActionRow(act, content) {
             actionCell1.innerHTML = "";
             actionCell2.innerHTML = "";
             actionCell3.innerHTML = content;
-            if (act.newRun) {
-                actionCell3.style.borderTopWidth="3px";
-            }
-            if (act.endRun) {
-                actionCell3.style.borderBottomWidth="3px";
+            if (act.type == "resistorChange") {
+                actionCell3.style.backgroundColor = act.backgroundColor;
             }
             actionRow.appendChild(actionCell1);
             actionRow.appendChild(actionCell2);
             actionRow.appendChild(actionCell3);
             break;
     }
+}
+
+function toggleChangeColors(changeColors, color1, color2, bd) {
+    if (changeColors[bd] == color1) {
+        changeColors[bd] = color2;
+    } else {
+        changeColors[bd] = color1;
+    }
+    return changeColors;
 }

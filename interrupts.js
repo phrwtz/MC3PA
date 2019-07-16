@@ -30,5 +30,5 @@ function generateInterrupt(myLevel, r, i) {
     interpt.interruptee = r[i].actor;
     interpt.time = r[i + 1].startMinSecs;
     myLevel.interrupts.push(interpt);
- //   console.log("Interrupt found at time " + interpt.time + " on level " + myLevel.label + " of class " + myLevel.classId);
+    //console.log("Interrupt found at time " + interpt.time + " on level " + myLevel.label + " of team " + myLevel.team.name + ". Interrupter was " + interpt.interrupter.name + ", interruptee was " + interpt.interruptee.name + ".");
 }

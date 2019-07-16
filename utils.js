@@ -491,9 +491,10 @@ function addLevel(myTeam, ro) {
         myLevel.label = getAlphabeticLabel(levelNumber);
         myLevel.team = myTeam;
         myLevel.teacher = myTeam.teacher;
-        myLevel.runs = 0; //total number of runs (member objects contain the runs themselves)
-        myLevel.interrupts = []; //array of resistor change interrupt events. (These belong to two members, so they are kept in the enclosing level.)
+        myLevel.runs = []; //array of runs (member objects contain their own runs)
         myLevel.resistorChanges = 0;
+        myLevel.runsCloser = 0; //Number of runs that get closer to the goal
+        myLevel.interrupts = []; //array of resistor change interrupt events. (These belong to two members, so they are kept in the enclosing level.)
         myLevel.runsAvgLength = 0;
         myLevel.runsPctCloser = 0;
         myLevel.attempted = false;

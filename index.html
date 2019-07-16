@@ -17,6 +17,7 @@
 
         th {
             background-color: lightcoral;
+            text-align: center;
         }
 
         button {
@@ -49,7 +50,7 @@
             </tr>
             <tr style=background-color:lightblue>
                 <td>all/none(<span id="teachers#"></span>)<input type="checkbox" id="teachers" name="teacher"
-                        onChange="toggleSelectAll('teacher'); updateLevels()" ></input>
+                        onChange="toggleSelectAll('teacher'); updateLevels()"></input>
                 </td>
                 <td>all/none(<span id="levels#"></span>)<input type="checkbox" id="levels" name="level"
                         onChange="toggleSelectAll('level'); updateLevels()"></input>
@@ -59,13 +60,13 @@
                         onChange="toggleSelectAll('outcome'); updateLevels()"></input>
                 </td>
                 <td>
-                    all/none(<span id="vchats#"></span>)<input type="checkbox" id="vchats" name="vchat" check 
+                    all/none(<span id="vchats#"></span>)<input type="checkbox" id="vchats" name="vchat" check
                         onChange="toggleSelectAll('vchat');updateLevels()"></input>
                 </td>
-                <td>all/none(<span id="rcalcs#"></span>)<input type="checkbox" id="rcalcs" name="rcalc" check 
+                <td>all/none(<span id="rcalcs#"></span>)<input type="checkbox" id="rcalcs" name="rcalc" check
                         onChange="toggleSelectAll('rcalc');updateLevels()"></input>
                 </td>
-                <td>all/none(<span id="rchats#"></span>)<input type="checkbox" id="rchats" name="rchat" check 
+                <td>all/none(<span id="rchats#"></span>)<input type="checkbox" id="rchats" name="rchat" check
                         onChange="toggleSelectAll('rchat');updateLevels()"></input>
                 </td>
             </tr>
@@ -74,15 +75,15 @@
 
 
     <span id="strategySpan" style="display:none;margin-top:40px">
-        <button type="button" id="toggleRunsButton" style="display:inline" 
-            onclick="toggleShowRuns()">
+        <button type="button" id="toggleRunsButton" style="display:inline" onclick="toggleShowRuns()">
             <span id="runsSpan">
                 Display resistor change runs
             </span>
         </button>
-       
+
         Interval
-        <input type="range" min="1" max="15" value=10 class="slider" id="intervalSlider" oninput="setRunInterval(); reportResults()";>
+        <input type="range" min="1" max="15" value=10 class="slider" id="intervalSlider"
+            oninput="setRunInterval(); reportResults()" ;>
         <textarea readonly name="interval" id="intervalBox" cols="18" rows="1" style="font-size: 16px"></textarea>
         <br>
         Cynthia strategy
@@ -121,9 +122,6 @@
                     <th>
                         Level
                     </th>
-                    <th>
-                        Interrupts
-                    </th>
                     <th colspan="3" style="border-left-width:2px">
                         Board 1
                     </th>
@@ -133,12 +131,14 @@
                     <th colspan="3" style="border-left-width:2px">
                         Board 3
                     </th>
+                    <th style="border-left-width:2px">
+                        Interrupts
+                    </th>
                     <th colspan="3" style="border-left-width:2px">
                         Total
                     </th>
                 </tr>
                 <tr>
-                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -173,6 +173,9 @@
                     <th style=border-left-width:2px>
                         Number
                     </th>
+                    <th style=border-left-width:2px>
+                        Number
+                    </th>
                     <th>
                         Avg. length
                     </th>
@@ -188,11 +191,11 @@
 
     <p id="data"></p>
     <p id="levelsPara" style="margin-left:20px;float:left;display:inline;width:360px"></p>
-    <p id="chatsPara" style="float:left;display:inline;width:300"></p>
+    <p id="chatsPara" style="float:left;display:inline;width:300px"></p>
     <p id="strategies" style="float:left;display:none;width:600px;margin:20px"></p>
-    <div id="checkDiv" ; style="margin-left:30px;margin-top:15px">
-        <form id="checkForm">
-            <table id="checkActions" style="margin-left:30px;margin-top:20px;display:none;float:left">
+    <div id="checkDiv" ; style="margin-left:30px;margin-top:15px; display:block">
+        <form id="checkForm" style="float:left">
+            <table id="checkActions" style=margin-top:20px;display:none;float:left">
                 <tr style="background-color:palegreen">
                     <th>
                         <b>Actions</b>
@@ -338,6 +341,7 @@
     <script src="reporting-functions.js"></script>
     <script src="summary-reports.js"></script>
     <script src="interrupts.js"></script>
+    <script src="filters.js"></script>
     <script src="PapaParse-4.1.2/papaparse.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 </body>

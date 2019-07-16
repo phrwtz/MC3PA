@@ -254,11 +254,18 @@ function findResistorChangeRuns(myLevel) {
     var iOutput = document.getElementById("intervalBox");
     interval = parseInt(iSlider.value);
     iOutput.innerHTML = interval;
+    //Initialize member properties
+    for (var ii = 0; ii < myLevel.members.length; ii++) {
+        myLevel.members[ii].resistorChanges = 0;
+        myLevel.members[ii].runs = [];
+        myLevel.members[ii].runsCloser = 0;
+    }
     for (var i = 0, myAction; myAction = myLevel.actions[i]; i++) {
         setRunStatus(myLevel, myAction, interval); // Checks all runs and terminates them if this action is more than <interval> after their most recent resistor change.
         if (myAction.type == "resistorChange") {
             var board = myAction.board; //this is an integer
             var myMember = myAction.actor;
+            myMember.resistorChanges++;
             if (!myMember.onARun) { //If this is the first action of a new run...
                 var myRun = makeNewRun(myMember, myAction);
             } else { //actor already on a run. Is this action within <interval> of the last one?
@@ -275,23 +282,24 @@ function findResistorChangeRuns(myLevel) {
         }
     } //new action
     // Compute average length of runs and percent closer for each member and add to total runs, average length, and percent closer to level
+    myLevel.resistorChanges = 0;
+    myLevel.runsCloser = 0;
+    myLevel.runs = [];
     for (var j = 0, myMember; myMember = myLevel.members[j]; j++) {
-        var resistorChanges = 0;
-        var runsCloser = 0;
-        var numRuns = myMember.runs.length
-        for (k = 0; k < numRuns; k++) {
-            resistorChanges += myMember.runs[k].changes;
-            if (myMember.runs[k].closer) {
-                runsCloser++
+        myMember.runsCloser = 0;
+        for (k = 0; k < myMember.runs.length; k++) {
+            myRun = myMember.runs[k];
+            myLevel.runs.push(myRun);
+            if (myRun.closer) {
+                myMember.runsCloser++;
             }
-            myMember.runsAvgLength = resistorChanges / numRuns;
-            myMember.runsCloser = runsCloser;
-            myMember.runsPctCloser = parseInt(1000 * runsCloser / numRuns) / 10;
         }
-        myLevel.runs += numRuns;
-        myLevel.resistorChanges += resistorChanges;
+        myLevel.resistorChanges += myMember.resistorChanges;
+        myLevel.runsCloser += myMember.runsCloser;
+        myMember.runsAvgLength = myMember.resistorChanges / myMember.runs.length;
+        myMember.runsPctCloser = parseInt(1000 * myMember.runsCloser / myMember.runs.length) / 10;
     }
-    myLevel.runsPctCloser = parseInt(1000 * (myLevel.members[0].runsCloser + myLevel.members[1].runsCloser + myLevel.members[2].runsCloser) / myLevel.runs) / 10;
+    myLevel.runsPctCloser = parseInt(1000 * myLevel.runsCloser / myLevel.runs.length) / 10;
 }
 
 function makeNewRun(myMember, myAction) {
@@ -310,7 +318,11 @@ function makeNewRun(myMember, myAction) {
     myRun.endR = myAction.newR[myAction.board];
     myRun.endV = myAction.newV[myAction.board];
     myRun.endDV = Math.abs(myLevel.goalV[board] - myRun.endV);
-    (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
+    if (myRun.endDV <= myRun.startDV) {
+        myRun.closer = true;
+    } else {
+        myRun.closer = false;
+    }
     myRun.startMinSecs = myAction.eMinSecs;
     myRun.endMinSecs = myAction.eMinSecs;
     myRun.startTime = myAction.uTime;
@@ -337,7 +349,11 @@ function continueRun(myMember, myAction) {
     myRun.endMinSecs = myAction.eMinSecs;
     myRun.endTime = myAction.uTime;
     myRun.changes++;
-    (myRun.endDV <= myRun.startDV ? myRun.closer = true : myRun.closer = false);
+    if (myRun.endDV <= myRun.startDV) {
+        myRun.closer = true;
+    } else {
+        myRun.closer = false;
+    }
     myMember.runs.pop(); //Replace the last run in the array with this one.
     myMember.runs.push(myRun);
     return myRun;
@@ -352,6 +368,7 @@ function addRunsRow(myLevel) {
     var teamCell = document.createElement("td");
     var levelCell = document.createElement("td");
     var interruptsCell = document.createElement("td");
+    interruptsCell.style.borderLeftWidth = "2px";
 
     var number1Cell = document.createElement("td");
     number1Cell.style.borderLeftWidth = "2px";
@@ -387,23 +404,22 @@ function addRunsRow(myLevel) {
     number1Cell.innerHTML = membersByBoard[0].runs.length;
     number2Cell.innerHTML = membersByBoard[1].runs.length;
     number3Cell.innerHTML = membersByBoard[2].runs.length;
-    numberTotCell.innerHTML = myLevel.runs;
+    numberTotCell.innerHTML = myLevel.runs.length;
 
     avgLength1Cell.innerHTML = parseInt(100 * membersByBoard[0].runsAvgLength) / 100;
     avgLength2Cell.innerHTML = parseInt(100 * membersByBoard[1].runsAvgLength) / 100;
     avgLength3Cell.innerHTML = parseInt(100 * membersByBoard[2].runsAvgLength) / 100;
-    avgLengthTotCell.innerHTML = parseInt(100 * myLevel.resistorChanges / myLevel.runs) / 100;
+    avgLengthTotCell.innerHTML = parseInt(100 * myLevel.resistorChanges / myLevel.runs.length) / 100;
 
     pctCloser1Cell.innerHTML = membersByBoard[0].runsPctCloser;
     pctCloser2Cell.innerHTML = membersByBoard[1].runsPctCloser;
     pctCloser3Cell.innerHTML = membersByBoard[2].runsPctCloser;
-    pctCloserTotCell.innerHTML = myLevel.runsPctCloser
+    pctCloserTotCell.innerHTML = myLevel.runsPctCloser;
 
     runRow.appendChild(teacherCell);
     runRow.appendChild(classCell);
     runRow.appendChild(teamCell);
     runRow.appendChild(levelCell);
-    runRow.appendChild(interruptsCell);
     runRow.appendChild(number1Cell);
     runRow.appendChild(avgLength1Cell);
     runRow.appendChild(pctCloser1Cell);
@@ -413,6 +429,7 @@ function addRunsRow(myLevel) {
     runRow.appendChild(number3Cell);
     runRow.appendChild(avgLength3Cell);
     runRow.appendChild(pctCloser3Cell);
+    runRow.appendChild(interruptsCell);
     runRow.appendChild(numberTotCell);
     runRow.appendChild(avgLengthTotCell);
     runRow.appendChild(pctCloserTotCell);
@@ -428,13 +445,34 @@ function toggleShowRuns() {
     var runsTableBody = document.getElementById("runsBody");
     if (runsSpan.innerHTML == "Hide resistor change runs") {
         runsSpan.innerHTML = "Display resistor change runs";
+        runsTable.style.display = "none";
     } else {
-        runsSpan.innerHTML = "Hide resistor change runs"
+        runsSpan.innerHTML = "Hide resistor change runs";
+        runsTable.style.display = "inline";
     }
-    updateRunsTable();
+    setRunInterval();
+}
+
+function setRunInterval() { //Get the runs interval from the slider, recalculate the resistor change runs, and update the runs table
+    var iSlider = document.getElementById("intervalSlider");
+    var iOutput = document.getElementById("intervalBox");
+    var runsSpan = document.getElementById("runsSpan");
+    runInterval = iSlider.value;
+    iOutput.innerHTML = runInterval;
+    for (var i = 0; i < selectedLevels.length; i++) {
+        myLevel = selectedLevels[i];
+        clearRunsInfo(myLevel);
+        findResistorChangeRuns(myLevel, runInterval);
+        findInterrupts(myLevel);
+        updateRunsTable();
+    }
 }
 
 function updateRunsTable() {
+    var totalResistorChanges = 0,
+        totalRuns = 0,
+        totalCloser = 0,
+        totalInterrupts = 0;
     removeRunsTable();
     var levelButtons = document.getElementsByName("levelRadio"),
         runsSpan = document.getElementById("runsSpan"),
@@ -447,15 +485,44 @@ function updateRunsTable() {
         id = levelButtons[j].id;
         myLevel = getLevelByID(id);
         runLevels.push(myLevel);
-    }
-    for (var i = 0, myLevel; myLevel = runLevels[i]; i++) {
         addRunsRow(myLevel);
     }
+    for (var i = 0, myLevel; myLevel = runLevels[i]; i++) {
+        totalResistorChanges += myLevel.resistorChanges;
+        totalRuns += myLevel.runs.length;
+        totalCloser += myLevel.runs.length * myLevel.runsPctCloser;
+        totalInterrupts += myLevel.interrupts.length;
+    }
+    var averageInterrupts = parseInt(1000 * totalInterrupts / runLevels.length) / 1000;
+    addTotalsRow(averageInterrupts, totalResistorChanges, totalRuns, totalCloser);
     if (runsSpan.innerHTML == "Hide resistor change runs") {
         runsTable.style.display = "inline";
     } else {
         runsTable.style.display = "none";
     }
+}
+
+function addTotalsRow(interrupts, changes, runs, closer) {
+    var runsTableBody = document.getElementById("runsBody");
+    var totalsRow = document.createElement("tr");
+    runsTableBody.appendChild(totalsRow);
+    var padCell = document.createElement("td");
+    padCell.setAttribute("colspan", 13);
+    padCell.style.textAlign = "right";
+    totalsRow.appendChild(padCell);
+    var totalInterrupts = document.createElement("td");
+    totalsRow.appendChild(totalInterrupts);
+    var totalRuns = document.createElement("td");
+    totalsRow.appendChild(totalRuns);
+    var averageLength = document.createElement("td");
+    totalsRow.appendChild(averageLength);
+    var percentCloser = document.createElement("td");
+    totalsRow.appendChild(percentCloser);
+    padCell.innerHTML = "<b>Totals/Averages</b>";
+    totalInterrupts.innerHTML = "<b>" + interrupts + "</b";
+    totalRuns.innerHTML = "<b>" + runs + "</b>";
+    averageLength.innerHTML = "<b>" + parseInt(100 * changes / runs) / 100 + "</b>";
+    percentCloser.innerHTML = "<b>" + parseInt(100 * closer / runs) / 100 + "</b>";
 }
 
 function removeRunsTable() {
@@ -467,22 +534,10 @@ function removeRunsTable() {
     }
 }
 
-function setRunInterval() {
-    var iSlider = document.getElementById("intervalSlider");
-    var iOutput = document.getElementById("intervalBox");
-    runInterval = iSlider.value;
-    iOutput.innerHTML = runInterval;
-    for (var i = 0; i < selectedLevels.length; i++) {
-        myLevel = selectedLevels[i];
-        clearRunsInfo(myLevel);
-        findResistorChangeRuns(myLevel, runInterval);
-        findInterrupts(myLevel);
-        updateRunsTable();
-    }
-}
+
 
 function clearRunsInfo(myLevel) { //Clears all run information from level and members
-    myLevel.runs = 0;
+    myLevel.runs = [];
     myLevel.interrupts = [];
     myLevel.runsAvgLength = 0;
     myLevel.runsPctCloser = 0;
